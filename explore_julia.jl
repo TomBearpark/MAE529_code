@@ -35,7 +35,6 @@ for i in a1
         print(i, ",")
     end
 end
-println(" fuck you julia ")
 println("end")
 
 length_a1==4
