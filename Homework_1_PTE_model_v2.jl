@@ -1,10 +1,9 @@
 using JuMP
 using Clp
 using DataFrames
-using Ipopt
 
 # Initialise model
-PTE_model = Model(Ipopt.Optimizer);
+PTE_model = Model(Clp.Optimizer);
 
 # Set up the decision variables
 days = [1 2 3]
@@ -14,18 +13,16 @@ days = [1 2 3]
         X_b[t in days] >= 0
         X_pro[t in days] >= 0
         X_ph[t in days] >= 0
-        I_b[t in days] >= 0
-        I_pro[t in days] >= 0
         Inv[t in days] >= 0
     end
 )
 
 # Set the constraints - see overleaf for details:
-# https://www.overleaf.com/7247998739rhxcmxswzghb
+# https://www.overleaf.com/1333275327pnchjgghdkhn
 
 @constraint(PTE_model,
     c_production1,
-    sum(X_b[t] + I_b[t] for t in days) >= 30
+    sum(X_b[t] for t in days) >= 30
 )
 
 @constraint(PTE_model,
@@ -34,28 +31,21 @@ days = [1 2 3]
 )
 
 @constraint(PTE_model,
-    c_tech1_b_[t in days],
-    X_ph[t] == 5  * I_b[t]
+    c_tech1_[t in days],
+    2 * X_b[t] + X_pro[t] ==Inv[t]
 )
 
 @constraint(PTE_model,
-    c_tech1_pro_[t in days],
-    X_ph[t] == I_pro[t]
+    c_tech2_board_[t in days],
+    X_b[t] <= 50
 )
-
 @constraint(PTE_model,
-    c_tech2_[t in days],
-    2 * (I_b[t] + X_b[t]) + I_pro[t] + X_pro[t] ==Inv[t]
+    c_tech2_pro_[t in days],
+    X_pro[t] <= 10
 )
-
 @constraint(PTE_model,
-    c_tech3_[t in days],
-    I_b[t] + X_b[t] <= 50
-)
-
-@constraint(PTE_model,
-    c_tech4_[t in days],
-    I_pro[t] + X_pro[t] <= 10
+    c_tech2_pho_[t in days],
+    X_ph[t] <= 2
 )
 
 @constraint(PTE_model,
@@ -63,17 +53,10 @@ days = [1 2 3]
     sum(Inv[t] for t in days) <= 150
 )
 
-@constraint(PTE_model,
-    c_techph_[t in days],
-    X_ph[t] <= 2
-)
-
-
 # Set objective function
-
 @expression(PTE_model,
     e_profit,
-    sum(X_b[t] + 5 * X_pro[t] +  X_ph[t]* (150 - 5 * I_b[t] - 10 * I_pro[t])
+    sum(X_b[t] + 5 * X_pro[t] + 105 * X_ph[t]
             for t in days )
 )
 
@@ -89,8 +72,6 @@ results = DataFrame(
     X_b = value.(X_b).data,
     X_pro = value.(X_pro).data,
     X_ph = value.(X_ph).data,
-    I_b = value.(I_b).data,
-    I_pro = value.(I_pro).data,
     Inv = value.(Inv).data,
 )
 
