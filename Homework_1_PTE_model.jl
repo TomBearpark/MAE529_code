@@ -66,7 +66,7 @@ days = [1 2 3]
 
 @expression(PTE_model,
     e_profit,
-    sum(X_b[t] + 5 * X_pro[t] + 150 * X_ph[t] - 5 * I_b[t] - 10 * I_pro[t]
+    sum(X_b[t] + 5 * X_pro[t] +  X_ph[t]* (150 - 5 * I_b[t] - 10 * I_pro[t])
             for t in days )
 )
 
@@ -86,3 +86,5 @@ results = DataFrame(
     I_pro = value.(I_pro).data,
     Inv = value.(Inv).data,
 )
+
+results
