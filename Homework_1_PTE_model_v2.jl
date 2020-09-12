@@ -1,6 +1,5 @@
-using JuMP
-using Clp
-using DataFrames
+
+using JuMP, Clp, DataFrames;
 
 # Initialise model
 PTE_model = Model(Clp.Optimizer);
@@ -46,6 +45,14 @@ days = [1 2 3]
 @constraint(PTE_model,
     c_tech2_pho_[t in days],
     X_ph[t] <= 2
+)
+@constraint(PTE_model,
+    c_tech3_b_[t in days],
+    X_b[t] - 5 * X_ph[t] >= 0
+)
+@constraint(PTE_model,
+    c_tech3_pr_[t in days],
+    X_pro[t]  - X_ph[t] >= 0
 )
 
 @constraint(PTE_model,
