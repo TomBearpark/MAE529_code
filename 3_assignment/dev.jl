@@ -77,3 +77,4 @@ gen_variable_long = stack(gen_variable,
                         value_name=:cf);
 # Now we have a "long" dataframe; 
 
+ef
