@@ -48,6 +48,9 @@ Fuels_data = load_df(url_base, "Fuels_data.csv");
 Generators_data = load_df(url_base, "Generators_data.csv");
 Generators_variability = load_df(url_base, "Generators_variability.csv");
 
+
+
+
 # Clean up the generators dataframe
 
 # 1. Merge in fuel costs, first checking we have full matches 
@@ -70,11 +73,155 @@ gen_df.gen_full = lowercase.(gen_df.region .* "_" .* gen_df.resource .*
 # remove generators with no capacity (e.g. new build options that we'd use if this was capacity expansion problem)
 gen_df = gen_df[gen_df.existing_cap_mw .> 0,:];
 
-# 2. Convert from "wide" to "long" format
-gen_variable_long = stack(gen_variable, 
+# 2. Convert cf data from "wide" to "long" format
+gen_variable_long = stack(Generators_variability, 
                         Not(:hour), 
                         variable_name=:gen_full,
                         value_name=:cf);
-# Now we have a "long" dataframe; 
 
-ef
+
+
+#=
+Function to solve simple unit commitment problem (commitment equations)
+Inputs:
+    gen_df -- dataframe with generator info
+    loads  -- load by time
+    gen_variable -- capacity factors of variable generators (in "long" format)
+=#
+function unit_commitment_simple(gen_df, loads, gen_variable)
+    UC = Model(GLPK.Optimizer)
+
+    # We reduce the MIP gap tolerance threshold here to increase tractability
+    # Here we set it to a 1% gap, meaning that we will terminate once we have 
+    # a feasible integer solution guaranteed to be within 1% of the objective
+    # function value of the optimal solution.
+    # Note that GLPK's default MIP gap is 0.0, meaning that it tries to solve
+    # the integer problem to optimality, which can take a LONG time for 
+    # any complex problem. So it is important to set this to a realistic value.
+    set_optimizer_attribute(UC, "mip_gap", 0.01)
+
+    # Define sets based on data
+    # Note the creation of several different sets of generators for use in
+    # different equations.
+        # Thermal resources for which unit commitment constraints apply
+    G_thermal = gen_df[gen_df[!,:up_time] .> 0,:r_id] 
+        # Non-thermal resources for which unit commitment constraints do NOT apply 
+    G_nonthermal = gen_df[gen_df[!,:up_time] .== 0,:r_id]
+        # Variable renewable resources
+    G_var = gen_df[gen_df[!,:is_variable] .== 1,:r_id]
+        # Non-variable (dispatchable) resources
+    G_nonvar = gen_df[gen_df[!,:is_variable] .== 0,:r_id]
+        # Non-variable and non-thermal resources
+    G_nt_nonvar = intersect(G_nonvar, G_nonthermal)
+        # Set of all generators (above are all subsets of this)
+    G = gen_df.r_id
+        # All time periods (hours) over which we are optimizing
+    T = loads.hour
+        # A subset of time periods that excludes the last time period
+    T_red = loads.hour[1:end-1]  # reduced time periods without last one
+
+    # Generator capacity factor time series for variable generators
+    gen_var_cf = innerjoin(gen_variable, 
+                    gen_df[gen_df.is_variable .== 1 , 
+                        [:r_id, :gen_full, :existing_cap_mw]], 
+                    on = :gen_full)
+        
+    # Decision variables   
+    @variables(UC, begin
+            # Continuous decision variables
+        GEN[G, T]  >= 0     # generation
+            # Bin = binary variables; 
+            # the following are all binary decisions that 
+            # can ONLY take the values 0 or 1
+            # The presence of these discrete decisions makes this an MILP
+        COMMIT[G_thermal, T], Bin # commitment status (Bin=binary)
+        START[G_thermal, T], Bin  # startup decision
+        SHUT[G_thermal, T], Bin   # shutdown decision
+    end)
+                
+    # Objective function
+        # Sum of variable costs + start-up costs for all generators and time periods
+    @objective(UC, Min, 
+        sum( (gen_df[gen_df.r_id .== i,:heat_rate_mmbtu_per_mwh][1] * gen_df[gen_df.r_id .== i,:fuel_cost][1] +
+            gen_df[gen_df.r_id .== i,:var_om_cost_per_mwh][1]) * GEN[i,t] 
+                        for i in G_nonvar for t in T) + 
+        sum(gen_df[gen_df.r_id .== i,:var_om_cost_per_mwh][1] * GEN[i,t] 
+                        for i in G_var for t in T)  + 
+        sum(gen_df[gen_df.r_id .== i,:start_cost_per_mw][1] * 
+            gen_df[gen_df.r_id .== i,:existing_cap_mw][1] *
+            START[i,t] 
+                        for i in G_thermal for t in T)
+    )
+    
+    # Demand balance constraint (supply must = demand in all time periods)
+    @constraint(UC, cDemand[t in T], 
+        sum(GEN[i,t] for i in G) == loads[loads.hour .== t,:demand][1])
+
+    # Capacity constraints 
+      # 1. thermal generators requiring commitment
+    @constraint(UC, Cap_thermal_min[i in G_thermal, t in T], 
+        GEN[i,t] >= COMMIT[i, t] * gen_df[gen_df.r_id .== i,:existing_cap_mw][1] *
+                        gen_df[gen_df.r_id .== i,:min_power][1])
+    @constraint(UC, Cap_thermal_max[i in G_thermal, t in T], 
+        GEN[i,t] <= COMMIT[i, t] * gen_df[gen_df.r_id .== i,:existing_cap_mw][1])
+
+      # 2. non-variable generation not requiring commitment
+    @constraint(UC, Cap_nt_nonvar[i in G_nt_nonvar, t in T], 
+        GEN[i,t] <= gen_df[gen_df.r_id .== i,:existing_cap_mw][1])
+    
+      # 3. variable generation, accounting for hourly capacity factor
+    @constraint(UC, Cap_var[i in 1:nrow(gen_var_cf)], 
+            GEN[gen_var_cf[i,:r_id], gen_var_cf[i,:hour] ] <= 
+                        gen_var_cf[i,:cf] *
+                        gen_var_cf[i,:existing_cap_mw])
+    
+    # Unit commitment constraints
+      # 1. Minimum up time
+    @constraint(UC, Startup[i in G_thermal, t in T],
+        COMMIT[i, t] >= sum(START[i, tt] 
+                        for tt in intersect(T,
+                            (t-gen_df[gen_df.r_id .== i,:up_time][1]):t)))
+
+      # 2. Minimum down time
+    @constraint(UC, Shutdown[i in G_thermal, t in T],
+        1-COMMIT[i, t] >= sum(SHUT[i, tt] 
+                        for tt in intersect(T,
+                            (t-gen_df[gen_df.r_id .== i,:down_time][1]):t)))
+ 
+      # 3. Commitment state
+    @constraint(UC, CommitmentStatus[i in G_thermal, t in T_red],
+        COMMIT[i,t+1] - COMMIT[i,t] == START[i,t+1] - SHUT[i,t+1])
+    
+    # Solve statement (! indicates runs in place)
+    optimize!(UC)
+
+    # Generation solution and convert to data frame 
+    # with our helper function defined above
+    gen = value_to_df_2dim(value.(GEN))
+
+    # Commitment status solution and convert to data frame
+    commit = value_to_df_2dim(value.(COMMIT))
+
+    # Calculate curtailment = available wind and/or solar output that 
+    # had to be wasted due to operating constraints
+    curtail = innerjoin(gen_var_cf, gen, on = [:r_id, :hour])
+    curtail.curt = curtail.cf .* curtail.existing_cap_mw - curtail.gen
+    
+    # Return the solution parameters and objective
+    return (
+        gen,
+        commit,
+        curtail,
+        cost = objective_value(UC),
+        status = termination_status(UC)
+    )
+
+end
+
+# High solar case: 3,500 MW
+gen_df_sens = copy(gen_df)
+
+
+# Solves
+solution = unit_commitment_simple(gen_df_sens, Demand, gen_variable_long);
+solution.gen
