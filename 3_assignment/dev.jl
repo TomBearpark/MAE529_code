@@ -1,5 +1,6 @@
 # Uncomment and run this first line if you need to install or update packages
-#import Pkg; Pkg.add("JuMP"); Pkg.add("Clp"); Pkg.add("DataFrames"); Pkg.add("CSV"); Pkg.add("Plots"); Pkg.add("VegaLite")
+#import Pkg; Pkg.add("JuMP"); Pkg.add("Clp"); Pkg.add("DataFrames"); 
+# Pkg.add("CSV"); Pkg.add("Plots"); Pkg.add("VegaLite")
 using JuMP
 using GLPK
 using DataFrames
@@ -8,7 +9,8 @@ using Plots; plotly();
 using VegaLite  # to make some nice plots
 
 #=
-Function to convert JuMP outputs (technically, AxisArrays) with two-indexes to a dataframe
+Function to convert JuMP outputs (technically, AxisArrays) with two-indexes 
+to a dataframe
 Inputs:
     var -- JuMP AxisArray (e.g., value.(GEN))
 Reference: https://jump.dev/JuMP.jl/v0.19/containers/
@@ -54,15 +56,18 @@ Generators_variability = load_df(url_base, "Generators_variability.csv");
 # Clean up the generators dataframe
 
 # 1. Merge in fuel costs, first checking we have full matches 
-unique(Generators_data.fuel) == unique(Fuels_data.fuel) && println("All good")
+(unique(Generators_data.fuel) == unique(Fuels_data.fuel) && println("All good")) 
+
 gen_df = outerjoin(Generators_data, Fuels_data, on = :fuel)
 
 rename!(gen_df, :cost_per_mmbtu => :fuel_cost)   # rename column for fuel cost
 gen_df.fuel_cost[ismissing.(gen_df[:,:fuel_cost])] .= 0
 
-# create "is_variable" column to indicate if this is a variable generation source (e.g. wind, solar):
+# create "is_variable" column to indicate if this is a variable generation source 
+# (e.g. wind, solar):
 gen_df.is_variable = false
-gen_df[in(["onshore_wind_turbine","small_hydroelectric","solar_photovoltaic"]).(gen_df.resource),
+gen_df[in(["onshore_wind_turbine","small_hydroelectric",
+    "solar_photovoltaic"]).(gen_df.resource),
     :is_variable] .= true;
 
 # create full name of generator (including geographic location and cluster number)
@@ -70,7 +75,8 @@ gen_df[in(["onshore_wind_turbine","small_hydroelectric","solar_photovoltaic"]).(
 gen_df.gen_full = lowercase.(gen_df.region .* "_" .* gen_df.resource .* 
         "_" .* string.(gen_df.cluster) .* ".0");
 
-# remove generators with no capacity (e.g. new build options that we'd use if this was capacity expansion problem)
+# remove generators with no capacity (e.g. new build options that 
+# we'd use if this was capacity expansion problem)
 gen_df = gen_df[gen_df.existing_cap_mw .> 0,:];
 
 # 2. Convert cf data from "wide" to "long" format
@@ -142,7 +148,9 @@ function unit_commitment_simple(gen_df, loads, gen_variable)
     # Objective function
         # Sum of variable costs + start-up costs for all generators and time periods
     @objective(UC, Min, 
-        sum( (gen_df[gen_df.r_id .== i,:heat_rate_mmbtu_per_mwh][1] * gen_df[gen_df.r_id .== i,:fuel_cost][1] +
+        sum( (gen_df[gen_df.r_id .== i,
+            :heat_rate_mmbtu_per_mwh][1] * 
+                gen_df[gen_df.r_id .== i,:fuel_cost][1] +
             gen_df[gen_df.r_id .== i,:var_om_cost_per_mwh][1]) * GEN[i,t] 
                         for i in G_nonvar for t in T) + 
         sum(gen_df[gen_df.r_id .== i,:var_om_cost_per_mwh][1] * GEN[i,t] 
@@ -218,10 +226,85 @@ function unit_commitment_simple(gen_df, loads, gen_variable)
 
 end
 
-# High solar case: 3,500 MW
+# Run the UC for the given day and plot a stacked area chart of generation 
+# using @vlplot from the VegaLite package.
+
+# Solve
+solution = unit_commitment_simple(gen_df, Demand, gen_variable_long);
+
+# Clean up the data so we can run the VLPLOT
+# Add in BTM solar and curtailment and plot results
+function plot_solution(solution, gen_df)
+    sol_gen = innerjoin(solution.gen, 
+                        gen_df[!, [:r_id, :resource]], 
+                        on = :r_id)
+
+    # this is basically collapsing the data
+    sol_gen = combine(groupby(sol_gen, [:resource, :hour]), 
+                :gen => sum)
+
+    sol_gen[sol_gen.resource .== "solar_photovoltaic", :resource] .= "_solar_photovoltaic"
+    sol_gen[sol_gen.resource .== "onshore_wind_turbine", :resource] .= "_onshore_wind_turbine"
+    sol_gen[sol_gen.resource .== "small_hydroelectric", :resource] .= "_small_hydroelectric"
+
+    # BTM solar - we assume we have 600MW available
+    btm = DataFrame(resource = repeat(["_solar_photovoltaic_btm"]; outer=length(Demand.demand)), 
+        hour = Demand.hour,
+        gen_sum = gen_variable_long[gen_variable_long.gen_full .== "wec_sdge_solar_photovoltaic_1.0",:cf] 
+                * 600)
+    append!(sol_gen, btm)
+
+    # Curtailment
+    curtail = combine(groupby(solution.curtail, [:hour]),
+                :curt => sum)
+    curtail.resource = "_curtailment"
+    rename!(curtail, :curt_sum => :gen_sum)
+    append!(sol_gen, curtail[:,[:resource, :hour, :gen_sum]])
+
+    # plot! 
+    sol_gen |>
+        @vlplot(:area, 
+            x=:hour, y={:gen_sum, stack=:zero}, 
+            color={"resource:n", scale={scheme="category10"}})
+
+end
+p = plot_solution(solution, gen_df)
+
+##########################################
+# 2: PART 1.2
+# Zero startup costs sensitivity
+# Next, create a modified version of the generator dataframe (`gen_df_sens = copy(gen_df)`) and set the startup costs for all generators to be 0.
+# Rerun the UC and compare with the first solution. What are the main differences and why?
+
+# Create a copy, so we can mess around with it if we want...
 gen_df_sens = copy(gen_df)
+gen_df_sens.start_cost_per_mw = 0
+solution_sens = unit_commitment_simple(gen_df_sens, Demand, gen_variable_long)
+p_sens = plot_solution(solution_sens, gen_df_sens)
 
 
-# Solves
-solution = unit_commitment_simple(gen_df_sens, Demand, gen_variable_long);
-solution.gen
+#=
+# Major differences:
+- When we dont have start up costs, we dont have curtailment! 
+- Natural gas is more flexible, and is used less when there is more solar available.
+=#
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
