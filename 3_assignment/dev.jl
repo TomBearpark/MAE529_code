@@ -296,7 +296,7 @@ p_sens = plot_solution(solution_sens, gen_df_sens)
 
 ##########################################
 # 2: PART 2
-
+# Implement pubped hydropower storage
 
 
 function unit_commitment_simple(gen_df, loads, gen_variable)
@@ -365,7 +365,45 @@ function unit_commitment_simple(gen_df, loads, gen_variable)
             START[i,t] 
                         for i in G_thermal for t in T)
     )
-    
+
+
+# stuff related to storage 
+
+    # set parameters defined in the problem set question
+    hp_power_cap = gen_df.existing_cap_mw[gen_df.resource .=="hydroelectric_pumped_storage" ][1] 
+    hp_energy_cap = 4 * hp_power_cap
+    battery_eff = 0.84
+    start_charge = 0.5 * hp_energy_cap
+    end_charge = start_charge
+
+    @variables(UC, begin
+        hp_power_cap    >= CHARGE[t in loads.hour]     >= 0
+        hp_power_cap    >= DISCHARGE[t in loads.hour]  >= 0
+        hp_energy_cap     >= SOC[t in loads.hour]        >= 0
+    end)
+
+    # First define an Array of length equal to our time series to contain references to each expression
+    cStateOfCharge = Array{Any}(undef, length(loads.hour))
+    # First period state of charge:
+    cStateOfCharge[1] = @constraint(UC, 
+        SOC[1] == start_charge 
+    ) 
+    # Final period state of charge constraint:
+    cStateOfCharge[24] = @constraint(UC, 
+        SOC[24] + (CHARGE[24]*battery_eff - DISCHARGE[24]/battery_eff) == end_charge 
+    ) 
+    # All other time periods, defined recursively based on prior state of charge
+    for t in loads.hour[(24 .> loads.hour .> 1)]
+        cStateOfCharge[t] = @constraint(UC, 
+            SOC[t] == SOC[t-1] + CHARGE[t]*battery_eff - DISCHARGE[t]/battery_eff
+        )
+    end
+
+    # Add constraint to generation - linking charge to generation. 
+    # can i just stick this in the first constraint below?
+
+
+# end of stuff related to storage 
     # Demand balance constraint (supply must = demand in all time periods)
     @constraint(UC, cDemand[t in T], 
         sum(GEN[i,t] for i in G) == loads[loads.hour .== t,:demand][1])
