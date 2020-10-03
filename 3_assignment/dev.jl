@@ -526,7 +526,19 @@ end
 
 solution_storage = unit_commitment_storage(gen_df, Demand, gen_variable_long);
 
-p_storage = plot_solution(solution_storage, gen_df)
+# Plot charge / discharge / soc 
+solution_storage.HP_info.hour = 1:24
+stack(solution_storage.HP_info, 
+                        Not(:hour), 
+                        variable_name=:var,
+                        value_name=:value) |> 
+    @vlplot(
+        :line, 
+        x = :hour, 
+        y = :value, 
+        column = :var,
+        color=:var)
+
 
 
 
