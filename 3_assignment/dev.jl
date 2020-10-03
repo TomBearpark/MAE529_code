@@ -7,7 +7,7 @@ using DataFrames
 using CSV
 using Plots; plotly();
 using VegaLite  # to make some nice plots
-using DataFramesMeta # data manipulation functions
+# using DataFramesMeta # data manipulation functions
 
 #=
 Function to convert JuMP outputs (technically, AxisArrays) with two-indexes 
@@ -292,21 +292,39 @@ function return_ts_for_resource(solution, gen_df::DataFrame, resource::String)
     # this is basically collapsing the data
     sol_gen = combine(groupby(sol_gen, [:resource, :hour]), 
                     :gen => sum) 
+    # Add in curtailment
+    curtail = combine(groupby(solution.curtail, [:hour]),
+                :curt => sum)
+    curtail.resource = "curtailment"
+    rename!(curtail, :curt_sum => :gen_sum)
+    append!(sol_gen, curtail[:,[:resource, :hour, :gen_sum]])
     filter!(row -> row[:resource]==resource, sol_gen)
     return(sol_gen)
 end
 
-function transform_gas_output(solution, string_id::String, gen_df)
+function transform_output(solution, string_id::String, gen_df, resource::String)
     plot_df = return_ts_for_resource(solution, gen_df, 
-        "natural_gas_fired_combustion_turbine") 
+        resource) 
     plot_df.version = string_id
     return plot_df
 end
 
-# Plot!
+# Plot! First plot the natural gas production
 plot_df = append!(
-    transform_gas_output(solution, "base", gen_df), 
-    transform_gas_output(solution_sens, "no_start_up_cost", gen_df)
+    transform_output(solution, "baseline model", gen_df, "natural_gas_fired_combustion_turbine"), 
+    transform_output(solution_sens, "no start up costs", gen_df_sens, "natural_gas_fired_combustion_turbine")
+) |> 
+    @vlplot(
+        :line, 
+        x = :hour, 
+        y = :gen_sum, 
+        column = :version,
+        color=:version)
+
+# Plot curtailment
+plot_df = append!(
+    transform_output(solution, "baseline model", gen_df, "curtailment"), 
+    transform_output(solution_sens, "no start up costs", gen_df_sens, "curtailment")
 ) |> 
     @vlplot(
         :line, 
@@ -333,7 +351,7 @@ plot_df = append!(
 # Implement pubped hydropower storage
 
 
-function unit_commitment_simple(gen_df, loads, gen_variable)
+function unit_commitment_storage(gen_df, loads, gen_variable)
     
     UC = Model(GLPK.Optimizer)
     set_optimizer_attribute(UC, "mip_gap", 0.01)
@@ -377,7 +395,9 @@ function unit_commitment_simple(gen_df, loads, gen_variable)
         SHUT[G_thermal, T], Bin   # shutdown decision
     end)
                 
-    # Objective function
+    # Objective function. Objective doesn't change - we dont get direct costs or 
+    # revenues from our hydro storage
+
         # Sum of variable costs + start-up costs for all generators and time periods
     @objective(UC, Min, 
         sum( (gen_df[gen_df.r_id .== i,
@@ -397,21 +417,26 @@ function unit_commitment_simple(gen_df, loads, gen_variable)
 # stuff related to storage 
 
     # set parameters defined in the problem set question
-    hp_power_cap = gen_df.existing_cap_mw[gen_df.resource 
-        .=="hydroelectric_pumped_storage" ][1] 
+    hp_power_cap = gen_df.existing_cap_mw[gen_df.resource .=="hydroelectric_pumped_storage" ][1] 
     hp_energy_cap = 4 * hp_power_cap
     battery_eff = 0.84
     start_charge = 0.5 * hp_energy_cap
     end_charge = start_charge
+    inverter_eff = 1 #assume it is 1, since not specified in question 
+
+    # Save identifier for later indexing
+    hp_id = gen_df.r_id[gen_df.resource .== "hydroelectric_pumped_storage"][1]
 
     @variables(UC, begin
-        hp_power_cap    >= CHARGE[t in loads.hour]     >= 0
-        hp_power_cap    >= DISCHARGE[t in loads.hour]  >= 0
-        hp_energy_cap     >= SOC[t in loads.hour]        >= 0
+        hp_power_cap    >=  CHARGE[t in T]     >= 0
+        hp_power_cap    >=  DISCHARGE[t in T]  >= 0
+        hp_energy_cap   >=  SOC[t in T]        >= 0
+                            GRIDEXPORT[t in T] >= 0
+                            GRIDIMPORT[t in T] >= 0
     end)
 
     # First define an Array of length equal to our time series to contain references to each expression
-    cStateOfCharge = Array{Any}(undef, length(loads.hour))
+    cStateOfCharge = Array{Any}(undef, length(T))
     # First period state of charge:
     cStateOfCharge[1] = @constraint(UC, 
         SOC[1] == start_charge 
@@ -421,20 +446,27 @@ function unit_commitment_simple(gen_df, loads, gen_variable)
         SOC[24] + (CHARGE[24]*battery_eff - DISCHARGE[24]/battery_eff) == end_charge 
     ) 
     # All other time periods, defined recursively based on prior state of charge
-    for t in loads.hour[(24 .> loads.hour .> 1)]
+    for t in T[(24 .> T .> 1)]
         cStateOfCharge[t] = @constraint(UC, 
             SOC[t] == SOC[t-1] + CHARGE[t]*battery_eff - DISCHARGE[t]/battery_eff
         )
     end
 
-    # Add constraint to generation - linking charge to generation. 
-    # can i just stick this in the first constraint below?
+    # System production and grid export/import flow. Need to replace solar here with total gen
+    @constraint(UC, 
+        cEnergyBalance[t in T], # Named array of constraints indexed across all times t in T
+        sum(GEN[i,t] for i in G) + DISCHARGE[t] - CHARGE[t]) == GRIDEXPORT[t]/inverter_eff - GRIDIMPORT[t]*inverter_eff)  # Constraint definition
+    );
+    # HP generation is export minus import
+    @constraint(UC, hp_production[t in T]
+        GEN[hp_id, t] == GRIDEXPORT[t]/inverter_eff - GRIDIMPORT[t]*inverter_eff)
+    )
 
-
-# end of stuff related to storage 
+# end of stuff related to storage - the next constraint now includes grid export 
     # Demand balance constraint (supply must = demand in all time periods)
     @constraint(UC, cDemand[t in T], 
-        sum(GEN[i,t] for i in G) == loads[loads.hour .== t,:demand][1])
+        sum(GEN[i,t] for i in G) == loads[loads.hour .== t,:demand][1] + GRIDEXPORT[t]
+        )
 
     # Capacity constraints 
       # 1. thermal generators requiring commitment
@@ -492,12 +524,14 @@ function unit_commitment_simple(gen_df, loads, gen_variable)
         commit,
         curtail,
         cost = objective_value(UC),
-        status = termination_status(UC)
+        status = termination_status(UC), 
+        charge = value.(CHARGE), 
+        discharge = value.(DISCHARGE), 
+        soc = value.(SOC)
     )
-
 end
 
-
+DataFrame(charge = charge, discharge = discharge, soc = soc)
 
 
 
