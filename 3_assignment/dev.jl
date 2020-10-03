@@ -7,6 +7,7 @@ using DataFrames
 using CSV
 using Plots; plotly();
 using VegaLite  # to make some nice plots
+using DataFramesMeta # data manipulation functions
 
 #=
 Function to convert JuMP outputs (technically, AxisArrays) with two-indexes 
@@ -282,6 +283,39 @@ gen_df_sens.start_cost_per_mw = 0
 solution_sens = unit_commitment_simple(gen_df_sens, Demand, gen_variable_long)
 p_sens = plot_solution(solution_sens, gen_df_sens)
 
+# Plot time series of just the natural gas generation...
+function return_ts_for_resource(solution, gen_df::DataFrame, resource::String)
+    sol_gen = innerjoin(solution.gen, 
+                    gen_df[!, [:r_id, :resource]], 
+                        on = :r_id)
+
+    # this is basically collapsing the data
+    sol_gen = combine(groupby(sol_gen, [:resource, :hour]), 
+                    :gen => sum) 
+    filter!(row -> row[:resource]==resource, sol_gen)
+    return(sol_gen)
+end
+
+function transform_gas_output(solution, string_id::String, gen_df)
+    plot_df = return_ts_for_resource(solution, gen_df, 
+        "natural_gas_fired_combustion_turbine") 
+    plot_df.version = string_id
+    return plot_df
+end
+
+# Plot!
+plot_df = append!(
+    transform_gas_output(solution, "base", gen_df), 
+    transform_gas_output(solution_sens, "no_start_up_cost", gen_df)
+) |> 
+    @vlplot(
+        :line, 
+        x = :hour, 
+        y = :gen_sum, 
+        column = :version,
+        color=:version)
+
+# plot!
 
 #=
 # Major differences:
@@ -300,15 +334,8 @@ p_sens = plot_solution(solution_sens, gen_df_sens)
 
 
 function unit_commitment_simple(gen_df, loads, gen_variable)
+    
     UC = Model(GLPK.Optimizer)
-
-    # We reduce the MIP gap tolerance threshold here to increase tractability
-    # Here we set it to a 1% gap, meaning that we will terminate once we have 
-    # a feasible integer solution guaranteed to be within 1% of the objective
-    # function value of the optimal solution.
-    # Note that GLPK's default MIP gap is 0.0, meaning that it tries to solve
-    # the integer problem to optimality, which can take a LONG time for 
-    # any complex problem. So it is important to set this to a realistic value.
     set_optimizer_attribute(UC, "mip_gap", 0.01)
 
     # Define sets based on data
@@ -370,7 +397,8 @@ function unit_commitment_simple(gen_df, loads, gen_variable)
 # stuff related to storage 
 
     # set parameters defined in the problem set question
-    hp_power_cap = gen_df.existing_cap_mw[gen_df.resource .=="hydroelectric_pumped_storage" ][1] 
+    hp_power_cap = gen_df.existing_cap_mw[gen_df.resource 
+        .=="hydroelectric_pumped_storage" ][1] 
     hp_energy_cap = 4 * hp_power_cap
     battery_eff = 0.84
     start_charge = 0.5 * hp_energy_cap
