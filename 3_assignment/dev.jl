@@ -52,26 +52,24 @@ Generators_data = load_df(url_base, "Generators_data.csv");
 Generators_variability = load_df(url_base, "Generators_variability.csv");
 
 
-
-
 # Clean up the generators dataframe
 
 # 1. Merge in fuel costs, first checking we have full matches 
-(unique(Generators_data.fuel) == unique(Fuels_data.fuel) && println("All good")) 
-
+(unique(Generators_data.fuel) == 
+    unique(Fuels_data.fuel) && println("All good")) 
 gen_df = outerjoin(Generators_data, Fuels_data, on = :fuel)
 
 rename!(gen_df, :cost_per_mmbtu => :fuel_cost)   # rename column for fuel cost
 gen_df.fuel_cost[ismissing.(gen_df[:,:fuel_cost])] .= 0
 
-# create "is_variable" column to indicate if this is a variable generation source 
+# create "is_variable" column to indicate if this is a variable generation  
 # (e.g. wind, solar):
 gen_df.is_variable = false
 gen_df[in(["onshore_wind_turbine","small_hydroelectric",
     "solar_photovoltaic"]).(gen_df.resource),
     :is_variable] .= true;
 
-# create full name of generator (including geographic location and cluster number)
+# create full name of generator (including geographic location and cluster no.)
 #  for use with variable generation dataframe
 gen_df.gen_full = lowercase.(gen_df.region .* "_" .* gen_df.resource .* 
         "_" .* string.(gen_df.cluster) .* ".0");
@@ -85,8 +83,6 @@ gen_variable_long = stack(Generators_variability,
                         Not(:hour), 
                         variable_name=:gen_full,
                         value_name=:cf);
-
-
 
 #=
 Function to solve simple unit commitment problem (commitment equations)
@@ -104,7 +100,7 @@ function unit_commitment_simple(gen_df, loads, gen_variable)
     # function value of the optimal solution.
     # Note that GLPK's default MIP gap is 0.0, meaning that it tries to solve
     # the integer problem to optimality, which can take a LONG time for 
-    # any complex problem. So it is important to set this to a realistic value.
+    # any complex problem. So it is important to set this to a realistic value
     set_optimizer_attribute(UC, "mip_gap", 0.01)
 
     # Define sets based on data
@@ -112,7 +108,7 @@ function unit_commitment_simple(gen_df, loads, gen_variable)
     # different equations.
         # Thermal resources for which unit commitment constraints apply
     G_thermal = gen_df[gen_df[!,:up_time] .> 0,:r_id] 
-        # Non-thermal resources for which unit commitment constraints do NOT apply 
+        # Non-thermal resources: unit commitment constraints do not apply 
     G_nonthermal = gen_df[gen_df[!,:up_time] .== 0,:r_id]
         # Variable renewable resources
     G_var = gen_df[gen_df[!,:is_variable] .== 1,:r_id]
@@ -147,7 +143,7 @@ function unit_commitment_simple(gen_df, loads, gen_variable)
     end)
                 
     # Objective function
-        # Sum of variable costs + start-up costs for all generators and time periods
+        # Sum of variable costs + start-up costs for all generators and time 
     @objective(UC, Min, 
         sum( (gen_df[gen_df.r_id .== i,
             :heat_rate_mmbtu_per_mwh][1] * 
@@ -169,10 +165,12 @@ function unit_commitment_simple(gen_df, loads, gen_variable)
     # Capacity constraints 
       # 1. thermal generators requiring commitment
     @constraint(UC, Cap_thermal_min[i in G_thermal, t in T], 
-        GEN[i,t] >= COMMIT[i, t] * gen_df[gen_df.r_id .== i,:existing_cap_mw][1] *
+        GEN[i,t] >= COMMIT[i, t] * gen_df[gen_df.r_id .== i,
+                        :existing_cap_mw][1] *
                         gen_df[gen_df.r_id .== i,:min_power][1])
     @constraint(UC, Cap_thermal_max[i in G_thermal, t in T], 
-        GEN[i,t] <= COMMIT[i, t] * gen_df[gen_df.r_id .== i,:existing_cap_mw][1])
+        GEN[i,t] <= COMMIT[i, t] * gen_df[gen_df.r_id .== i,
+                        :existing_cap_mw][1])
 
       # 2. non-variable generation not requiring commitment
     @constraint(UC, Cap_nt_nonvar[i in G_nt_nonvar, t in T], 
@@ -244,15 +242,20 @@ function plot_solution(solution, gen_df)
     sol_gen = combine(groupby(sol_gen, [:resource, :hour]), 
                 :gen => sum)
 
-    sol_gen[sol_gen.resource .== "solar_photovoltaic", :resource] .= "_solar_photovoltaic"
-    sol_gen[sol_gen.resource .== "onshore_wind_turbine", :resource] .= "_onshore_wind_turbine"
-    sol_gen[sol_gen.resource .== "small_hydroelectric", :resource] .= "_small_hydroelectric"
+    sol_gen[sol_gen.resource .== "solar_photovoltaic", 
+        :resource] .= "_solar_photovoltaic"
+    sol_gen[sol_gen.resource .== "onshore_wind_turbine", 
+        :resource] .= "_onshore_wind_turbine"
+    sol_gen[sol_gen.resource .== "small_hydroelectric", 
+        :resource] .= "_small_hydroelectric"
 
     # BTM solar - we assume we have 600MW available
-    btm = DataFrame(resource = repeat(["_solar_photovoltaic_btm"]; outer=length(Demand.demand)), 
-        hour = Demand.hour,
-        gen_sum = gen_variable_long[gen_variable_long.gen_full .== "wec_sdge_solar_photovoltaic_1.0",:cf] 
-                * 600)
+    btm = DataFrame(resource = repeat(["_solar_photovoltaic_btm"]; 
+            outer=length(Demand.demand)), 
+            hour = Demand.hour,
+            gen_sum = gen_variable_long[
+            gen_variable_long.gen_full .== "wec_sdge_solar_photovoltaic_1.0",
+                :cf] * 600)
     append!(sol_gen, btm)
 
     # Curtailment
@@ -274,8 +277,10 @@ p = plot_solution(solution, gen_df)
 ##########################################
 # 2: PART 1.2
 # Zero startup costs sensitivity
-# Next, create a modified version of the generator dataframe (`gen_df_sens = copy(gen_df)`) and set the startup costs for all generators to be 0.
-# Rerun the UC and compare with the first solution. What are the main differences and why?
+# Next, create a modified version of the generator dataframe (
+#  and set the startup costs for all generators to be 0.
+# Rerun the UC and compare with the first solution. 
+# What are the main differences and why?
 
 # Create a copy, so we can mess around with it if we want...
 gen_df_sens = copy(gen_df)
@@ -302,7 +307,8 @@ function return_ts_for_resource(solution, gen_df::DataFrame, resource::String)
     return(sol_gen)
 end
 
-function transform_output(solution, string_id::String, gen_df, resource::String)
+function transform_output(solution, string_id::String, gen_df, 
+                            resource::String)
     plot_df = return_ts_for_resource(solution, gen_df, 
         resource) 
     plot_df.version = string_id
@@ -310,46 +316,36 @@ function transform_output(solution, string_id::String, gen_df, resource::String)
 end
 
 # Plot! First plot the natural gas production
-plot_df = append!(
-    transform_output(solution, "baseline model", gen_df, "natural_gas_fired_combustion_turbine"), 
-    transform_output(solution_sens, "no start up costs", gen_df_sens, "natural_gas_fired_combustion_turbine")
-) |> 
-    @vlplot(
-        :line, 
-        x = :hour, 
-        y = :gen_sum, 
-        column = :version,
-        color=:version)
+function plot_comparison(gen_string::String)
+    append!(
+        transform_output(solution, "baseline model", gen_df, 
+            gen_string), 
+        transform_output(solution_sens, "no start up costs", gen_df_sens, 
+            gen_string)
+    ) |> 
+        @vlplot(
+            :line, 
+            x = :hour, 
+            y = :gen_sum, 
+            column = :version,
+            color=:version, title = gen_string)
+end
 
+plot_comparison("natural_gas_fired_combustion_turbine")
 # Plot curtailment
-plot_df = append!(
-    transform_output(solution, "baseline model", gen_df, "curtailment"), 
-    transform_output(solution_sens, "no start up costs", gen_df_sens, "curtailment")
-) |> 
-    @vlplot(
-        :line, 
-        x = :hour, 
-        y = :gen_sum, 
-        column = :version,
-        color=:version)
-
-# plot!
+plot_comparison("curtailment")
 
 #=
 # Major differences:
 - When we dont have start up costs, we dont have curtailment! 
-- Natural gas is more flexible, and is used less when there is more solar available.
+- Natural gas is more flexible, and is used less when there is 
+    more solar available.
 =#
-
-
-
-
 
 
 ##########################################
 # 2: PART 2
-# Implement pubped hydropower storage
-
+# Implement pumped hydropower storage
 
 function unit_commitment_storage(gen_df, loads, gen_variable)
     
@@ -361,7 +357,7 @@ function unit_commitment_storage(gen_df, loads, gen_variable)
     # different equations.
         # Thermal resources for which unit commitment constraints apply
     G_thermal = gen_df[gen_df[!,:up_time] .> 0,:r_id] 
-        # Non-thermal resources for which unit commitment constraints do NOT apply 
+        # Non-thermal resources: unit commitment constraints do NOT apply 
     G_nonthermal = gen_df[gen_df[!,:up_time] .== 0,:r_id]
         # Variable renewable resources
     G_var = gen_df[gen_df[!,:is_variable] .== 1,:r_id]
@@ -395,10 +391,10 @@ function unit_commitment_storage(gen_df, loads, gen_variable)
         SHUT[G_thermal, T], Bin   # shutdown decision
     end)
                 
-    # Objective function. Objective doesn't change - we dont get direct costs or 
-    # revenues from our hydro storage
+    # Objective function. Objective doesn't change - we dont get direct costs  
+    # or revenues from our hydro storage
 
-        # Sum of variable costs + start-up costs for all generators and time periods
+        # Sum of variable costs + start-up costs for all generators and time 
     @objective(UC, Min, 
         sum( (gen_df[gen_df.r_id .== i,
             :heat_rate_mmbtu_per_mwh][1] * 
@@ -417,7 +413,8 @@ function unit_commitment_storage(gen_df, loads, gen_variable)
 # stuff related to storage 
 
     # set parameters defined in the problem set question
-    hp_power_cap = gen_df.existing_cap_mw[gen_df.resource .=="hydroelectric_pumped_storage" ][1] 
+    hp_power_cap = gen_df.existing_cap_mw[
+        gen_df.resource .=="hydroelectric_pumped_storage"][1] 
     hp_energy_cap = 4 * hp_power_cap
     battery_eff = 0.84
     start_charge = 0.5 * hp_energy_cap
@@ -433,20 +430,24 @@ function unit_commitment_storage(gen_df, loads, gen_variable)
         hp_energy_cap   >=  SOC[t in T]        >= 0
     end)
 
-    # First define an Array of length equal to our time series to contain references to each expression
+    # First define an Array of length equal to our time series to contain 
+    # references to each expression
     cStateOfCharge = Array{Any}(undef, length(T))
     # First period state of charge:
     cStateOfCharge[1] = @constraint(UC, 
-        SOC[1] == start_charge + (CHARGE[1]*battery_eff - DISCHARGE[1]/battery_eff) 
+        SOC[1] == start_charge + (CHARGE[1]*battery_eff - 
+            DISCHARGE[1]/battery_eff) 
     ) 
     # Final period state of charge constraint:
     cStateOfCharge[24] = @constraint(UC, 
         SOC[24] == end_charge 
     ) 
-    # All other time periods, defined recursively based on prior state of charge
+    # All other time periods, defined recursively based on prior state of 
+    # charge
     for t in T[(T .> 1)]
         cStateOfCharge[t] = @constraint(UC, 
-            SOC[t] == SOC[t-1] + CHARGE[t]*battery_eff - DISCHARGE[t]/battery_eff
+            SOC[t] == SOC[t-1] + CHARGE[t]*battery_eff - 
+                DISCHARGE[t]/battery_eff
         )
     end
 
@@ -454,7 +455,7 @@ function unit_commitment_storage(gen_df, loads, gen_variable)
     @constraint(UC, hp_production[t in T],
         GEN[hp_id, t] == DISCHARGE[t]/inverter_eff)
 
-    # end of stuff related to storage - the next constraint now includes grid export 
+    # end of stuff related to storage
     # Demand balance constraint (supply must = demand in all time periods)
     @constraint(UC, cDemand[t in T], 
         sum(GEN[i,t] for i in G) == loads[loads.hour .== t,:demand][1] 
@@ -463,10 +464,12 @@ function unit_commitment_storage(gen_df, loads, gen_variable)
     # Capacity constraints 
       # 1. thermal generators requiring commitment
     @constraint(UC, Cap_thermal_min[i in G_thermal, t in T], 
-        GEN[i,t] >= COMMIT[i, t] * gen_df[gen_df.r_id .== i,:existing_cap_mw][1] *
+        GEN[i,t] >= COMMIT[i, t] * gen_df[
+                gen_df.r_id .== i,:existing_cap_mw][1] *
                         gen_df[gen_df.r_id .== i,:min_power][1])
     @constraint(UC, Cap_thermal_max[i in G_thermal, t in T], 
-        GEN[i,t] <= COMMIT[i, t] * gen_df[gen_df.r_id .== i,:existing_cap_mw][1])
+        GEN[i,t] <= COMMIT[i, t] * gen_df[gen_df.r_id .== i,
+        :existing_cap_mw][1])
 
       # 2. non-variable generation not requiring commitment
     @constraint(UC, Cap_nt_nonvar[i in G_nt_nonvar, t in T], 
@@ -523,10 +526,11 @@ function unit_commitment_storage(gen_df, loads, gen_variable)
                             )
     )
 end
-solution_storage.cost
-solution.cost
 
 solution_storage = unit_commitment_storage(gen_df, Demand, gen_variable_long);
+
+# Plot output - stacked generation chart
+plot_solution(solution_storage, gen_df)
 
 # Plot charge / discharge / soc 
 solution_storage.HP_info.hour = 1:24
@@ -540,6 +544,29 @@ stack(solution_storage.HP_info,
         y = :value, 
         column = :var,
         color=:var)
+
+# Plot comparisons across models
+function plot_all_three(generator::String)
+    append!(append!(
+        transform_output(solution, "baseline model", gen_df, 
+            generator), 
+        transform_output(solution_sens, "no start up costs", gen_df_sens, 
+            generator)
+    ), transform_output(solution_storage, "Including storage constraint", 
+            gen_df, 
+            generator)) |> 
+        @vlplot(
+            :line, 
+            x = :hour, 
+            y = :gen_sum, 
+            column = :version,
+            color=:version, 
+            title=generator)
+end
+plot_all_three("curtailment")
+plot_all_three("hydroelectric_pumped_storage")
+
+
 #= intuition
 - we get slightly less curtailment. this is because when we have very high
 solar output, we can use this to charge up the battery. 
