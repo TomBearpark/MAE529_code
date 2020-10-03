@@ -431,41 +431,33 @@ function unit_commitment_storage(gen_df, loads, gen_variable)
         hp_power_cap    >=  CHARGE[t in T]     >= 0
         hp_power_cap    >=  DISCHARGE[t in T]  >= 0
         hp_energy_cap   >=  SOC[t in T]        >= 0
-                            GRIDEXPORT[t in T] >= 0
-                            GRIDIMPORT[t in T] >= 0
     end)
 
     # First define an Array of length equal to our time series to contain references to each expression
     cStateOfCharge = Array{Any}(undef, length(T))
     # First period state of charge:
     cStateOfCharge[1] = @constraint(UC, 
-        SOC[1] == start_charge 
+        SOC[1] == start_charge + (CHARGE[1]*battery_eff - DISCHARGE[1]/battery_eff) 
     ) 
     # Final period state of charge constraint:
     cStateOfCharge[24] = @constraint(UC, 
-        SOC[24] + (CHARGE[24]*battery_eff - DISCHARGE[24]/battery_eff) == end_charge 
+        SOC[24] == end_charge 
     ) 
     # All other time periods, defined recursively based on prior state of charge
-    for t in T[(24 .> T .> 1)]
+    for t in T[(T .> 1)]
         cStateOfCharge[t] = @constraint(UC, 
             SOC[t] == SOC[t-1] + CHARGE[t]*battery_eff - DISCHARGE[t]/battery_eff
         )
     end
 
-    # System production and grid export/import flow. Need to replace solar here with total gen
-    @constraint(UC, 
-        cEnergyBalance[t in T], # Named array of constraints indexed across all times t in T
-        sum(GEN[i,t] for i in G) + DISCHARGE[t] - CHARGE[t]) == GRIDEXPORT[t]/inverter_eff - GRIDIMPORT[t]*inverter_eff)  # Constraint definition
-    );
     # HP generation is export minus import
-    @constraint(UC, hp_production[t in T]
-        GEN[hp_id, t] == GRIDEXPORT[t]/inverter_eff - GRIDIMPORT[t]*inverter_eff)
-    )
+    @constraint(UC, hp_production[t in T],
+        GEN[hp_id, t] == DISCHARGE[t]/inverter_eff - CHARGE[t]*inverter_eff)
 
-# end of stuff related to storage - the next constraint now includes grid export 
+    # end of stuff related to storage - the next constraint now includes grid export 
     # Demand balance constraint (supply must = demand in all time periods)
     @constraint(UC, cDemand[t in T], 
-        sum(GEN[i,t] for i in G) == loads[loads.hour .== t,:demand][1] + GRIDEXPORT[t]
+        sum(GEN[i,t] for i in G) == loads[loads.hour .== t,:demand][1] 
         )
 
     # Capacity constraints 
@@ -525,17 +517,16 @@ function unit_commitment_storage(gen_df, loads, gen_variable)
         curtail,
         cost = objective_value(UC),
         status = termination_status(UC), 
-        charge = value.(CHARGE), 
-        discharge = value.(DISCHARGE), 
-        soc = value.(SOC)
+        HP_info = DataFrame(charge = value.(CHARGE).data, 
+                            discharge = value.(DISCHARGE).data, 
+                            soc = value.(SOC).data
+                            )
     )
 end
 
-DataFrame(charge = charge, discharge = discharge, soc = soc)
+solution_storage = unit_commitment_storage(gen_df, Demand, gen_variable_long);
 
-
-
-
+p_storage = plot_solution(solution_storage, gen_df)
 
 
 
