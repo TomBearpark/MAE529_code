@@ -452,7 +452,7 @@ function unit_commitment_storage(gen_df, loads, gen_variable)
 
     # HP generation is export minus import
     @constraint(UC, hp_production[t in T],
-        GEN[hp_id, t] == DISCHARGE[t]/inverter_eff - CHARGE[t]*inverter_eff)
+        GEN[hp_id, t] == DISCHARGE[t]/inverter_eff)
 
     # end of stuff related to storage - the next constraint now includes grid export 
     # Demand balance constraint (supply must = demand in all time periods)
