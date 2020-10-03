@@ -523,6 +523,8 @@ function unit_commitment_storage(gen_df, loads, gen_variable)
                             )
     )
 end
+solution_storage.cost
+solution.cost
 
 solution_storage = unit_commitment_storage(gen_df, Demand, gen_variable_long);
 
@@ -538,6 +540,14 @@ stack(solution_storage.HP_info,
         y = :value, 
         column = :var,
         color=:var)
+#= intuition
+- we get slightly less curtailment. this is because when we have very high
+solar output, we can use this to charge up the battery. 
+- Total system cost increases very slightly compared to baseline model, since 
+    the HP supply is not as easily available (more constrained)
+- Charging throughout most of the day. Do this in order to discharge at maximum
+    during morning and evening peaks
+=#
 
 
 
