@@ -5,7 +5,7 @@ using JuMP
 using GLPK
 using DataFrames
 using CSV
-using Plots; plotly();
+using Plots; gr(); #use gr backend so plots dont all go in different windows
 using VegaLite  # to make some nice plots
 # using DataFramesMeta # data manipulation functions
 
