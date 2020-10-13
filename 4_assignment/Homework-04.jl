@@ -1,10 +1,10 @@
-using JuMP
-using GLPK
-using DataFrames
-using CSV
+using JuMP;
+using GLPK;
+using DataFrames;
+using CSV;
 using Plots; plotly();
 using VegaLite;
-using Query # dplyr like
+using Query; # dplyr like data analysis tools
 # using DataFramesMeta
 
 
@@ -14,9 +14,14 @@ using Query # dplyr like
 
 
 # Note - tweaked this to use an absolute path, since i'm writing this code 
-# outside of the repo. Would prefer to swtich this to a URL link
-pso_dir = "/Users/tombearpark/Documents/princeton/1st_year/MAE529/power-systems-optimization"
-datadir = joinpath(pso_dir,"Notebooks","ieee_test_cases") 
+# outside of the repo. Left in option for someone else to run it though
+if ENV["USER"] == "tombearpark"
+    pso_dir = "/Users/tombearpark/Documents/princeton/1st_year/MAE529/power-systems-optimization"
+    datadir = joinpath(pso_dir,"Notebooks","ieee_test_cases") 
+else
+    datadir = joinpath("..","Notebooks","ieee_test_cases") 
+end
+
 gens = CSV.read(joinpath(datadir,"Gen14.csv"), DataFrame);
 lines = CSV.read(joinpath(datadir,"Tran14.csv"), DataFrame);
 loads = CSV.read(joinpath(datadir,"Load14.csv"), DataFrame);
@@ -512,6 +517,57 @@ function format_lines(lines)
     lines.b = 1 ./ lines.reactance
     return(lines)
 end
+# lines = format_lines(lines)
+
+# 1. Set the capacity of all lines in the system at 100 MW, 
+# except for the line $l_{12}$, which you should set to 200 MW.
+lines.capacity = 100
+lines.capacity[(lines.fromnode .== 1).&(lines.tonode .== 2)] .= 200
+
+# 2. Create a load dataframe loads_sens that increases demands everywhere by 10%
+loads_sens = copy(loads) |>
+    @mutate(demand = _.demand * 1.1) |>
+    DataFrame
+
+# Create a dataframe status with the fromnode and tonode columns of lines.
+status = DataFrame(fromnode = lines.fromnode, tonode = lines.tonode)
+status.id = 1:nrow(status)
+status.opf = ""
+# Create a for loop that iterates over each line and:
+# - sets the reactance to be a very high value, 1e9 
+    # (i.e., no power will be transmitted)
+# - creates a version of the dataframe that our 
+    # solver function can use via `format_lines`
+# - runs DCOPF
+# - stores the solution status in a `opf` column in the corresponding 
+    # row of the `status` dataframe
+
+for i in 1:nrow(status)
+    println(i)
+    lines_vals = copy(lines)
+    lines_vals.reactance[i] = 10000000000
+    lines_vals = format_lines(lines_vals)
+    solution = dcopf_ieee(gens, lines_vals, loads_sens)
+    status.opf[i] = string(solution.status)
+end
+
+# show the status results
+status
+
+# Are all of the cases feasible? If not, how many are infeasible? 
+println(string(length(status.opf[status.opf .== "OPTIMAL"])) * 
+    " out of the 20 are feasible optimums")
+
+# Pick two cases where the solution gives a different status. 
+# (For our purposes, dual infeasible and primal infeasible are the same.) 
+# What is happening here?
+
+# Consider the first two
+
+
+# Given this, do you conclude that the system with the assumed 
+# transmission line ratings is secure as-is, or do 
+# we need to add more redundancy to the system?
 
 
 
