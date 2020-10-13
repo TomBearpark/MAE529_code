@@ -261,7 +261,7 @@ total_demand = -sum(loads_1c.demand)
 # Run the DCOPF and show prices
 solution_1c = dcopf_ieee(gens_1a, lines_1b, loads_1c);
 print_cost_and_status(solution_1c)
-
+solution_1c.flows
 solution_1c.prices
 
 # We cannot meet demand, given the constraints on our system 
@@ -295,7 +295,6 @@ function dcopf_ieee_lossy(gens, lines, loads)
             unique(lines.tonode)))
     
       # sets J_i and G_i will be described using dataframe indexing below
-
     # Define per unit base units for the system 
     # used to convert from per unit values to standard unit
     # values (e.g. p.u. power flows to MW/MVA)
@@ -307,8 +306,29 @@ function dcopf_ieee_lossy(gens, lines, loads)
         # Note: we assume Pmin = 0 for all resources for simplicty here
         THETA[N]         # voltage phase angle of bus
         FLOW[N,N]        # flows between all pairs of nodes
+        # Include auxilliary variable - to get absolute value
+        FLOW_abs[N,N] >= 0
     end)
-    
+
+    # Constraint for Flow variables - constrain the absolute value version
+    # borrowing idea from here: 
+    # https://github.com/jump-dev/JuMP.jl/issues/48#issuecomment-25575389
+    cAbs_Flows_neg = JuMP.Containers.DenseAxisArray{Any}(undef, 1:nrow(lines)) 
+    cAbs_Flows_pos = JuMP.Containers.DenseAxisArray{Any}(undef, 1:nrow(lines)) 
+
+    for l in 1:nrow(lines)
+        cAbs_Flows_neg[l] = @constraint(
+            DCOPF, 
+            FLOW_abs[lines[l,:fromnode],lines[l,:tonode]] >= 
+            - FLOW[lines[l,:fromnode],lines[l,:tonode]]  
+            )        
+        cAbs_Flows_pos[l] = @constraint(
+            DCOPF, 
+            FLOW_abs[lines[l,:fromnode],lines[l,:tonode]] >= 
+            FLOW[lines[l,:fromnode],lines[l,:tonode]]  
+            )        
+    end
+
     # Create slack bus with reference angle = 0; use bus 1 with generator
     fix(THETA[1],0)
                 
@@ -382,7 +402,9 @@ function dcopf_ieee_lossy(gens, lines, loads)
         flows,
         prices,
         cost = objective_value(DCOPF),
-        status = termination_status(DCOPF)
+        status = termination_status(DCOPF),
+        flows_raw = DataFrame(value.(FLOW).data),
+        flows_raw_abs = DataFrame(value.(FLOW_abs).data)
     )
 end
 
@@ -397,7 +419,13 @@ lines_2
 
 # Approximate the quadratic
 # Current version runs, with no changes 
-solution_2_no_losses = dcopf_ieee_lossy(gens_1a, lines_2, loads);
+solution_2 = dcopf_ieee_lossy(gens_1a, lines_2, loads);
+print_cost_and_status(solution_2)
+
+solution_2.flows
+
+
+solution_2_no_losses = dcopf_ieee(gens_1a, lines_2, loads);
 print_cost_and_status(solution_2_no_losses)
 
 
