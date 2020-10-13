@@ -387,11 +387,18 @@ function dcopf_ieee_lossy(gens, lines, loads)
 end
 
 # Increase the variable cost of Generator 1 to $30 / MWh
+
+#  we use gens_1a dataframe, which already has that
+
 # Change all transmission line capacities to 200 MW
+lines_2 = copy(lines)
+lines_2.capacity .= 200
+lines_2
 
 # Approximate the quadratic
-
-
+# Current version runs, with no changes 
+solution_2_no_losses = dcopf_ieee_lossy(gens_1a, lines_2, loads);
+print_cost_and_status(solution_2_no_losses)
 
 
 
