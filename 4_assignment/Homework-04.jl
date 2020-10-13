@@ -275,6 +275,121 @@ solution_1c.prices
 ############################################################
 
 
+#=
+Function to solve DC OPF problem using IEEE test cases. Includes quadratic 
+loss approximation 
+Inputs:
+    gen_info -- dataframe with generator info
+    line_info -- dataframe with transmission lines info
+    loads  -- dataframe with load info
+=#
+function dcopf_ieee_lossy(gens, lines, loads)
+    DCOPF = Model(GLPK.Optimizer) # You could use Clp as well, with Clp.Optimizer
+    
+    # Define sets based on data
+      # Set of generator buses
+    G = gens.connnode
+    
+      # Set of all nodes
+    N = sort(union(unique(lines.fromnode), 
+            unique(lines.tonode)))
+    
+      # sets J_i and G_i will be described using dataframe indexing below
+
+    # Define per unit base units for the system 
+    # used to convert from per unit values to standard unit
+    # values (e.g. p.u. power flows to MW/MVA)
+    baseMVA = 100 # base MVA is 100 MVA for this system
+    
+    # Decision variables   
+    @variables(DCOPF, begin
+        GEN[N]  >= 0     # generation        
+        # Note: we assume Pmin = 0 for all resources for simplicty here
+        THETA[N]         # voltage phase angle of bus
+        FLOW[N,N]        # flows between all pairs of nodes
+    end)
+    
+    # Create slack bus with reference angle = 0; use bus 1 with generator
+    fix(THETA[1],0)
+                
+    # Objective function
+    @objective(DCOPF, Min, 
+        sum( gens[g,:c1] * GEN[g] for g in G)
+    )
+    
+    # Supply demand balances
+    @constraint(DCOPF, cBalance[i in N], 
+        sum(GEN[g] for g in gens[gens.connnode .== i,:connnode]) 
+            + sum(load for load in loads[loads.connnode .== i,:demand]) 
+        == sum(FLOW[i,j] for j in lines[lines.fromnode .== i,:tonode])
+    )
+
+    # Max generation constraint
+    @constraint(DCOPF, cMaxGen[g in G],
+                    GEN[g] <= gens[g,:pgmax])
+
+    # Flow constraints on each branch; 
+    # In DCOPF, line flow is a function of voltage angles
+       # Create an array of references to the line constraints, 
+       # which we "fill" below in loop
+    cLineFlows = JuMP.Containers.DenseAxisArray{Any}(undef, 1:nrow(lines)) 
+    for l in 1:nrow(lines)
+        cLineFlows[l] = @constraint(DCOPF, 
+            FLOW[lines[l,:fromnode],lines[l,:tonode]] == 
+            baseMVA * lines[l,:b] * 
+            (THETA[lines[l,:fromnode]] - THETA[lines[l,:tonode]])
+        )
+    end
+    
+    # Max line flow limits
+       # Create an array of references to the line constraints, 
+       # which we "fill" below in loop
+    cLineLimits = JuMP.Containers.DenseAxisArray{Any}(undef, 1:nrow(lines)) 
+    for l in 1:nrow(lines)
+        cLineLimits[l] = @constraint(DCOPF,
+            FLOW[lines[l,:fromnode],lines[l,:tonode]] <=
+            lines[l,:capacity]
+        ) 
+    end
+
+    # Solve statement (! indicates runs in place)
+    optimize!(DCOPF)
+
+    # Output variables
+    generation = DataFrame(
+        node = gens.connnode,
+        gen = value.(GEN).data[gens.connnode]
+        )
+    
+    angles = value.(THETA).data
+    
+    flows = DataFrame(
+        fbus = lines.fromnode,
+        tbus = lines.tonode,
+        flow = baseMVA * lines.b .* (angles[lines.fromnode] .- 
+                        angles[lines.tonode]))
+    
+    # We output the marginal values of the demand constraints, 
+    # which will in fact be the prices to deliver power at a given bus.
+    prices = DataFrame(
+        node = N,
+        value = dual.(cBalance).data)
+    
+    # Return the solution and objective as named tuple
+    return (
+        generation = generation, 
+        angles,
+        flows,
+        prices,
+        cost = objective_value(DCOPF),
+        status = termination_status(DCOPF)
+    )
+end
+
+# Increase the variable cost of Generator 1 to $30 / MWh
+# Change all transmission line capacities to 200 MW
+
+# Approximate the quadratic
 
 
 
