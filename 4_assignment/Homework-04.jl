@@ -349,18 +349,6 @@ function dcopf_ieee_lossy(gens, lines, loads)
                 )
         )
     end
-
-    # @expression(DCOPF, 
-    #     eLoss[i in N], 
-    #     sum(
-    #         lines.resistance[
-    #             ((lines.fromnode.==i).&(lines.tonode .== j)),:][1] ./
-    #             baseMVA .* MaxFlow ^ 2 .*
-    #             (
-    #             (FLOW_abs[i,j] ./ MaxFlow) .- 0.165
-    #             )
-    #     for j in lines[lines.fromnode .== i,:tonode]) 
-    # )
     
     # Supply demand balances - add in losses expression
     # split losses as being half for each direction, for coding convenience
@@ -422,7 +410,7 @@ function dcopf_ieee_lossy(gens, lines, loads)
     prices = DataFrame(
         node = N,
         value = dual.(cBalance).data)
-    
+
     # Return the solution and objective as named tuple
     return (
         generation = generation, 
@@ -432,7 +420,8 @@ function dcopf_ieee_lossy(gens, lines, loads)
         cost = objective_value(DCOPF),
         status = termination_status(DCOPF),
         flows_raw = DataFrame(value.(FLOW).data),
-        flows_raw_abs = DataFrame(value.(FLOW_abs).data)
+        flows_raw_abs = DataFrame(value.(FLOW_abs).data),
+        losses = DataFrame(Loss = value.(eLoss).data)
     )
 end
 
@@ -449,15 +438,56 @@ head(lines_2)
 # Current version runs, with no changes 
 solution_2 = dcopf_ieee_lossy(gens_1a, lines_2, loads);
 print_cost_and_status(solution_2)
-solution_2.prices
+solution_2.generation
 solution_2.flows
+solution_2.prices
+solution_2.prices
 
+# Compare to without the losses
+# Run the same parameters in the lossless OPF from problem 1. 
+# How do prices and flows change? What is the largest magnitude 
+# difference in prices between the solution with losses 
+# and the lossless OPF solution?
 
 solution_2_no_losses = dcopf_ieee(gens_1a, lines_2, loads);
 print_cost_and_status(solution_2_no_losses)
 
+# Plot a comparison of the prices 
+comp_price_df = DataFrame(with_losses = solution_2.prices.value, 
+    without_losses = solution_2_no_losses.prices.value)
+comp_price_df.price_diff = comp_price_df.with_losses .- comp_price_df.without_losses
+comp_price_df.node = 1:14
+comp_price_df |>
+    @vlplot(:bar, x = :node, y = :price_diff)
+
+# All prices increase (except what seems to be a rounding error for node 1)
+# largest price difference is for node 12
+
+# Comparison of flows
+comp_loss_df = DataFrame(with_losses = solution_2.flows.flow, 
+    without_losses = solution_2_no_losses.flows.flow)
+comp_loss_df.flow_diff = comp_loss_df.with_losses .- comp_loss_df.without_losses
+comp_loss_df.id = 1:40
+comp_loss_df |>
+    @vlplot(:bar, x = :node, y = :flow_diff)
 
 
+# wloss = DataFrame(flow = solution_2.flows.flow, version = "with_losses")
+# wloss.id = 1:40
+# withoutloss =  DataFrame(flow = solution_2_no_losses.flows.flow, 
+#         version = "without_losses")
+# withoutloss.id = 1:40
+
+# append!(wloss, withoutloss) |>
+#     @vlplot(:bar, x = :id, y = {:flow, grid = false}, color = :version, column = :id,     
+#         config={
+#         view={stroke=:transparent},
+#         axis={domainWidth=1}
+#     })
+
+# on average - these must be zero. In general, we see a greater flow on 
+# parts of the system further away from generation, where more losses are 
+# occuring 
 
 
 ############################################################
