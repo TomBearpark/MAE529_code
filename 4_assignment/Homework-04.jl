@@ -5,10 +5,12 @@ using CSV
 using Plots; plotly();
 using VegaLite;
 using Query # dplyr like
+# using DataFramesMeta
 
-##############################
+
+############################################################
 # Question 1
-##############################
+############################################################
 
 
 # Note - tweaked this to use an absolute path, since i'm writing this code 
@@ -204,8 +206,73 @@ price_comparison_df = DataFrame(
 
 
 # 1B
+# Increase the variable cost of Generator 1 to $30 / MWh
+# Reduce flow limit on the line connecting 2 and 3 ( 𝑙23 ) to 70 MW
 
-s
+# We can use the same generation info as in 1A
+
+# Reduce the flow limit on line connecting 2 and 3...
+lines_1b = copy(lines)
+lines_1b.capacity[(lines_1b.fromnode .== 2).&(lines_1b.tonode .== 3)] .= 70
+lines_1b.capacity[(lines_1b.fromnode .== 3).&(lines_1b.tonode .== 2)] .= 70
+
+# Solve - and print solution
+solution_1b = dcopf_ieee(gens_1a, lines_1b, loads);
+print_cost_and_status(solution_1b)
+
+# Which node has the highest price and why?
+# What is the difference in prices across  𝑙23 , also 
+# known as the congestion rent? 
+# How do you interpret this value (what is it's practical meaning?)
+solution_1b.prices.max = ""
+solution_1b.prices.max[
+    solution_1b.prices.value .== maximum(solution_1b.prices.value)] .= "Node 3"
+solution_1b.prices |>
+    @vlplot(:bar, x = :node, y = :value, color = :max)
+# As we can see, the node with the highest price is at node 3, by quite a long 
+# way
+
+# Print the congestion factor
+solution_1b.prices.value[solution_1b.prices.node .== 3]  - 
+    solution_1b.prices.value[solution_1b.prices.node .== 2]
+# Congestion factor of over $200
+# We can interpret this as the benefit of consuming at node 2 rather than at
+# node three, due to the congestion
+
+
+
+# 1C
+# C. Demand increase
+# Make the following changes to the system:
+# Increase the variable cost of Generator 1 to $30 / MWh
+# Reduce flow limit on the line connecting 2 and 3 ( 𝑙23 ) to 70 MW
+# Increase demands everywhere by 5%
+
+loads_1c = copy(loads) |>
+    @mutate(demand = _.demand * 1.05) |>
+    DataFrame
+
+# Calculate the total available generating capacity:
+total_capacity = sum(gens_1a.pgmax)
+
+# Calculate the new total demand:
+total_demand = -sum(loads_1c.demand)
+
+# Run the DCOPF and show prices
+solution_1c = dcopf_ieee(gens_1a, lines_1b, loads_1c);
+print_cost_and_status(solution_1c)
+
+solution_1c.prices
+
+# We cannot meet demand, given the constraints on our system 
+# the constraint on capacity binds, and despite us having enough 
+# available generation, we can't get it to the demand in a feasible way
+
+
+
+############################################################
+# Question 2 - Linear Losses 
+############################################################
 
 
 
@@ -215,22 +282,9 @@ s
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+############################################################
+## Question 3 - Security contingencies
+############################################################
 
 lines = CSV.read(joinpath(datadir,"Tran14.csv"), DataFrame);
 rename!(lines,lowercase.(names(lines)))
