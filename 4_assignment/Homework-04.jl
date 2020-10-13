@@ -284,20 +284,12 @@ Inputs:
     loads  -- dataframe with load info
 =#
 function dcopf_ieee_lossy(gens, lines, loads)
+
     DCOPF = Model(GLPK.Optimizer) # You could use Clp as well, with Clp.Optimizer
-    
-    # Define sets based on data
-      # Set of generator buses
     G = gens.connnode
-    
       # Set of all nodes
     N = sort(union(unique(lines.fromnode), 
             unique(lines.tonode)))
-    
-      # sets J_i and G_i will be described using dataframe indexing below
-    # Define per unit base units for the system 
-    # used to convert from per unit values to standard unit
-    # values (e.g. p.u. power flows to MW/MVA)
     baseMVA = 100 # base MVA is 100 MVA for this system
     
     # Decision variables   
@@ -337,11 +329,47 @@ function dcopf_ieee_lossy(gens, lines, loads)
         sum( gens[g,:c1] * GEN[g] for g in G)
     )
     
-    # Supply demand balances
-    @constraint(DCOPF, cBalance[i in N], 
+    # Set the max flow - erroring if we aren't in the simple sitution defined 
+    # in this particular problem
+    if length(unique(lines.capacity)) .== 1
+        MaxFlow = maximum(lines.capacity)
+    else
+        throw(DomainError("Only coded it up for homogenous max flow"))
+    end
+
+    # expression for losses
+    eLoss = JuMP.Containers.DenseAxisArray{Any}(undef, 1:nrow(lines)) 
+    for l in 1:nrow(lines)
+        eLoss[l] = @expression(DCOPF, 
+            lines.resistance[l] ./
+                baseMVA .* MaxFlow ^ 2 .*
+                (
+                (FLOW_abs[lines.fromnode[l],lines.tonode[l]] 
+                    ./ MaxFlow) .- 0.165
+                )
+        )
+    end
+
+    # @expression(DCOPF, 
+    #     eLoss[i in N], 
+    #     sum(
+    #         lines.resistance[
+    #             ((lines.fromnode.==i).&(lines.tonode .== j)),:][1] ./
+    #             baseMVA .* MaxFlow ^ 2 .*
+    #             (
+    #             (FLOW_abs[i,j] ./ MaxFlow) .- 0.165
+    #             )
+    #     for j in lines[lines.fromnode .== i,:tonode]) 
+    # )
+    
+    # Supply demand balances - add in losses expression
+    # split losses as being half for each direction, for coding convenience
+    @constraint(DCOPF, 
+        cBalance[i in N], 
         sum(GEN[g] for g in gens[gens.connnode .== i,:connnode]) 
             + sum(load for load in loads[loads.connnode .== i,:demand]) 
-        == sum(FLOW[i,j] for j in lines[lines.fromnode .== i,:tonode])
+        == sum(FLOW[i,j] + 0.5 * eLoss[i]
+            for j in lines[lines.fromnode .== i,:tonode]) 
     )
 
     # Max generation constraint
@@ -415,13 +443,13 @@ end
 # Change all transmission line capacities to 200 MW
 lines_2 = copy(lines)
 lines_2.capacity .= 200
-lines_2
+head(lines_2)
 
 # Approximate the quadratic
 # Current version runs, with no changes 
 solution_2 = dcopf_ieee_lossy(gens_1a, lines_2, loads);
 print_cost_and_status(solution_2)
-
+solution_2.prices
 solution_2.flows
 
 
