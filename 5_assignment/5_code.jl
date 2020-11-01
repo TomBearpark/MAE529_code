@@ -21,9 +21,6 @@ input = prep_sets_and_parameters(pso_dir, days)
 SUB = input.SUB
 SET = input.SETS
 params = input.params
-params.lines
-
-
 
 # Run the model
 sol = solve_model(params = params, SET = SET, SUB = SUB, 

@@ -508,6 +508,7 @@ function solve_model(;params, SET, SUB, hours_per_period,
     # value.(JuMPObject) returns a numerical value, not a DenseAxisArray;
     # We thus do not need to use the .data extension here to extract numeric values
     cost_results = DataFrame(
+        Total_Costs = objective_value(Expansion_Model)/10^6,
         Fixed_Costs_Generation = value.(eFixedCostsGeneration)/10^6,
         Fixed_Costs_Storage = value.(eFixedCostsStorage)/10^6,
         Fixed_Costs_Transmission = value.(eFixedCostsTransmission)/10^6,
