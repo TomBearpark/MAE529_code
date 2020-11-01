@@ -1,51 +1,60 @@
 # Homework 5
 
 # Set up environment
-using JuMP, GLPK                       # optimisation packages
-using DataFrames, CSV, DataFramesMeta  # data cleaning
+using JuMP, Clp                       # optimisation packages
+using DataFrames, CSV                 # data cleaning
+using VegaLite                        # nice plots
 
 # Set string as location of Power System Optimisation git repo. 
 pso_dir = "/Users/tombearpark/Documents/princeton/" *
                 "1st_year/MAE529/power-systems-optimization/"
 
-# Load functions 
+# Working directory, for saving outputs
+wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
+     "MAE529/MAE529_code/5_assignment/"
+
+
+# Load functions - loads a function for cleaning the data and sets, and
+# a wrapper for the JUMP model. 
+# This code is just copied from Notebook 7
 include("5_functions.jl")
 
 # Number of days
-days = 10
-
-# load the data 
-
-input = prep_sets_and_parameters(pso_dir, days)
-
-SUB = input.SUB
-SET = input.SETS
-params = input.params
-
-# Run the model
-sol = solve_model(params = params, SET = SET, SUB = SUB, 
-    hours_per_period = input.hours_per_period, VOLL = input.VOLL,
-    sample_weight = input.sample_weight)
-
-
-sol.cost_results
-params.lines
-
-
-
-
-
-
-
-    # If output directory does not exist, create it
-if !(isdir(outpath))
-    mkdir(outpath)
+function run_model(pso_dir, time_subset)
+    # load the data 
+    input = prepare_inputs(pso_dir, time_subset)
+    # Run the model
+    solutions = solve_model(input)    
+    return(solutions)
 end
 
-CSV.write(joinpath(outpath, "generator_results.csv"), generator_results)
-CSV.write(joinpath(outpath, "storage_results.csv"), storage_results)
-CSV.write(joinpath(outpath, "transmission_results.csv"), transmission_results)
-CSV.write(joinpath(outpath, "nse_results.csv"), nse_results)
-CSV.write(joinpath(outpath, "cost_results.csv"), cost_results);
-value.(vCAP).data
-value.(vGen)
+# Part 1A and B 
+times = DataFrame(
+    time_subset = ["10_days", "4_weeks", "8_weeks", "16_weeks"], 
+    time = [0.0,0.0,0.0,0.0], time1 = [0.0,0.0,0.0,0.0])
+
+for d in times.time_subset
+    sol = run_model(pso_dir, d)
+    write_results(wd, sol, d)
+    println(sol.time[1])
+    times.time[times.time_subset .== d] .= sol.time
+    times.time1[times.time_subset .== d] .= sol.time1
+end
+
+# Create a scatter plot of the run times...
+times.hours = [10 * 24, 4 * 7 * 24, 8 * 7 * 24, 16 * 7 * 24]
+
+times |> 
+    @vlplot(:point, 
+        x={:hours, title="Number of hours optimized"}, 
+        y={:time, title="Time to compute (sec)"}, 
+        title= "Solve time vs hours", width=400, height=400) |> 
+    save(joinpath(wd, "results/figs/time_subset_compute_scatter.png"))
+
+# Compile a spreadsheet that compares 
+#     (a) the total cost results, 
+#     (b) total final capacity (MW) results by resource, and 
+#     (c) the total generation (GWh) results 
+#     for all four iterations of the model.
+
+
