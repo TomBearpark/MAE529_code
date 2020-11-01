@@ -30,8 +30,8 @@ end
 
 # Part 1A and B 
 times = DataFrame(
-    time_subset = ["10_days", "4_weeks", "8_weeks", "16_weeks"], 
-    time = [0.0,0.0,0.0,0.0], time1 = [0.0,0.0,0.0,0.0])
+    time_subset = ["10_days", "4_weeks", "8_weeks", "16_weeks", "52_weeks"], 
+    time = [0.0,0.0,0.0,0.0, 0.0], time1 = [0.0,0.0,0.0,0.0, 0.0])
 
 for d in times.time_subset
     sol = run_model(pso_dir, d)
@@ -42,8 +42,7 @@ for d in times.time_subset
 end
 
 # Create a scatter plot of the run times...
-times.hours = [10 * 24, 4 * 7 * 24, 8 * 7 * 24, 16 * 7 * 24]
-
+times.hours = [10 * 24, 4 * 7 * 24, 8 * 7 * 24, 16 * 7 * 24, 52 * 7 * 24]
 times |> 
     @vlplot(:point, 
         x={:hours, title="Number of hours optimized"}, 
@@ -51,10 +50,47 @@ times |>
         title= "Solve time vs hours", width=400, height=400) |> 
     save(joinpath(wd, "results/figs/time_subset_compute_scatter.png"))
 
+# Question 1C
 # Compile a spreadsheet that compares 
 #     (a) the total cost results, 
 #     (b) total final capacity (MW) results by resource, and 
 #     (c) the total generation (GWh) results 
 #     for all four iterations of the model.
 
+function return_totals(wd, d)
 
+    path = "/results/data/" * d * "_Thomas_Bearpark/"
+    cost_results = CSV.read(joinpath(wd * path, "cost_results.csv"))
+    gen = CSV.read(joinpath(wd * path, "generator_results.csv"))
+    
+    return DataFrame(time_subset = d, 
+                total_hours = times.hours[times.time_subset .== d][1],
+                total_cost = cost_results.Total_Costs[1], 
+                total_final_capacity = sum(gen.Total_MW), 
+                total_generation = sum(gen.GWh))
+
+
+end
+df = return_totals(wd, "10_days") 
+df = append!(df, return_totals(wd, "4_weeks"))
+df = append!(df, return_totals(wd, "8_weeks"))
+df = append!(df, return_totals(wd, "16_weeks"))
+
+# Find percentage differences 
+for var in ("total_cost",  "total_final_capacity", "total_generation")
+    df[var * "_deviation"] = 0.0
+    for i in 1:3
+        df[var * "_deviation"][i] =  100* (df[var][i] - df[var][4]) / df[var][4]
+    end
+end
+
+# d = stack(df, [:total_cost, :total_final_capacity, :total_generation]) |>
+#     @vlplot(:point,
+#             x = :total_hours, 
+#             y = :value, 
+#             column = :variable,
+#             resolve={scale={y="independent"}}
+#             )
+
+
+# Bonus: run the model for a full year of hours.. 
