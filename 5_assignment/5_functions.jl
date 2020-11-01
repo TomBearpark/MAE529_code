@@ -44,7 +44,7 @@ function prepare_inputs(input_path::String, time_subset::String)
         # Note that nse segment 1 = involuntary non-served energy (load shedding) at $9000/MWh
         # and segment 2 = one segment of voluntary price responsive demand at $600/MWh (up to 7.5% of demand)
     nse = DataFrame(Segment=S, 
-                    NSE_Cost = VOLL. * collect(skipmissing(demand_inputs.Cost_of_demand_curtailment_perMW)),
+                    NSE_Cost = VOLL .* collect(skipmissing(demand_inputs.Cost_of_demand_curtailment_perMW)),
                     NSE_Max = collect(skipmissing(demand_inputs.Max_demand_curtailment)))
     
         # Set of sequential hours per sub-period
@@ -134,7 +134,7 @@ function prepare_inputs(input_path::String, time_subset::String)
     # Note: after this, we don't need the fuels Data Frame again...
 
     G = intersect(generators.R_ID[.!(generators.HYDRO.==1)],G)
-    G = intersect(generators.R_ID[.!(generators.NDISP.==1)],G);
+    G = intersect(generators.R_ID[.!(generators.NDISP.==1)],G)
 
     #SUBSETS
     # By naming convention, all subsets are UPPERCASE
@@ -251,7 +251,7 @@ function solve_model(input)
     # to sink node (indicated by -1 in zone column for that line); 
     # flow is negative if flowing from sink to source.
     end)
-
+    println("assigned variables")
     # CONSTRAINTS
     # By naming convention, all constraints start with c and then are TitleCase
 
@@ -262,7 +262,7 @@ function solve_model(input)
     sum(vCHARGE[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],STOR)) -
     demand[t,z] - 
     sum(lines[l,Symbol(string("z",z))] * vFLOW[t,l] for l in L) == 0
-    );
+    )
     # Notes: 
     # 1. intersect(generators[generators.zone.==z,:R_ID],G) is the subset of all 
     # generators/storage located at zone z in Z.
@@ -315,32 +315,33 @@ function solve_model(input)
     # Then we record all time periods that do not begin a sub period 
     # (these will be subject to normal time couping constraints, looking back one period)
     INTERIORS = setdiff(T,STARTS)
-
+    
+    println("check")
+    
     # (10-12) Time coupling constraints
     @constraints(Expansion_Model, begin
-    # (10a) Ramp up constraints, normal
-    cRampUp[t in INTERIORS, g in G], 
-        vGEN[t,g] - vGEN[t-1,g] <= generators.Ramp_Up_percentage[g]*vCAP[g]
-    # (10b) Ramp up constraints, sub-period wrapping
-    cRampUpWrap[t in STARTS, g in G], 
-        vGEN[t,g] - vGEN[t+hours_per_period-1,g] <= generators.Ramp_Up_percentage[g]*vCAP[g]    
-    
-    # (11a) Ramp down, normal
-    cRampDown[t in INTERIORS, g in G], 
-        vGEN[t-1,g] - vGEN[t,g] <= generators.Ramp_Dn_percentage[g]*vCAP[g] 
-    # (11b) Ramp down, sub-period wrapping
-    cRampDownWrap[t in STARTS, g in G], 
-        vGEN[t+hours_per_period-1,g] - vGEN[t,g] <= generators.Ramp_Dn_percentage[g]*vCAP[g]     
-    
-    # (12a) Storage state of charge, normal
-    cSOC[t in INTERIORS, g in STOR], 
-        vSOC[t,g] == vSOC[t-1,g] + generators.Eff_up[g]*vCHARGE[t,g] - vGEN[t,g]/generators.Eff_down[g]
-    # (12a) Storage state of charge, wrapping
-    cSOCWrap[t in STARTS, g in STOR], 
-        vSOC[t,g] == vSOC[t+hours_per_period-1,g] + generators.Eff_up[g]*vCHARGE[t,g] - vGEN[t,g]/generators.Eff_down[g]
+        # (10a) Ramp up constraints, normal
+        cRampUp[t in INTERIORS, g in G], 
+            vGEN[t,g] - vGEN[t-1,g] <= generators.Ramp_Up_percentage[g]*vCAP[g]
+        # (10b) Ramp up constraints, sub-period wrapping
+        cRampUpWrap[t in STARTS, g in G], 
+            vGEN[t,g] - vGEN[t+hours_per_period-1,g] <= generators.Ramp_Up_percentage[g]*vCAP[g]    
+        # (11a) Ramp down, normal
+        cRampDown[t in INTERIORS, g in G], 
+            vGEN[t-1,g] - vGEN[t,g] <= generators.Ramp_Dn_percentage[g]*vCAP[g] 
+        # (11b) Ramp down, sub-period wrapping
+        cRampDownWrap[t in STARTS, g in G], 
+            vGEN[t+hours_per_period-1,g] - vGEN[t,g] <= generators.Ramp_Dn_percentage[g]*vCAP[g]     
+        
+        # (12a) Storage state of charge, normal
+        cSOC[t in INTERIORS, g in STOR], 
+            vSOC[t,g] == vSOC[t-1,g] + generators.Eff_up[g]*vCHARGE[t,g] - vGEN[t,g]/generators.Eff_down[g]
+        # (12a) Storage state of charge, wrapping
+        cSOCWrap[t in STARTS, g in STOR], 
+            vSOC[t,g] == vSOC[t+hours_per_period-1,g] + generators.Eff_up[g]*vCHARGE[t,g] - vGEN[t,g]/generators.Eff_down[g]
     end)
 
-
+    println("assigned constraints")
     # The objective function is to minimize the sum of fixed costs associated with
     # capacity decisions and variable costs associated with operational decisions
 
@@ -374,7 +375,7 @@ function solve_model(input)
     @objective(Expansion_Model, Min,
     eFixedCostsGeneration + eFixedCostsStorage + eFixedCostsTransmission +
     eVariableCosts + eNSECosts
-    );
+    )
 
     time = @elapsed optimize!(Expansion_Model)
     time1 = @elapsed optimize!(Expansion_Model)
@@ -460,7 +461,7 @@ function solve_model(input)
         Fixed_Costs_Transmission = value.(eFixedCostsTransmission)/10^6,
         Variable_Costs = value.(eVariableCosts)/10^6,
         NSE_Costs = value.(eNSECosts)/10^6
-    );
+    )
     return(
         generator_results = generator_results, 
         storage_results = storage_results, 
@@ -472,6 +473,7 @@ function solve_model(input)
     )
 end
 
+# Function for writing
 function write_results(wd::String, solutions, time_subset::String)
 
     outpath = wd * "/results/data/" * time_subset* "_Thomas_Bearpark/"

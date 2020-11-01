@@ -30,8 +30,8 @@ end
 
 # Part 1A and B 
 times = DataFrame(
-    time_subset = ["10_days", "4_weeks", "8_weeks", "16_weeks", "52_weeks"], 
-    time = [0.0,0.0,0.0,0.0, 0.0], time1 = [0.0,0.0,0.0,0.0, 0.0])
+    time_subset = ["10_days", "4_weeks", "8_weeks", "16_weeks"], 
+    time = [0.0,0.0,0.0,0.0], time1 = [0.0,0.0,0.0,0.0])
 
 for d in times.time_subset
     sol = run_model(pso_dir, d)
@@ -42,7 +42,7 @@ for d in times.time_subset
 end
 
 # Create a scatter plot of the run times...
-times.hours = [10 * 24, 4 * 7 * 24, 8 * 7 * 24, 16 * 7 * 24, 52 * 7 * 24]
+times.hours = [10 * 24, 4 * 7 * 24, 8 * 7 * 24, 16 * 7 * 24]
 times |> 
     @vlplot(:point, 
         x={:hours, title="Number of hours optimized"}, 
