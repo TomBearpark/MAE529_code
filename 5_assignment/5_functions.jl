@@ -231,12 +231,12 @@ function prep_sets_and_parameters(pso_dir, days)
     G = intersect(generators.R_ID[.!(generators.NDISP.==1)],G);
 
     parameters = (nse = nse, generators = generators, demand = demand, 
-                    zones = zones, lines = lines)
+                    zones = zones, lines = lines, variability = variability)
     SETS = (G = G, S = S, P = P, W =W, T= T, Z=Z, L=L)  
     SUB = get_subsets(G, generators)
     
-    return(params = parameters, SETS = SETS, SUB = SUB, 
-        VOLL = VOLL, hours_per_period = hours_per_period)
+    return(params = parameters, SETS = SETS, SUB = SUB, VOLL = VOLL, lines = lines, 
+        hours_per_period = hours_per_period, sample_weight = sample_weight)
 end
 
 println("-----------------------------------------------")
@@ -244,10 +244,15 @@ println("2 loading optimization  functions")
 println("-----------------------------------------------")
 
 # DECISION VARIABLES
-  # By naming convention, all decision variables start with v and then are in UPPER_SNAKE_CASE
+  # By naming convention, all decision variables start with 
+#   v and then are in UPPER_SNAKE_CASE
 
 
-function decision_vars(Expansion_Model;params, SET, SUB)
+function solve_model(;params, SET, SUB, hours_per_period, 
+        VOLL, sample_weight)
+    
+    # Initialise model
+    Expansion_Model = Model(GLPK.Optimizer)
 
     # Capacity decision variables
     @variables(Expansion_Model, begin
@@ -288,12 +293,10 @@ function decision_vars(Expansion_Model;params, SET, SUB)
             # to sink node (indicated by -1 in zone column for that line); 
             # flow is negative if flowing from sink to source.
     end)
-    # return Expansion_Model
-# end
 
-# # # CONSTRAINTS
-# #   # By naming convention, all constraints start with c and then are TitleCase
-# function add_constraints(Expansion_Model; params, SET, SUB, hours_per_period)
+    # # # CONSTRAINTS
+    # #   # By naming convention, all constraints start with c and then are TitleCase
+    # function add_constraints(Expansion_Model; params, SET, SUB, hours_per_period)
 
     # (1) Supply-demand balance constraint for all time steps and zones
     @constraint(Expansion_Model, cDemandBalance[t in SET.T, z in SET.Z], 
@@ -301,8 +304,8 @@ function decision_vars(Expansion_Model;params, SET, SUB)
                 params.generators[params.generators.zone.==z,:R_ID],SET.G)) +
             sum(vNSE[t,s,z] for s in SET.S) - 
             sum(vCHARGE[t,g] for g in intersect(
-                params.generators[params.generators.zone.==z,:R_ID],SET.STOR)) -
-            demand[t,z] - 
+                params.generators[params.generators.zone.==z,:R_ID],SUB.STOR)) -
+            params.demand[t,z] - 
             sum(params.lines[l,Symbol(string("z",z))] * 
                     vFLOW[t,l] for l in SET.L) == 0
     );
@@ -351,7 +354,7 @@ function decision_vars(Expansion_Model;params, SET, SUB)
     STARTS = 1:hours_per_period:maximum(SET.T)        
     # Then we record all time periods that do not begin a sub period 
     # (these will be subject to normal time couping constraints, looking back one period)
-    INTERIORS = setdiff(SET.T,SUB.STARTS)
+    INTERIORS = setdiff(SET.T,STARTS)
 
     # (10-12) Time coupling constraints
     @constraints(Expansion_Model, begin
@@ -359,7 +362,7 @@ function decision_vars(Expansion_Model;params, SET, SUB)
     cRampUp[t in INTERIORS, g in SET.G], 
         vGEN[t,g] - vGEN[t-1,g] <= params.generators.Ramp_Up_percentage[g]*vCAP[g]
     # (10b) Ramp up constraints, sub-period wrapping
-    cRampUpWrap[t in SUB.STARTS, g in SET.G], 
+    cRampUpWrap[t in STARTS, g in SET.G], 
         vGEN[t,g] - vGEN[t+hours_per_period-1,g] <= 
             params.generators.Ramp_Up_percentage[g]*vCAP[g]    
     
@@ -368,7 +371,7 @@ function decision_vars(Expansion_Model;params, SET, SUB)
         vGEN[t-1,g] - 
             vGEN[t,g] <= params.generators.Ramp_Dn_percentage[g]*vCAP[g] 
     # (11b) Ramp down, sub-period wrapping
-    cRampDownWrap[t in SUB.STARTS, g in SET.G], 
+    cRampDownWrap[t in STARTS, g in SET.G], 
         vGEN[t+hours_per_period-1,g] - vGEN[t,g] <= 
                     params.generators.Ramp_Dn_percentage[g]*vCAP[g]     
     
@@ -377,10 +380,146 @@ function decision_vars(Expansion_Model;params, SET, SUB)
         vSOC[t,g] == vSOC[t-1,g] + params.generators.Eff_up[g]*vCHARGE[t,g] - 
             vGEN[t,g]/params.generators.Eff_down[g]
     # (12a) Storage state of charge, wrapping
-    cSOCWrap[t in SUB.STARTS, g in SUB.STOR], 
+    cSOCWrap[t in STARTS, g in SUB.STOR], 
         vSOC[t,g] == vSOC[t+hours_per_period-1,g] + 
             params.generators.Eff_up[g]*vCHARGE[t,g] - 
                 vGEN[t,g]/params.generators.Eff_down[g]
     end)
-    return Expansion_Model
+
+    # The objective function is to minimize the sum of fixed costs associated w
+    # capacity decisions, variable costs associated with operational decisions
+
+    # Create expressions for each sub-component of the total cost 
+    @expression(Expansion_Model, eFixedCostsGeneration,
+    # Fixed costs for total capacity 
+    sum(params.generators.Fixed_OM_cost_per_MWyr[g]*vCAP[g] for g in SET.G) +
+    # Investment cost for new capacity
+    sum(params.generators.Inv_cost_per_MWyr[g]*vNEW_CAP[g] for g in SUB.NEW)
+    )
+    @expression(Expansion_Model, eFixedCostsStorage,
+    # Fixed costs for total storage energy capacity 
+    sum(params.generators.Fixed_OM_cost_per_MWhyr[g]*vE_CAP[g] 
+            for g in SUB.STOR) + 
+    # Investment costs for new storage energy capacity
+    sum(params.generators.Inv_cost_per_MWhyr[g]*vNEW_CAP[g] 
+            for g in intersect(SUB.STOR, SUB.NEW))
+    )
+    @expression(Expansion_Model, eFixedCostsTransmission,
+    # Investment and fixed O&M costs for transmission lines
+    sum(params.lines.Line_Fixed_Cost_per_MW_yr[l]*vT_CAP[l] +
+    params.lines.Line_Reinforcement_Cost_per_MW_yr[l]*vNEW_T_CAP[l] 
+        for l in SET.L)
+    )
+    @expression(Expansion_Model, eVariableCosts,
+    # Variable costs for generation, weighted by hourly sample weight
+    sum(sample_weight[t]*params.generators.Var_Cost[g]*vGEN[t,g] 
+        for t in SET.T, g in SET.G)
+    )
+    @expression(Expansion_Model, eNSECosts,
+    # Non-served energy costs
+    sum(sample_weight[t]*params.nse.NSE_Cost[s]*vNSE[t,s,z] for t in SET.T, s in SET.S, z in SET.Z)
+    )
+
+    @objective(Expansion_Model, Min,
+    eFixedCostsGeneration + eFixedCostsStorage + eFixedCostsTransmission +
+    eVariableCosts + eNSECosts
+    );
+
+    # Run the optimization 
+    optimize!(Expansion_Model)
+    
+    # Record generation capacity and energy results
+    generation = zeros(size(SET.G,1))
+    for i in 1:size(SET.G,1)
+        # Note that total annual generation is sumproduct of sample period weights and hourly sample period generation 
+        generation[i] = sum(sample_weight.*value.(vGEN)[:,SET.G[i]].data) 
+    end
+    # Note: Total annual demand is sumproduct of sample period weights and hourly sample period demands
+    total_demand = sum(convert(Array, sample_weight.*params.demand))
+    # Note, sum(A; dims=x) sums a given Array over the specified dimension; 
+    # here we sum demand in each zone over dim=2 (columns=zones) to get aggregate demand in each period
+    # then find the maximum aggregate demand 
+    peak_demand = maximum(sum(convert(Array, params.demand); dims=2))
+    MWh_share = generation./total_demand.*100
+    cap_share = value.(vCAP).data./peak_demand.*100
+    generator_results = DataFrame(
+        ID = SET.G, 
+        Resource = params.generators.Resource[SET.G],
+        Zone = params.generators.zone[SET.G],
+        Total_MW = value.(vCAP).data,
+        Start_MW = params.generators.Existing_Cap_MW[SET.G],
+        Change_in_MW = value.(vCAP).data.-
+                params.generators.Existing_Cap_MW[SET.G],
+        Percent_MW = cap_share,
+        GWh = generation/1000,
+        Percent_GWh = MWh_share
+    )
+
+    # Record energy storage energy capacity results (MWh)
+    storage_results = DataFrame(
+        ID = SUB.STOR, 
+        Zone = params.generators.zone[SUB.STOR],
+        Resource = params.generators.Resource[SUB.STOR],
+        Total_Storage_MWh = value.(vE_CAP).data,
+        Start_Storage_MWh = params.generators.Existing_Cap_MWh[SUB.STOR],
+        Change_in_Storage_MWh = value.(vE_CAP).data.-
+                params.generators.Existing_Cap_MWh[SUB.STOR],
+    )
+
+
+    # Record transmission capacity results
+    transmission_results = DataFrame(
+        Line = SET.L, 
+        Total_Transfer_Capacity = value.(vT_CAP).data,
+        Start_Transfer_Capacity = params.lines.Line_Max_Flow_MW,
+        Change_in_Transfer_Capacity = value.(vT_CAP).data.-
+            params.lines.Line_Max_Flow_MW,
+    )
+
+
+    ## Record non-served energy results by segment and zone
+    num_segments = maximum(SET.S)
+    num_zones = maximum(SET.Z)
+    nse_results = DataFrame(
+        Segment = zeros(num_segments*num_zones),
+        Zone = zeros(num_segments*num_zones),
+        NSE_Price = zeros(num_segments*num_zones),
+        Max_NSE_MW = zeros(num_segments*num_zones),
+        Total_NSE_MWh = zeros(num_segments*num_zones),
+        NSE_Percent_of_Demand = zeros(num_segments*num_zones)
+    )
+    i=1
+    for s in SET.S
+        for z in SET.Z
+            nse_results.Segment[i]=s
+            nse_results.Zone[i]=z
+            nse_results.NSE_Price=params.nse.NSE_Cost[s]
+            nse_results.Max_NSE_MW[i]=maximum(value.(vNSE)[:,s,z].data)
+            nse_results.Total_NSE_MWh[i]=sum(sample_weight.*
+                    value.(vNSE)[:,s,z].data)
+            nse_results.NSE_Percent_of_Demand[i]=
+                sum(sample_weight.*value.(vNSE)[:,s,z].data)/total_demand*100
+            i=i+1
+        end
+    end
+
+    # Record costs by component (in million dollars)
+    # Note: because each expression evaluates to a single value, 
+    # value.(JuMPObject) returns a numerical value, not a DenseAxisArray;
+    # We thus do not need to use the .data extension here to extract numeric values
+    cost_results = DataFrame(
+        Fixed_Costs_Generation = value.(eFixedCostsGeneration)/10^6,
+        Fixed_Costs_Storage = value.(eFixedCostsStorage)/10^6,
+        Fixed_Costs_Transmission = value.(eFixedCostsTransmission)/10^6,
+        Variable_Costs = value.(eVariableCosts)/10^6,
+        NSE_Costs = value.(eNSECosts)/10^6
+    );
+
+    return(
+        generator_results = generator_results, 
+        storage_results = storage_results, 
+        transmission_results = transmission_results, 
+        nse_results = nse_results, 
+        cost_results = cost_results
+    )
 end
