@@ -21,39 +21,34 @@ input = prep_sets_and_parameters(pso_dir, days)
 SUB = input.SUB
 SET = input.SETS
 params = input.params
-
-# Define the model... 
-Expansion_Model =  Model(GLPK.Optimizer);
+params.lines
 
 
 
-# Introduce the set of decision variables 
-decision_vars(Expansion_Model, params = params, SET = SET, SUB = SUB)
+# Run the model
+sol = solve_model(params = params, SET = SET, SUB = SUB, 
+    hours_per_period = input.hours_per_period, VOLL = input.VOLL,
+    sample_weight = input.sample_weight)
 
 
-
-
-
-
-
-# Introduce constraints
-add_constraints(Expansion_Model, params = params, SET = SET, 
-            SUB = SUB, hours_per_period = input.hours_per_period)
+sol.cost_results
+params.lines
 
 
 
 
 
 
-            vGEN[t,g]
-vGEN = Expansion_Model[:vGEN]
-@constraint(Expansion_Model, cDemandBalance[t in SET.T, z in SET.Z], 
-    sum(vGEN[t,g] for g in intersect(
-        params.generators[params.generators.zone.==z,:R_ID],SET.G)) +
-    sum(vNSE[t,s,z] for s in SET.S) - 
-    sum(vCHARGE[t,g] for g in intersect(
-        params.generators[params.generators.zone.==z,:R_ID],SET.STOR)) -
-    demand[t,z] - 
-    sum(params.lines[l,Symbol(string("z",z))] * 
-        vFLOW[t,l] for l in SET.L) == 0
-        )
+
+    # If output directory does not exist, create it
+if !(isdir(outpath))
+    mkdir(outpath)
+end
+
+CSV.write(joinpath(outpath, "generator_results.csv"), generator_results)
+CSV.write(joinpath(outpath, "storage_results.csv"), storage_results)
+CSV.write(joinpath(outpath, "transmission_results.csv"), transmission_results)
+CSV.write(joinpath(outpath, "nse_results.csv"), nse_results)
+CSV.write(joinpath(outpath, "cost_results.csv"), cost_results);
+value.(vCAP).data
+value.(vGen)
