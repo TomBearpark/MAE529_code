@@ -322,6 +322,9 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
 
     # (2b) Max power constraints for all time steps and all generators/storage in UC
         cMaxPowerUC[t in T, g in intersect(UC, G)], vGEN[t,g] <= vCOMMIT[t, g] * generators.Cap_size[g]
+    
+    # (2c) Min power constraints for all time steps and all generators/storage in UC
+        cMinPowerUC[t in T, g in intersect(UC, G)], vGEN[t,g] >= vCOMMIT[t, g] * generators.Cap_size[g] * generators.Min_power[g]
 
     # (3) Max charge constraints for all time steps and all storage resources
         cMaxCharge[t in T, g in STOR], vCHARGE[t,g] <= vCAP[g]
