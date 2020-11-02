@@ -290,11 +290,11 @@ println("-----------------------------------------------")
 
     # (1) Supply-demand balance constraint for all time steps and zones
     @constraint(Expansion_Model, cDemandBalance[t in T, z in Z], 
-    sum(vGEN[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],G)) +
-    sum(vNSE[t,s,z] for s in S) - 
-    sum(vCHARGE[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],STOR)) -
-    demand[t,z] - 
-    sum(lines[l,Symbol(string("z",z))] * vFLOW[t,l] for l in L) == 0
+        sum(vGEN[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],G)) +
+        sum(vNSE[t,s,z] for s in S) - 
+        sum(vCHARGE[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],STOR)) -
+        demand[t,z] - 
+        sum(lines[l,Symbol(string("z",z))] * vFLOW[t,l] for l in L) == 0
     )
     # Notes: 
     # 1. intersect(generators[generators.zone.==z,:R_ID],G) is the subset of all 
@@ -308,7 +308,7 @@ println("-----------------------------------------------")
     # (2-6) Capacitated constraints:
     @constraints(Expansion_Model, begin
     # (2) Max power constraints for all time steps and all generators/storage
-        cMaxPower[t in T, g in G], vGEN[t,g] <= variability[t,g]*vCAP[g]
+        cMaxPower[t in T, g in ED], vGEN[t,g] <= variability[t,g]*vCAP[g]
     # (3) Max charge constraints for all time steps and all storage resources
         cMaxCharge[t in T, g in STOR], vCHARGE[t,g] <= vCAP[g]
     # (4) Max state of charge constraints for all time steps and all storage resources
