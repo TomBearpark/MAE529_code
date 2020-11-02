@@ -318,7 +318,7 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
     # (2-6) Capacitated constraints:
     @constraints(Expansion_Model, begin
     # (2) Max power constraints for all time steps and all generators/storage
-        cMaxPower[t in T, g in G], vGEN[t,g] <= variability[t,g]*vCAP[g]
+        cMaxPower[t in T, g in intersect(ED, G)], vGEN[t,g] <= variability[t,g]*vCAP[g]
     # (3) Max charge constraints for all time steps and all storage resources
         cMaxCharge[t in T, g in STOR], vCHARGE[t,g] <= vCAP[g]
     # (4) Max state of charge constraints for all time steps and all storage resources
