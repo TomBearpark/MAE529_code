@@ -242,11 +242,11 @@ function solve_model(input)
         # Leave this one as it is. 
         vCAP[g in G]            >= 0     # power capacity (MW)
 
-        # Add new variables here... 
+        # Change in Instruction (1)- UC Ret and NEW as integer problem
         vRET_CAP_UC[g in intersect(OLD, UC)] >= 0, Int     # retirement of power capacity (MW), UC
         vNEW_CAP_UC[g in intersect(NEW, UC)] >= 0, Int     # new build power capacity (MW), UC
-        vRET_CAP_ED[g in intersect(OLD, ED)]      >= 0     # retirement of power capacity (MW), ED
-        vNEW_CAP_ED[g in intersect(NEW, ED)]      >= 0     # new build power capacity (MW), ED
+        vRET_CAP_ED[g in intersect(OLD, ED)] >= 0          # retirement of power capacity (MW), ED
+        vNEW_CAP_ED[g in intersect(NEW, ED)] >= 0          # new build power capacity (MW), ED
 
         vE_CAP[g in STOR]       >= 0     # storage energy capacity (MWh)
         vRET_E_CAP[g in intersect(STOR, OLD)]   >= 0     # retirement of storage energy capacity (MWh)
@@ -267,6 +267,13 @@ function solve_model(input)
     for l in L
         set_upper_bound(vNEW_T_CAP[l], lines.Line_Max_Reinforcement_MW[l])
     end
+
+    # Operational decision variables added for UC problem (instruction (3))
+    @variables(Expansion_Model, begin
+        vSTART[T, intersect(G, UC)]  >=0, Int
+        vSHUT[T, intersect(G, UC)]   >=0, Int
+        vCOMMIT[T, intersect(G, UC)] >=0, Int
+    end)
 
     # Operational decision variables
     @variables(Expansion_Model, begin
