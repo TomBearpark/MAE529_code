@@ -200,8 +200,9 @@ println("-----------------------------------------------")
 # Function for solving the model, given the cleaned inputs from the 
 # above function 
 
-function solve_model(input)
+# function solve_model(input)
 
+input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
     # Get the relevant names so it matches Jesse's code... 
     # params
     nse         = input.nse
@@ -259,9 +260,15 @@ function solve_model(input)
 
     # Set upper bounds on capacity for renewable resources 
     # (which are limited in each resource 'cluster')
-    for g in NEW[generators[NEW,:Max_Cap_MW].>0]
-        set_upper_bound(vNEW_CAP[g], generators.Max_Cap_MW[g])
+    # Split this into two parts, due to change in formulation 
+    for g in intersect(NEW, UC)[generators[intersect(NEW, UC),:Max_Cap_MW].>0]
+        set_upper_bound(vNEW_CAP_UC[g], generators.Max_Cap_MW[g])
     end
+    for g in intersect(NEW, ED)[generators[intersect(NEW, ED),:Max_Cap_MW].>0]
+        set_upper_bound(vNEW_CAP_ED[g], generators.Max_Cap_MW[g])
+    end
+
+
 
     # Set upper bounds on transmission capacity expansion
     for l in L
