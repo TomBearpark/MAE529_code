@@ -232,7 +232,7 @@ function solve_model(input)
     hours_per_period = input.hours_per_period
 
     # LP model using Clp solver
-    Expansion_Model =  Model(Clp.Optimizer);
+    Expansion_Model =  Model(Cbc.Optimizer);
     # DECISION VARIABLES
     # By naming convention, all decision variables start with v and then are in UPPER_SNAKE_CASE
   
