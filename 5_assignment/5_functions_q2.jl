@@ -235,22 +235,14 @@ println("-----------------------------------------------")
     Expansion_Model =  Model(Cbc.Optimizer);
     # DECISION VARIABLES
     # By naming convention, all decision variables start with v and then are in UPPER_SNAKE_CASE
-    
-    @variables(Expansion_Model, begin
-        # Non-UC ret and new 
-        vRET_CAP[g in intersect(ED, OLD)] >= 0, Int     # retirement of power capacity (MW)
-        vNEW_CAP[g in intersect(ED, NEW)] >= 0, Int     # new build power capacity (MW)
-
-    end)
-
 
     # Capacity decision variables
     @variables(Expansion_Model, begin
         vCAP[g in G]            >= 0     # power capacity (MW)
 
         # Integer decisions
-        vRET_CAP[g in intersect(UC, OLD)]      >= 0     # retirement of power capacity (MW)
-        vNEW_CAP[g in intersect(UC, NEW)]      >= 0     # new build power capacity (MW)
+        vRET_CAP[g in intersect(UC, OLD)]      >= 0, Int     # retirement of power capacity (MW)
+        vNEW_CAP[g in intersect(UC, NEW)]      >= 0, Int     # new build power capacity (MW)
 
         vE_CAP[g in STOR]       >= 0     # storage energy capacity (MWh)
         vRET_E_CAP[g in intersect(STOR, OLD)]   >= 0     # retirement of storage energy capacity (MWh)
@@ -284,6 +276,14 @@ println("-----------------------------------------------")
         # to sink node (indicated by -1 in zone column for that line); 
         # flow is negative if flowing from sink to source.
     end)
+
+    # Additional operational decision variables
+    @variables(Expansion_Model, begin
+        vSTART[T,UC]       >= 0, Int  # Power generation (MW)
+        vSHUT[T,UC]        >= 0, Int  # Power charging (MW)
+        vCOMMIT[T,UC]      >= 0, Int # Energy storage state of charge (MWh)
+    end)
+
     println("assigned variables")
     # CONSTRAINTS
     # By naming convention, all constraints start with c and then are TitleCase
@@ -307,8 +307,13 @@ println("-----------------------------------------------")
     # for each line l in L.
     # (2-6) Capacitated constraints:
     @constraints(Expansion_Model, begin
-    # (2) Max power constraints for all time steps and all generators/storage
+    # (2a) Max power constraints for all time steps and all generators/storage not in UC
         cMaxPower[t in T, g in ED], vGEN[t,g] <= variability[t,g]*vCAP[g]
+
+    # (2b) Max power constraints for all time steps and all generators/storage for UC generators
+        cMaxPowerUC[t in T, g in UC], vGEN[t,g] <= variability[t,g]*vCAP[g]
+
+
     # (3) Max charge constraints for all time steps and all storage resources
         cMaxCharge[t in T, g in STOR], vCHARGE[t,g] <= vCAP[g]
     # (4) Max state of charge constraints for all time steps and all storage resources
