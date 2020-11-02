@@ -3,7 +3,7 @@
 # Set up environment
 using JuMP, Clp                       # optimisation packages
 using DataFrames, CSV                 # data cleaning
-using VegaLite                        # nice plots
+using VegaLite, Plots                 # plots
 
 # Set string as location of Power System Optimisation git repo. 
 pso_dir = "/Users/tombearpark/Documents/princeton/" *
@@ -12,7 +12,6 @@ pso_dir = "/Users/tombearpark/Documents/princeton/" *
 # Working directory, for saving outputs
 wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
      "MAE529/MAE529_code/5_assignment/"
-
 
 # Load functions - loads a function for cleaning the data and sets, and
 # a wrapper for the JUMP model. 
@@ -62,16 +61,17 @@ times |>
 df = append_all_totals(wd, false)
 
 # Plot percentage divergence from 16 week version 
-plot_df =  select(df, :total_hours, :total_cost_deviation, 
-    :total_final_capacity_deviation, :total_generation_deviation) 
-plot_df = stack(plot_df, Not(:total_hours)) 
-rename!(plot_df, :value => :percent_diff)
+function plot_percent_diffs(df) 
+    plot_df =  select(df, :total_hours, :total_cost_deviation, 
+        :total_final_capacity_deviation, :total_generation_deviation) 
+    plot_df = stack(plot_df, Not(:total_hours)) 
+    rename!(plot_df, :value => :percent_diff)
 
-plot_df |> @vlplot(:point, x = :total_hours, y = :percent_diff, 
-            column = :variable, height = 400, width = 200, 
-            title = "Percent Deviation From 16 week version") 
-
-
+    plot_df |> @vlplot(:point, x = :total_hours, y = :percent_diff, 
+                column = :variable, height = 400, width = 200, 
+                title = "Percent Deviation From 16 week version") 
+end
+plot_percent_diffs(df)
 # Save a new copy of your Julia file and then modify the following 
 # lines of code in the read inputs portion of yor model to incorporate 
 # a carbon price of \$50 per ton of CO2 content in the fuel used by each 
@@ -97,19 +97,15 @@ end
 # Write results 
 CSV.write(joinpath(wd, "results/times_w_carbon_tax.csv"), 
     times_tax)  
-times_tax |> 
-    @vlplot(:point, 
-        x={:hours, title="Number of hours optimized"}, 
-        y={:time, title="Time to compute (sec)"}, 
-        title= "Solve time vs hours", width=400, height=400) |> 
-    save(joinpath(wd, 
-    "results/figs/time_subset_compute_scatter_w_carbon_tax.png"))
 
-# Load results from disk
-df = append_all_totals(wd, true)
-df_old = append_all_totals(wd, false)
+# Load results from disk - make these into latex tables for write up 
+df_ct = append_all_totals(wd, true)
+df = append_all_totals(wd, false)
 
+scatter(times.hours, times.time, label = "Without carbon tax")
+scatter!(times_tax.hours, times_tax.time, label = "With carbon tax")
+title!("Number of hours in subset vs compute time (seconds)")
 
+plot_percent_diffs(df_ct)
 
 # Bonus: run the model for a full year of hours.. 
-df.total_hours = df.total_hours + df.total_hours
