@@ -347,34 +347,34 @@ function solve_model(input)
 
     # Create expressions for each sub-component of the total cost (for later retrieval)
     @expression(Expansion_Model, eFixedCostsGeneration,
-    # Fixed costs for total capacity 
-    sum(generators.Fixed_OM_cost_per_MWyr[g]*vCAP[g] for g in G) +
-    # Investment cost for new capacity
-    sum(generators.Inv_cost_per_MWyr[g]*vNEW_CAP[g] for g in NEW)
+        # Fixed costs for total capacity 
+        sum(generators.Fixed_OM_cost_per_MWyr[g]*vCAP[g] for g in G) +
+        # Investment cost for new capacity
+        sum(generators.Inv_cost_per_MWyr[g]*vNEW_CAP[g] for g in NEW)
     )
     @expression(Expansion_Model, eFixedCostsStorage,
-    # Fixed costs for total storage energy capacity 
-    sum(generators.Fixed_OM_cost_per_MWhyr[g]*vE_CAP[g] for g in STOR) + 
-    # Investment costs for new storage energy capacity
-    sum(generators.Inv_cost_per_MWhyr[g]*vNEW_CAP[g] for g in intersect(STOR, NEW))
+        # Fixed costs for total storage energy capacity 
+        sum(generators.Fixed_OM_cost_per_MWhyr[g]*vE_CAP[g] for g in STOR) + 
+        # Investment costs for new storage energy capacity
+        sum(generators.Inv_cost_per_MWhyr[g]*vNEW_CAP[g] for g in intersect(STOR, NEW))
     )
     @expression(Expansion_Model, eFixedCostsTransmission,
-    # Investment and fixed O&M costs for transmission lines
-    sum(lines.Line_Fixed_Cost_per_MW_yr[l]*vT_CAP[l] +
-    lines.Line_Reinforcement_Cost_per_MW_yr[l]*vNEW_T_CAP[l] for l in L)
+        # Investment and fixed O&M costs for transmission lines
+        sum(lines.Line_Fixed_Cost_per_MW_yr[l]*vT_CAP[l] +
+        lines.Line_Reinforcement_Cost_per_MW_yr[l]*vNEW_T_CAP[l] for l in L)
     )
     @expression(Expansion_Model, eVariableCosts,
-    # Variable costs for generation, weighted by hourly sample weight
-    sum(sample_weight[t]*generators.Var_Cost[g]*vGEN[t,g] for t in T, g in G)
+        # Variable costs for generation, weighted by hourly sample weight
+        sum(sample_weight[t]*generators.Var_Cost[g]*vGEN[t,g] for t in T, g in G)
     )
     @expression(Expansion_Model, eNSECosts,
-    # Non-served energy costs
-    sum(sample_weight[t]*nse.NSE_Cost[s]*vNSE[t,s,z] for t in T, s in S, z in Z)
+        # Non-served energy costs
+        sum(sample_weight[t]*nse.NSE_Cost[s]*vNSE[t,s,z] for t in T, s in S, z in Z)
     )
 
     @objective(Expansion_Model, Min,
-    eFixedCostsGeneration + eFixedCostsStorage + eFixedCostsTransmission +
-    eVariableCosts + eNSECosts
+        eFixedCostsGeneration + eFixedCostsStorage + eFixedCostsTransmission +
+        eVariableCosts + eNSECosts
     )
 
     time = @elapsed optimize!(Expansion_Model)
