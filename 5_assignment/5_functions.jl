@@ -4,7 +4,8 @@ println("1 loading data preparation function")
 println("-----------------------------------------------")
 
 
-function prepare_inputs(input_path::String, time_subset::String)
+function prepare_inputs(input_path::String, time_subset::String; 
+            carbon_tax::Bool)
 
     # Read input data for a case with 10 sample days of data
     inputs_path = input_path * "/Notebooks/complex_expansion_data/" * 
@@ -28,6 +29,7 @@ function prepare_inputs(input_path::String, time_subset::String)
                         :Eff_up, :Eff_down);
     # Set of all generators
     G = generators.R_ID;
+
 
     # Read demand input data and record parameters
     demand_inputs = DataFrame(CSV.File(joinpath(inputs_path, "Load_data.csv")))
@@ -91,10 +93,8 @@ function prepare_inputs(input_path::String, time_subset::String)
 
     # Read fuels data
     fuels = DataFrame(CSV.File(joinpath(inputs_path, "Fuels_data.csv")));
-    # Uncomment this line to explore the data if you wish:
-    # show(fuels, allrows=true, allcols=true);
 
-        # Read network data
+    # Read network data
     network = DataFrame(CSV.File(joinpath(inputs_path, "Network.csv")));
     #Again, there is a lot of entries in here we will not use (formatted for GenX inputs), so let's select what we want
     # Array of network zones (z1, z2, z3)
@@ -117,20 +117,43 @@ function prepare_inputs(input_path::String, time_subset::String)
     generators.CO2_Rate = zeros(Float64, size(G,1))
     generators.Start_Cost = zeros(Float64, size(G,1))
     generators.CO2_Per_Start = zeros(Float64, size(G,1))
+
     for g in G
-        # Variable cost ($/MWh) = variable O&M ($/MWh) + 
-                # fuel cost ($/MMBtu) * heat rate (MMBtu/MWh)
+        # Variable cost ($/MWh) = variable O&M ($/MWh) + fuel cost ($/MMBtu) 
+        # * heat rate (MMBtu/MWh)
         generators.Var_Cost[g] = generators.Var_OM_cost_per_MWh[g] +
             fuels[fuels.Fuel.==generators.Fuel[g],
                 :Cost_per_MMBtu][1]*generators.Heat_rate_MMBTU_per_MWh[g]
-        # CO2 emissions rate (tCO2/MWh) = fuel CO2 content (tCO2/MMBtu) * heat rate (MMBtu/MWh)
-        generators.CO2_Rate[g] = fuels[fuels.Fuel.==generators.Fuel[g],:CO2_content_tons_per_MMBtu][1]*generators.Heat_rate_MMBTU_per_MWh[g]
-        # Start-up cost ($/start/MW) = start up O&M cost ($/start/MW) + fuel cost ($/MMBtu) * start up fuel use (MMBtu/start/MW) 
+        # CO2 emissions rate (tCO2/MWh) = fuel CO2 content (tCO2/MMBtu) 
+            # * heat rate (MMBtu/MWh)
+        generators.CO2_Rate[g] = fuels[fuels.Fuel.==generators.Fuel[g],
+            :CO2_content_tons_per_MMBtu][1]*generators.Heat_rate_MMBTU_per_MWh[g]
+        # Start-up cost ($/start/MW) = start up O&M cost ($/start/MW) + 
+        #   fuel cost ($/MMBtu) * start up fuel use (MMBtu/start/MW) 
         generators.Start_Cost[g] = generators.Start_cost_per_MW[g] +
-            fuels[fuels.Fuel.==generators.Fuel[g],:Cost_per_MMBtu][1]*generators.Start_fuel_MMBTU_per_MW[g]
-        # Start-up CO2 emissions (tCO2/start/MW) = fuel CO2 content (tCO2/MMBtu) * start up fuel use (MMBtu/start/MW) 
-        generators.CO2_Per_Start[g] = fuels[fuels.Fuel.==generators.Fuel[g],:CO2_content_tons_per_MMBtu][1]*generators.Start_fuel_MMBTU_per_MW[g]
+            fuels[fuels.Fuel.==generators.Fuel[g],
+            :Cost_per_MMBtu][1]*generators.Start_fuel_MMBTU_per_MW[g]
+        # Start-up CO2 emissions (tCO2/start/MW) = 
+        # fuel CO2 content (tCO2/MMBtu) * start up fuel use (MMBtu/start/MW) 
+        generators.CO2_Per_Start[g] = fuels[fuels.Fuel.==generators.Fuel[g],
+            :CO2_content_tons_per_MMBtu][1]*generators.Start_fuel_MMBTU_per_MW[g]
     end
+        
+    # Carbon tax for part 1d
+    # add an additional element to the total Variable Cost and Start-up Cost that 
+    # 50 times the CO2 content of the fuel (tCO2/MMBtu) times the total fuel 
+    # consumed by each resource (MMBtu).
+
+    if carbon_tax
+        println("adding in carbon tax elements")
+        generators.Var_Cost = generators.Var_Cost + 
+            generators.CO2_Rate .* 50
+        
+        generators.Start_Cost = generators.Start_Cost + 
+            generators.CO2_Per_Start .* 50
+    end
+
+
     # Note: after this, we don't need the fuels Data Frame again...
 
     G = intersect(generators.R_ID[.!(generators.HYDRO.==1)],G)
@@ -215,41 +238,41 @@ function solve_model(input)
   
     # Capacity decision variables
     @variables(Expansion_Model, begin
-    vCAP[g in G]            >= 0     # power capacity (MW)
-    vRET_CAP[g in OLD]      >= 0     # retirement of power capacity (MW)
-    vNEW_CAP[g in NEW]      >= 0     # new build power capacity (MW)
+        vCAP[g in G]            >= 0     # power capacity (MW)
+        vRET_CAP[g in OLD]      >= 0     # retirement of power capacity (MW)
+        vNEW_CAP[g in NEW]      >= 0     # new build power capacity (MW)
 
-    vE_CAP[g in STOR]       >= 0     # storage energy capacity (MWh)
-    vRET_E_CAP[g in intersect(STOR, OLD)]   >= 0     # retirement of storage energy capacity (MWh)
-    vNEW_E_CAP[g in intersect(STOR, NEW)]   >= 0     # new build storage energy capacity (MWh)
+        vE_CAP[g in STOR]       >= 0     # storage energy capacity (MWh)
+        vRET_E_CAP[g in intersect(STOR, OLD)]   >= 0     # retirement of storage energy capacity (MWh)
+        vNEW_E_CAP[g in intersect(STOR, NEW)]   >= 0     # new build storage energy capacity (MWh)
 
-    vT_CAP[l in L]          >= 0     # transmission capacity (MW)
-    vRET_T_CAP[l in L]      >= 0     # retirement of transmission capacity (MW)
-    vNEW_T_CAP[l in L]      >= 0     # new build transmission capacity (MW)
+        vT_CAP[l in L]          >= 0     # transmission capacity (MW)
+        vRET_T_CAP[l in L]      >= 0     # retirement of transmission capacity (MW)
+        vNEW_T_CAP[l in L]      >= 0     # new build transmission capacity (MW)
     end)
 
     # Set upper bounds on capacity for renewable resources 
     # (which are limited in each resource 'cluster')
     for g in NEW[generators[NEW,:Max_Cap_MW].>0]
-    set_upper_bound(vNEW_CAP[g], generators.Max_Cap_MW[g])
+        set_upper_bound(vNEW_CAP[g], generators.Max_Cap_MW[g])
     end
 
     # Set upper bounds on transmission capacity expansion
     for l in L
-    set_upper_bound(vNEW_T_CAP[l], lines.Line_Max_Reinforcement_MW[l])
+        set_upper_bound(vNEW_T_CAP[l], lines.Line_Max_Reinforcement_MW[l])
     end
 
     # Operational decision variables
     @variables(Expansion_Model, begin
-    vGEN[T,G]       >= 0  # Power generation (MW)
-    vCHARGE[T,STOR] >= 0  # Power charging (MW)
-    vSOC[T,STOR]    >= 0  # Energy storage state of charge (MWh)
-    vNSE[T,S,Z]     >= 0  # Non-served energy/demand curtailment (MW)
-    vFLOW[T,L]      # Transmission line flow (MW); 
-    # note line flow is positive if flowing
-    # from source node (indicated by 1 in zone column for that line) 
-    # to sink node (indicated by -1 in zone column for that line); 
-    # flow is negative if flowing from sink to source.
+        vGEN[T,G]       >= 0  # Power generation (MW)
+        vCHARGE[T,STOR] >= 0  # Power charging (MW)
+        vSOC[T,STOR]    >= 0  # Energy storage state of charge (MWh)
+        vNSE[T,S,Z]     >= 0  # Non-served energy/demand curtailment (MW)
+        vFLOW[T,L]      # Transmission line flow (MW); 
+        # note line flow is positive if flowing
+        # from source node (indicated by 1 in zone column for that line) 
+        # to sink node (indicated by -1 in zone column for that line); 
+        # flow is negative if flowing from sink to source.
     end)
     println("assigned variables")
     # CONSTRAINTS
@@ -473,10 +496,15 @@ function solve_model(input)
     )
 end
 
-# Function for writing
-function write_results(wd::String, solutions, time_subset::String)
+# Function for writing results to csv files
+function write_results(wd::String, solutions, time_subset::String, 
+        carbon_tax::Bool)
 
     outpath = wd * "/results/data/" * time_subset* "_Thomas_Bearpark/"
+
+    if carbon_tax
+        outpath = outpath * "carbon_tax"
+    end
 
     if !(isdir(outpath))
         mkpath(outpath)
@@ -493,3 +521,43 @@ function write_results(wd::String, solutions, time_subset::String)
     CSV.write(joinpath(outpath, "cost_results.csv"), 
         solutions.cost_results);
 end
+
+# Helper function for loading csv files 
+function return_totals(wd, d, carbon_tax::Bool)
+    
+    # Load in the relevant data
+    path = "/results/data/" * d * "_Thomas_Bearpark/"
+    
+    if carbon_tax
+        path = path * "carbon_tax"
+        println("returning version with carbon tax")
+    end
+
+    cost_results = CSV.read(joinpath(wd * path, "cost_results.csv"))
+    gen = CSV.read(joinpath(wd * path, "generator_results.csv"))
+    
+    # Return dataframe of needed data 
+    return DataFrame(time_subset = d, 
+                total_hours = times.hours[times.time_subset .== d][1],
+                total_cost = cost_results.Total_Costs[1], 
+                total_final_capacity = sum(gen.Total_MW), 
+                total_generation = sum(gen.GWh))
+end
+
+# Wraps around return totals, to append for each time period 
+function append_all_totals(wd, carbon_tax::Bool)
+    df = return_totals(wd, "10_days", carbon_tax) 
+    df = append!(df, return_totals(wd, "4_weeks", carbon_tax))
+    df = append!(df, return_totals(wd, "8_weeks", carbon_tax))
+    df = append!(df, return_totals(wd, "16_weeks", carbon_tax))
+    # Find percentage differences, relative to 16 week version 
+    for var in ("total_cost",  "total_final_capacity", "total_generation")
+        df[var * "_deviation"] = 0.0
+        for i in 1:3
+            df[var * "_deviation"][i] =  100 * 
+                (df[var][i] - df[var][4]) / df[var][4]
+        end
+    end
+    return(df)
+end
+
