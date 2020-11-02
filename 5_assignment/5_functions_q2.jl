@@ -200,7 +200,7 @@ println("-----------------------------------------------")
 # Function for solving the model, given the cleaned inputs from the 
 # above function 
 
-function solve_model(input)
+# function solve_model(input)
 
     # Get the relevant names so it matches Jesse's code... 
     # params
@@ -235,12 +235,22 @@ function solve_model(input)
     Expansion_Model =  Model(Cbc.Optimizer);
     # DECISION VARIABLES
     # By naming convention, all decision variables start with v and then are in UPPER_SNAKE_CASE
-  
+    
+    @variables(Expansion_Model, begin
+        # Non-UC ret and new 
+        vRET_CAP[g in intersect(ED, OLD)] >= 0, Int     # retirement of power capacity (MW)
+        vNEW_CAP[g in intersect(ED, NEW)] >= 0, Int     # new build power capacity (MW)
+
+    end)
+
+
     # Capacity decision variables
     @variables(Expansion_Model, begin
         vCAP[g in G]            >= 0     # power capacity (MW)
-        vRET_CAP[g in OLD]      >= 0     # retirement of power capacity (MW)
-        vNEW_CAP[g in NEW]      >= 0     # new build power capacity (MW)
+
+        # Integer decisions
+        vRET_CAP[g in intersect(UC, OLD)]      >= 0     # retirement of power capacity (MW)
+        vNEW_CAP[g in intersect(UC, NEW)]      >= 0     # new build power capacity (MW)
 
         vE_CAP[g in STOR]       >= 0     # storage energy capacity (MWh)
         vRET_E_CAP[g in intersect(STOR, OLD)]   >= 0     # retirement of storage energy capacity (MWh)
