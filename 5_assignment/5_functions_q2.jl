@@ -338,6 +338,15 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
         cMinFlow[t in T, l in L], vFLOW[t,l] >= -vT_CAP[l]
     end)
 
+
+    # Upper bound constraints on start-up, shut down, commitment state vars
+    # From instruction number (6)
+    @constraints(Expansion_Model, begin
+        cCommitUB[t in T, g in intersect(UC, G)], vCOMMIT[t,g] <= vCAP[g] * generators.Cap_size[g]
+        cStartUB[t in T, g in intersect(UC, G)],  vSTART[t,g]  <= vCAP[g] * generators.Cap_size[g]
+        cShutUB[t in T, g in intersect(UC, G)],   vSHUT[t,g]   <= vCAP[g] * generators.Cap_size[g]
+    end)
+
     # (7-9) Total capacity constraints:
     @constraints(Expansion_Model, begin
     # (7a) Total capacity for existing units
@@ -390,6 +399,8 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
         cSOCWrap[t in STARTS, g in STOR], 
             vSOC[t,g] == vSOC[t+hours_per_period-1,g] + generators.Eff_up[g]*vCHARGE[t,g] - vGEN[t,g]/generators.Eff_down[g]
     end)
+
+
 
     println("assigned constraints")
     # The objective function is to minimize the sum of fixed costs associated with
