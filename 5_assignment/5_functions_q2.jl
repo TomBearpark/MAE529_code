@@ -424,6 +424,16 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
                     generators.Min_power[g] * generators.Cap_size[g] * vSTART[t+1, g]
     end)
 
+    # Constraints for instruction (10) - minimum up and down time constraints
+    @constraints(Expansion_Model, begin
+        cCommitMin[t in T, g in intersect(UC, G)], vCOMMIT[t,g] >= sum(vSTART[i, g] 
+            for i in intersect(T, (t-generators.Up_time[g]):t))
+    end)
+    @constraints(Expansion_Model, begin
+        cCommitShut[t in T, g in intersect(UC, G)], vCAP[g] / generators.Cap_size[g] - vCOMMIT[t,g]  >= 
+            sum(vSHUT[i, g] for i in intersect(T, (t-generators.Down_time[g]):t))
+    end)
+
 
 
     println("assigned constraints")
