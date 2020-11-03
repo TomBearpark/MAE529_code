@@ -200,9 +200,8 @@ println("-----------------------------------------------")
 # Function for solving the model, given the cleaned inputs from the 
 # above function 
 
-# function solve_model(input)
+function solve_model(input)
 
-input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
     # Get the relevant names so it matches Jesse's code... 
     # params
     nse         = input.nse
@@ -584,16 +583,21 @@ end
 function write_results(wd::String, solutions, time_subset::String, 
         carbon_tax::Bool)
 
-    outpath = wd * "/results/data/" * time_subset* "_Thomas_Bearpark/"
-
+    outpath = wd * "/results/data/question_2/" * time_subset* "_Thomas_Bearpark/"
+    
     if carbon_tax
         outpath = outpath * "carbon_tax"
+    else 
+        outpath = outpath * "without_carbon_tax"
     end
 
     if !(isdir(outpath))
         mkpath(outpath)
     end
     print("w")
+
+    times = DataFrame(time = solutions.time)
+
     CSV.write(joinpath(outpath, "generator_results.csv"), 
         solutions.generator_results)
     CSV.write(joinpath(outpath, "storage_results.csv"), 
@@ -603,7 +607,9 @@ function write_results(wd::String, solutions, time_subset::String,
     CSV.write(joinpath(outpath, "nse_results.csv"), 
         solutions.nse_results)
     CSV.write(joinpath(outpath, "cost_results.csv"), 
-        solutions.cost_results);
+        solutions.cost_results)
+    CSV.write(joinpath(outpath, "time.csv"), 
+        times);
 end
 
 # Helper function for loading csv files 
