@@ -356,10 +356,15 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
     # (7-9) Total capacity constraints:
     @constraints(Expansion_Model, begin
     # (7a) Total capacity for existing units
-        cCapOld[g in OLD], vCAP[g] == generators.Existing_Cap_MW[g] - vRET_CAP[g]
+        cCapOld[g in intersect(ED, OLD)], vCAP[g] == generators.Existing_Cap_MW[g] - vRET_CAP_ED[g]
     # (7b) Total capacity for new units
-        cCapNew[g in NEW], vCAP[g] == vNEW_CAP[g]
-            
+        cCapNew[g in intersect(ED, NEW)], vCAP[g] == vNEW_CAP_ED[g]
+    # UC versions...
+    # (7c) Total capacity for existing units
+        cCapOldUC[g in intersect(UC, OLD)], vCAP[g] == generators.Existing_Cap_MW[g] / generators.Cap_size[g] - vRET_CAP_UC[g]
+    # (7d) Total capacity for new units
+        cCapNewUC[g in intersect(UC, NEW)], vCAP[g] == generators.Cap_size[g] * vNEW_CAP_UC[g]
+
     # (8a) Total energy storage capacity for existing units
         cCapEnergyOld[g in intersect(STOR, OLD)], 
             vE_CAP[g] == generators.Existing_Cap_MWh[g] - vRET_E_CAP[g]
@@ -370,6 +375,8 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
     # (9) Total transmission capacity
         cTransCap[l in L], vT_CAP[l] == lines.Line_Max_Flow_MW[l] - vRET_T_CAP[l] + vNEW_T_CAP[l]
     end)
+
+
     # Because we are using time domain reduction via sample periods (days or weeks),
     # we must be careful with time coupling constraints at the start and end of each
     # sample period. 
