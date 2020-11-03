@@ -386,16 +386,16 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
     # (10-12) Time coupling constraints
     @constraints(Expansion_Model, begin
         # (10a) Ramp up constraints, normal
-        cRampUp[t in INTERIORS, g in G], 
+        cRampUp[t in INTERIORS, g in ED], 
             vGEN[t,g] - vGEN[t-1,g] <= generators.Ramp_Up_percentage[g]*vCAP[g]
         # (10b) Ramp up constraints, sub-period wrapping
-        cRampUpWrap[t in STARTS, g in G], 
+        cRampUpWrap[t in STARTS, g in ED], 
             vGEN[t,g] - vGEN[t+hours_per_period-1,g] <= generators.Ramp_Up_percentage[g]*vCAP[g]    
         # (11a) Ramp down, normal
-        cRampDown[t in INTERIORS, g in G], 
+        cRampDown[t in INTERIORS, g in ED], 
             vGEN[t-1,g] - vGEN[t,g] <= generators.Ramp_Dn_percentage[g]*vCAP[g] 
         # (11b) Ramp down, sub-period wrapping
-        cRampDownWrap[t in STARTS, g in G], 
+        cRampDownWrap[t in STARTS, g in ED], 
             vGEN[t+hours_per_period-1,g] - vGEN[t,g] <= generators.Ramp_Dn_percentage[g]*vCAP[g]     
         
         # (12a) Storage state of charge, normal
