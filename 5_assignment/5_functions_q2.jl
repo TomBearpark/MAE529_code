@@ -454,14 +454,16 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
     @expression(Expansion_Model, eFixedCostsGeneration,
         # Fixed costs for total capacity 
         sum(generators.Fixed_OM_cost_per_MWyr[g]*vCAP[g] for g in G) +
-        # Investment cost for new capacity
-        sum(generators.Inv_cost_per_MWyr[g]*vNEW_CAP[g] for g in NEW)
+        # Investment cost for new capacity - split this into two parts 
+        sum(generators.Inv_cost_per_MWyr[g]*vNEW_CAP_ED[g] for g in intersect(ED, NEW)) + 
+        sum(generators.Inv_cost_per_MWyr[g]*vNEW_CAP_UC[g] for g in intersect(UC, NEW)) 
     )
     @expression(Expansion_Model, eFixedCostsStorage,
         # Fixed costs for total storage energy capacity 
         sum(generators.Fixed_OM_cost_per_MWhyr[g]*vE_CAP[g] for g in STOR) + 
         # Investment costs for new storage energy capacity
-        sum(generators.Inv_cost_per_MWhyr[g]*vNEW_CAP[g] for g in intersect(STOR, NEW))
+        sum(generators.Inv_cost_per_MWhyr[g]*vNEW_CAP_ED[g] for g in intersect(ED, STOR, NEW)) +
+        sum(generators.Inv_cost_per_MWhyr[g]*vNEW_CAP_UC[g] for g in intersect(UC, STOR, NEW))
     )
     @expression(Expansion_Model, eFixedCostsTransmission,
         # Investment and fixed O&M costs for transmission lines
@@ -478,7 +480,7 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
     )
 
     @objective(Expansion_Model, Min,
-        eFixedCostsGeneration + eFixedCostsStorage + eFixedCostsTransmission +
+        eStartCost + eFixedCostsGeneration + eFixedCostsStorage + eFixedCostsTransmission +
         eVariableCosts + eNSECosts
     )
 
