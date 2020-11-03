@@ -406,6 +406,24 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
             vSOC[t,g] == vSOC[t+hours_per_period-1,g] + generators.Eff_up[g]*vCHARGE[t,g] - vGEN[t,g]/generators.Eff_down[g]
     end)
 
+    # Add a max Min power and Ramp Up percent columnn to generator DF
+    generators.Max_MinPower_Ramp_UP = max.(generators.Min_power, generators.Ramp_Up_percentage)
+    generators.Max_MinPower_Ramp_DOWN = max.(generators.Min_power, generators.Ramp_Dn_percentage)
+
+    # Constraints from instruction (9)
+    @constraints(Expansion_Model, begin
+        cRampRateUcUP[t in setdiff(T,length(T)), g in intersect(UC, G)],     
+            vGEN[t+1, g] - vGEN[t, g] <= generators.Ramp_Up_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t+1, g] - vSTART[t+1,g]) + 
+                    generators.Max_MinPower_Ramp_UP[g] * generators.Cap_size[g] * vSTART[t+1, g] - 
+                    generators.Min_power[g] * generators.Cap_size[g] * vSHUT[t+1, g]
+    end)
+    @constraints(Expansion_Model, begin
+        cRampRateUcDn[t in setdiff(T,length(T)), g in intersect(UC, G)],     
+            vGEN[t+1, g] - vGEN[t, g] <= generators.Ramp_Dn_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t+1, g] - vSTART[t+1,g]) + 
+                    generators.Max_MinPower_Ramp_DOWN[g] * generators.Cap_size[g] * vSHUT[t+1, g] - 
+                    generators.Min_power[g] * generators.Cap_size[g] * vSTART[t+1, g]
+    end)
+
 
 
     println("assigned constraints")
