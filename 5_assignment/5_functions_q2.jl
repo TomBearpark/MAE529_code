@@ -347,6 +347,11 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
         cShutUB[t in T, g in intersect(UC, G)],   vSHUT[t,g]   <= vCAP[g] * generators.Cap_size[g]
     end)
 
+    # New constraint, defining COMMIT, from instruction (7)
+    @constraints(Expansion_Model, begin
+        cCommit[t in T, g in intersect(UC, G)], vCOMMIT[t,g] == vCOMMIT[t-1,g] + vSTART[t,g] - vSHUT[t,g]
+    end)
+
     # (7-9) Total capacity constraints:
     @constraints(Expansion_Model, begin
     # (7a) Total capacity for existing units
