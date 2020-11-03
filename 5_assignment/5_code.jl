@@ -15,10 +15,12 @@ wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
 
 # Load functions - loads a function for cleaning the data and sets, and
 # a wrapper for the JUMP model. 
-# This code is just copied from Notebook 7
+# This code is just copied from Notebook 7, broken up into two functions
+# to allow for data analysis before solving the model 
 include("5_functions.jl")
 
-# Number of days
+# Helper function for running the model, for a given time subset, and 
+# for either with or without a carbon tax 
 function run_model(pso_dir, time_subset, carbon_tax::Bool)
     # load the data 
     input = prepare_inputs(pso_dir, time_subset, carbon_tax = carbon_tax)
@@ -33,7 +35,7 @@ times = DataFrame(
     time = [0.0,0.0,0.0,0.0], time1 = [0.0,0.0,0.0,0.0])
 
 for d in times.time_subset
-    sol = run_model(pso_dir, d)
+    sol = run_model(pso_dir, d, false)
     write_results(wd, sol, d, false)
     println(sol.time[1])
     times.time[times.time_subset .== d] .= sol.time
@@ -42,8 +44,9 @@ end
 
 # Create a scatter plot of the run times...
 times.hours = [10 * 24, 4 * 7 * 24, 8 * 7 * 24, 16 * 7 * 24]
-CSV.write(joinpath(wd, "results/times.csv"), 
+CSV.write(joinpath(wd, "results/q1_times.csv"), 
         times)  
+# Scatter plot of times, for inclusion in write up 
 times |> 
     @vlplot(:point, 
         x={:hours, title="Number of hours optimized"}, 
@@ -58,7 +61,6 @@ times |>
 #     (c) the total generation (GWh) results 
 #     for all four iterations of the model.
 
-df = append_all_totals(wd, false)
 
 # Plot percentage divergence from 16 week version 
 function plot_percent_diffs(df) 
@@ -69,16 +71,24 @@ function plot_percent_diffs(df)
 
     plot_df |> @vlplot(:point, x = :total_hours, y = :percent_diff, 
                 column = :variable, height = 400, width = 200, 
-                title = "Percent Deviation From 16 week version") 
+                title = "Percent Deviation From 16 week version")
+
 end
-plot_percent_diffs(df)
+# Create the spreadsheet 
+df = append_all_totals(wd, false)
+# Write results 
+CSV.write(joinpath(wd, "results/q1_summary_without_carbon_tax.csv"), 
+    df)  
+plot_percent_diffs(df) |> 
+    save(joinpath(wd, "results/figs/q1_accuracy_losses_without_carbon_tax.png"))
+
+
 # Save a new copy of your Julia file and then modify the following 
 # lines of code in the read inputs portion of yor model to incorporate 
 # a carbon price of \$50 per ton of CO2 content in the fuel used by each 
 # resource. To do so, add an additional element to the total Variable Cost 
 # and Start-up Cost that includes 50 times the CO2 content of the fuel 
 # (tCO2/MMBtu) times the total fuel consumed by each resource (MMBtu).
-
 
 # Run model, with carbon tax option selected 
 times_tax = DataFrame(
@@ -95,17 +105,22 @@ for d in times_tax.time_subset
     times_tax.time1[times_tax.time_subset .== d] .= sol.time1
 end
 # Write results 
-CSV.write(joinpath(wd, "results/times_w_carbon_tax.csv"), 
+CSV.write(joinpath(wd, "results/q1_times_w_carbon_tax.csv"), 
     times_tax)  
 
 # Load results from disk - make these into latex tables for write up 
 df_ct = append_all_totals(wd, true)
-df = append_all_totals(wd, false)
+# Write results 
+CSV.write(joinpath(wd, "results/q1_summary_with_carbon_tax.csv"), 
+    df_ct)  
+plot_percent_diffs(df_ct) |> 
+    save(joinpath(wd, "results/figs/q1_accuracy_losses_with_carbon_tax.png"))
 
+# Visualise some of the outputs
 scatter(times.hours, times.time, label = "Without carbon tax")
 scatter!(times_tax.hours, times_tax.time, label = "With carbon tax")
 title!("Number of hours in subset vs compute time (seconds)")
-
-plot_percent_diffs(df_ct)
+png(joinpath(wd, "results/figs/times_comparison.png"))
 
 # Bonus: run the model for a full year of hours.. 
+# not working...?

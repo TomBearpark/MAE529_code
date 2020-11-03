@@ -532,16 +532,20 @@ end
 function return_totals(wd, d, carbon_tax::Bool)
     
     # Load in the relevant data
-    path = "/results/data/" * d * "_Thomas_Bearpark/"
+    path = wd * "/results/data/question_1/" * d* "_Thomas_Bearpark/"
     
     if carbon_tax
         path = path * "carbon_tax"
-        println("returning version with carbon tax")
+    else 
+        path = path * "without_carbon_tax"
     end
 
-    cost_results = CSV.read(joinpath(wd * path, "cost_results.csv"))
-    gen = CSV.read(joinpath(wd * path, "generator_results.csv"))
-    
+    cost_results = CSV.read(joinpath(path, "cost_results.csv"))
+    gen = CSV.read(joinpath(path, "generator_results.csv"))
+    times = DataFrame(
+        time_subset = ["10_days", "4_weeks", "8_weeks", "16_weeks"], 
+        hours = [10 * 24, 4 * 7 * 24, 8 * 7 * 24, 16 * 7 * 24])
+
     # Return dataframe of needed data 
     return DataFrame(time_subset = d, 
                 total_hours = times.hours[times.time_subset .== d][1],
