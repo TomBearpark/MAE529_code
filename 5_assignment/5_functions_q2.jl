@@ -441,11 +441,14 @@ input = prepare_inputs(pso_dir, "10_days", carbon_tax = false)
             sum(vSHUT[i, g] for i in intersect(T, (t-generators.Down_time[g]):t))
     end)
 
-
-
     println("assigned constraints")
     # The objective function is to minimize the sum of fixed costs associated with
     # capacity decisions and variable costs associated with operational decisions
+
+    # Instruction (12) - add start cost expression
+    @expression(Expansion_Model, eStartCost, 
+        sum(sample_weight[t] * generators.Start_Cost[g] * vSTART[t,g] for t in T, g in UC)
+    )
 
     # Create expressions for each sub-component of the total cost (for later retrieval)
     @expression(Expansion_Model, eFixedCostsGeneration,
