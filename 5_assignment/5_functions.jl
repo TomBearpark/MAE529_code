@@ -500,16 +500,20 @@ end
 function write_results(wd::String, solutions, time_subset::String, 
         carbon_tax::Bool)
 
-    outpath = wd * "/results/data/" * time_subset* "_Thomas_Bearpark/"
-
-    if carbon_tax
-        outpath = outpath * "carbon_tax"
-    end
+        outpath = wd * "/results/data/question_1/" * time_subset* "_Thomas_Bearpark/"
+    
+        if carbon_tax
+            outpath = outpath * "carbon_tax"
+        else 
+            outpath = outpath * "without_carbon_tax"
+        end
 
     if !(isdir(outpath))
         mkpath(outpath)
     end
     print("w")
+    times = DataFrame(time = solutions.time)
+
     CSV.write(joinpath(outpath, "generator_results.csv"), 
         solutions.generator_results)
     CSV.write(joinpath(outpath, "storage_results.csv"), 
@@ -519,7 +523,9 @@ function write_results(wd::String, solutions, time_subset::String,
     CSV.write(joinpath(outpath, "nse_results.csv"), 
         solutions.nse_results)
     CSV.write(joinpath(outpath, "cost_results.csv"), 
-        solutions.cost_results);
+        solutions.cost_results)
+    CSV.write(joinpath(outpath, "time.csv"), 
+        times);
 end
 
 # Helper function for loading csv files 
