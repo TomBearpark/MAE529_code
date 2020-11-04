@@ -236,7 +236,7 @@ function solve_model(input, solve_type::String)
         # LP model using Clp solver
         Expansion_Model =  Model(Cbc.Optimizer);
         # To keep solve times down -  allow a tolerance. Used value from Notebook 05
-        set_optimizer_attribute(Expansion_Model, "ratioGap", 0.01)
+        set_optimizer_attribute(Expansion_Model, "ratioGap", 0.02)
     else
         Expansion_Model =  Model(Clp.Optimizer);
     end
@@ -266,9 +266,9 @@ function solve_model(input, solve_type::String)
         end)
             # Operational decision variables added for UC problem (instruction (3))
         @variables(Expansion_Model, begin
-            vSTART[T, intersect(G, UC)]  >=0, Int
-            vSHUT[T, intersect(G, UC)]   >=0, Int
-            vCOMMIT[T, intersect(G, UC)] >=0, Int
+            vSTART[T, UC]  >=0, Int
+            vSHUT[T, UC]   >=0, Int
+            vCOMMIT[T, UC] >=0, Int
         end)
         # linear version... 
     else
@@ -293,9 +293,9 @@ function solve_model(input, solve_type::String)
             vNEW_T_CAP[l in L]      >= 0     # new build transmission capacity (MW)
         end)
         @variables(Expansion_Model, begin
-            vSTART[T, intersect(G, UC)]  >=0
-            vSHUT[T, intersect(G, UC)]   >=0
-            vCOMMIT[T, intersect(G, UC)] >=0
+            vSTART[T, UC]  >=0
+            vSHUT[T, UC]   >=0
+            vCOMMIT[T, UC] >=0
         end)
     end
 
@@ -459,7 +459,7 @@ function solve_model(input, solve_type::String)
     end)
     @constraints(Expansion_Model, begin
         cRampRateUcDn[t in setdiff(T,length(T)), g in UC],     
-            vGEN[t+1, g] - vGEN[t, g] <= generators.Ramp_Dn_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t+1, g] - vSTART[t+1,g]) + 
+            vGEN[t, g] - vGEN[t+1, g] <= generators.Ramp_Dn_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t+1, g] - vSTART[t+1,g]) + 
                     generators.Max_MinPower_Ramp_DOWN[g] * generators.Cap_size[g] * vSHUT[t+1, g] - 
                     generators.Min_power[g] * generators.Cap_size[g] * vSTART[t+1, g]
     end)
@@ -601,7 +601,8 @@ function solve_model(input, solve_type::String)
         Fixed_Costs_Storage = value.(eFixedCostsStorage)/10^6,
         Fixed_Costs_Transmission = value.(eFixedCostsTransmission)/10^6,
         Variable_Costs = value.(eVariableCosts)/10^6,
-        NSE_Costs = value.(eNSECosts)/10^6
+        NSE_Costs = value.(eNSECosts)/10^6, 
+        Start_costs = value.(eStartCost) / 10^6
     )
     return(
         generator_results = generator_results, 
@@ -628,7 +629,7 @@ function write_results(wd::String, solutions, time_subset::String,
     if !(isdir(outpath))
         mkpath(outpath)
     end
-    print("w")
+    println(outpath)
 
     times = DataFrame(time = solutions.time)
 
