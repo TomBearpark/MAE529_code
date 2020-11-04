@@ -18,7 +18,7 @@ wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
 # This code is just copied from Notebook 7, except I have made the changes 
 # requested in the problem set for question 2
 include("5_functions_q2.jl")
-input = prepare_inputs(pso_dir, "8_weeks", false)
+input = prepare_inputs(pso_dir, "8_weeks", carbon_tax = false)
 solutions = solve_model(input)    
 write_results(wd, solutions, "8_weeks", false)
 
