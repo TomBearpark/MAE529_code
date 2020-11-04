@@ -17,7 +17,7 @@ wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
 # a wrapper for the JUMP model. 
 # This code is just copied from Notebook 7, broken up into two functions
 # to allow for data analysis before solving the model 
-include("5_functions.jl")
+include("5_functions_q1.jl")
 
 # Helper function for running the model, for a given time subset, and 
 # for either with or without a carbon tax 
