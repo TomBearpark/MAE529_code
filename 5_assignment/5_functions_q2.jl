@@ -200,7 +200,7 @@ println("-----------------------------------------------")
 # Function for solving the model, given the cleaned inputs from the 
 # above function 
 
-function solve_model(input)
+# function solve_model(input)
 
     # Get the relevant names so it matches Jesse's code... 
     # params
@@ -260,6 +260,13 @@ function solve_model(input)
         vNEW_T_CAP[l in L]      >= 0     # new build transmission capacity (MW)
     end)
 
+    # Operational decision variables added for UC problem (instruction (3))
+    @variables(Expansion_Model, begin
+        vSTART[T, intersect(G, UC)]  >=0, Int
+        vSHUT[T, intersect(G, UC)]   >=0, Int
+        vCOMMIT[T, intersect(G, UC)] >=0, Int
+    end)
+
     # Set upper bounds on capacity for renewable resources 
     # (which are limited in each resource 'cluster')
     # Split this into two parts, due to change in formulation 
@@ -270,19 +277,11 @@ function solve_model(input)
         set_upper_bound(vNEW_CAP_ED[g], generators.Max_Cap_MW[g])
     end
 
-
-
     # Set upper bounds on transmission capacity expansion
     for l in L
         set_upper_bound(vNEW_T_CAP[l], lines.Line_Max_Reinforcement_MW[l])
     end
 
-    # Operational decision variables added for UC problem (instruction (3))
-    @variables(Expansion_Model, begin
-        vSTART[T, intersect(G, UC)]  >=0, Int
-        vSHUT[T, intersect(G, UC)]   >=0, Int
-        vCOMMIT[T, intersect(G, UC)] >=0, Int
-    end)
 
     # Operational decision variables
     @variables(Expansion_Model, begin
@@ -320,13 +319,13 @@ function solve_model(input)
     # (2-6) Capacitated constraints:
     @constraints(Expansion_Model, begin
     # (2a) Max power constraints for all time steps and all generators/storage not in UC
-        cMaxPower[t in T, g in intersect(ED, G)], vGEN[t,g] <= variability[t,g]*vCAP[g]
+        cMaxPower[t in T, g in ED], vGEN[t,g] <= variability[t,g]*vCAP[g]
 
+    # Instruction (4) and instruction (5)
     # (2b) Max power constraints for all time steps and all generators/storage in UC
-        cMaxPowerUC[t in T, g in intersect(UC, G)], vGEN[t,g] <= vCOMMIT[t, g] * generators.Cap_size[g]
-    
+        cMaxPowerUC[t in T, g in UC, G], vGEN[t,g] <= vCOMMIT[t, g] * generators.Cap_size[g]
     # (2c) Min power constraints for all time steps and all generators/storage in UC
-        cMinPowerUC[t in T, g in intersect(UC, G)], vGEN[t,g] >= vCOMMIT[t, g] * generators.Cap_size[g] * generators.Min_power[g]
+        cMinPowerUC[t in T, g in UC], vGEN[t,g] >= vCOMMIT[t, g] * generators.Cap_size[g] * generators.Min_power[g]
 
     # (3) Max charge constraints for all time steps and all storage resources
         cMaxCharge[t in T, g in STOR], vCHARGE[t,g] <= vCAP[g]
@@ -344,14 +343,14 @@ function solve_model(input)
     # Upper bound constraints on start-up, shut down, commitment state vars
     # From instruction number (6)
     @constraints(Expansion_Model, begin
-        cCommitUB[t in T, g in intersect(UC, G)], vCOMMIT[t,g] <= vCAP[g] * generators.Cap_size[g]
-        cStartUB[t in T, g in intersect(UC, G)],  vSTART[t,g]  <= vCAP[g] * generators.Cap_size[g]
-        cShutUB[t in T, g in intersect(UC, G)],   vSHUT[t,g]   <= vCAP[g] * generators.Cap_size[g]
+        cCommitUB[t in T, g in UC], vCOMMIT[t,g] <= vCAP[g] / generators.Cap_size[g]
+        cStartUB[t in T, g in UC],  vSTART[t,g]  <= vCAP[g] / generators.Cap_size[g]
+        cShutUB[t in T, g in UC],   vSHUT[t,g]   <= vCAP[g] / generators.Cap_size[g]
     end)
 
     # New constraint, defining COMMIT, from instruction (7). Copied approach from notebook 05
     @constraints(Expansion_Model, begin
-        cCommit[t in setdiff(T,length(T)), g in intersect(UC, G)], 
+        cCommit[t in setdiff(T,length(T)), g in UC], 
                 vCOMMIT[t+1,g] == vCOMMIT[t,g] + vSTART[t+1,g] - vSHUT[t+1,g]
     end)
 
@@ -421,13 +420,13 @@ function solve_model(input)
 
     # Constraints from instruction (9)
     @constraints(Expansion_Model, begin
-        cRampRateUcUP[t in setdiff(T,length(T)), g in intersect(UC, G)],     
+        cRampRateUcUP[t in setdiff(T,length(T)), g in UC],     
             vGEN[t+1, g] - vGEN[t, g] <= generators.Ramp_Up_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t+1, g] - vSTART[t+1,g]) + 
                     generators.Max_MinPower_Ramp_UP[g] * generators.Cap_size[g] * vSTART[t+1, g] - 
                     generators.Min_power[g] * generators.Cap_size[g] * vSHUT[t+1, g]
     end)
     @constraints(Expansion_Model, begin
-        cRampRateUcDn[t in setdiff(T,length(T)), g in intersect(UC, G)],     
+        cRampRateUcDn[t in setdiff(T,length(T)), g in UC],     
             vGEN[t+1, g] - vGEN[t, g] <= generators.Ramp_Dn_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t+1, g] - vSTART[t+1,g]) + 
                     generators.Max_MinPower_Ramp_DOWN[g] * generators.Cap_size[g] * vSHUT[t+1, g] - 
                     generators.Min_power[g] * generators.Cap_size[g] * vSTART[t+1, g]
@@ -435,11 +434,11 @@ function solve_model(input)
 
     # Constraints for instruction (10) - minimum up and down time constraints
     @constraints(Expansion_Model, begin
-        cCommitMin[t in T, g in intersect(UC, G)], vCOMMIT[t,g] >= sum(vSTART[i, g] 
+        cCommitMin[t in T, g in UC], vCOMMIT[t,g] >= sum(vSTART[i, g] 
             for i in intersect(T, (t-generators.Up_time[g]):t))
     end)
     @constraints(Expansion_Model, begin
-        cCommitShut[t in T, g in intersect(UC, G)], vCAP[g] / generators.Cap_size[g] - vCOMMIT[t,g]  >= 
+        cCommitShut[t in T, g in UC], vCAP[g] / generators.Cap_size[g] - vCOMMIT[t,g]  >= 
             sum(vSHUT[i, g] for i in intersect(T, (t-generators.Down_time[g]):t))
     end)
 
