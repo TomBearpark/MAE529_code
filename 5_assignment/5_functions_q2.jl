@@ -200,7 +200,7 @@ println("-----------------------------------------------")
 # Function for solving the model, given the cleaned inputs from the 
 # above function 
 
-# function solve_model(input)
+function solve_model(input, solve_type::String)
 
     # Get the relevant names so it matches Jesse's code... 
     # params
@@ -231,41 +231,73 @@ println("-----------------------------------------------")
     sample_weight = input.sample_weight
     hours_per_period = input.hours_per_period
 
-    # LP model using Clp solver
-    Expansion_Model =  Model(Cbc.Optimizer);
-    # To keep solve times down -  allow a tolerance. Used value from Notebook 05
-    set_optimizer_attribute(Expansion_Model, "ratioGap", 0.01)
+
+    if solve_type == "MILP"
+        # LP model using Clp solver
+        Expansion_Model =  Model(Cbc.Optimizer);
+        # To keep solve times down -  allow a tolerance. Used value from Notebook 05
+        set_optimizer_attribute(Expansion_Model, "ratioGap", 0.01)
+    else
+        Expansion_Model =  Model(Clp.Optimizer);
+    end
 
     # DECISION VARIABLES
     # By naming convention, all decision variables start with v and then are in UPPER_SNAKE_CASE
-  
-    # Capacity decision variables
-    @variables(Expansion_Model, begin
-        
-        # Leave this one as it is. 
-        vCAP[g in G]            >= 0     # power capacity (MW)
+    if solve_type == "MILP"
+        # Capacity decision variables
+        @variables(Expansion_Model, begin
+            
+            # Leave this one as it is. 
+            vCAP[g in G]            >= 0     # power capacity (MW)
 
-        # Change in Instruction (1)- UC Ret and NEW as integer problem
-        vRET_CAP_UC[g in intersect(OLD, UC)] >= 0, Int     # retirement of power capacity (MW), UC
-        vNEW_CAP_UC[g in intersect(NEW, UC)] >= 0, Int     # new build power capacity (MW), UC
-        vRET_CAP_ED[g in intersect(OLD, ED)] >= 0          # retirement of power capacity (MW), ED
-        vNEW_CAP_ED[g in intersect(NEW, ED)] >= 0          # new build power capacity (MW), ED
+            # Change in Instruction (1)- UC Ret and NEW as integer problem
+            vRET_CAP_UC[g in intersect(OLD, UC)] >= 0, Int     # retirement of power capacity (MW), UC
+            vNEW_CAP_UC[g in intersect(NEW, UC)] >= 0, Int     # new build power capacity (MW), UC
+            vRET_CAP_ED[g in intersect(OLD, ED)] >= 0          # retirement of power capacity (MW), ED
+            vNEW_CAP_ED[g in intersect(NEW, ED)] >= 0          # new build power capacity (MW), ED
 
-        vE_CAP[g in STOR]       >= 0     # storage energy capacity (MWh)
-        vRET_E_CAP[g in intersect(STOR, OLD)]   >= 0     # retirement of storage energy capacity (MWh)
-        vNEW_E_CAP[g in intersect(STOR, NEW)]   >= 0     # new build storage energy capacity (MWh)
+            vE_CAP[g in STOR]       >= 0     # storage energy capacity (MWh)
+            vRET_E_CAP[g in intersect(STOR, OLD)]   >= 0     # retirement of storage energy capacity (MWh)
+            vNEW_E_CAP[g in intersect(STOR, NEW)]   >= 0     # new build storage energy capacity (MWh)
 
-        vT_CAP[l in L]          >= 0     # transmission capacity (MW)
-        vRET_T_CAP[l in L]      >= 0     # retirement of transmission capacity (MW)
-        vNEW_T_CAP[l in L]      >= 0     # new build transmission capacity (MW)
-    end)
+            vT_CAP[l in L]          >= 0     # transmission capacity (MW)
+            vRET_T_CAP[l in L]      >= 0     # retirement of transmission capacity (MW)
+            vNEW_T_CAP[l in L]      >= 0     # new build transmission capacity (MW)
+        end)
+            # Operational decision variables added for UC problem (instruction (3))
+        @variables(Expansion_Model, begin
+            vSTART[T, intersect(G, UC)]  >=0, Int
+            vSHUT[T, intersect(G, UC)]   >=0, Int
+            vCOMMIT[T, intersect(G, UC)] >=0, Int
+        end)
+        # linear version... 
+    else
+        # Capacity decision variables
+        @variables(Expansion_Model, begin
+            
+            # Leave this one as it is. 
+            vCAP[g in G]            >= 0     # power capacity (MW)
 
-    # Operational decision variables added for UC problem (instruction (3))
-    @variables(Expansion_Model, begin
-        vSTART[T, intersect(G, UC)]  >=0, Int
-        vSHUT[T, intersect(G, UC)]   >=0, Int
-        vCOMMIT[T, intersect(G, UC)] >=0, Int
-    end)
+            # Change in Instruction (1)- UC Ret and NEW as integer problem
+            vRET_CAP_UC[g in intersect(OLD, UC)] >= 0     # retirement of power capacity (MW), UC
+            vNEW_CAP_UC[g in intersect(NEW, UC)] >= 0     # new build power capacity (MW), UC
+            vRET_CAP_ED[g in intersect(OLD, ED)] >= 0          # retirement of power capacity (MW), ED
+            vNEW_CAP_ED[g in intersect(NEW, ED)] >= 0          # new build power capacity (MW), ED
+
+            vE_CAP[g in STOR]       >= 0     # storage energy capacity (MWh)
+            vRET_E_CAP[g in intersect(STOR, OLD)]   >= 0     # retirement of storage energy capacity (MWh)
+            vNEW_E_CAP[g in intersect(STOR, NEW)]   >= 0     # new build storage energy capacity (MWh)
+
+            vT_CAP[l in L]          >= 0     # transmission capacity (MW)
+            vRET_T_CAP[l in L]      >= 0     # retirement of transmission capacity (MW)
+            vNEW_T_CAP[l in L]      >= 0     # new build transmission capacity (MW)
+        end)
+        @variables(Expansion_Model, begin
+            vSTART[T, intersect(G, UC)]  >=0
+            vSHUT[T, intersect(G, UC)]   >=0
+            vCOMMIT[T, intersect(G, UC)] >=0
+        end)
+    end
 
     # Set upper bounds on capacity for renewable resources 
     # (which are limited in each resource 'cluster')

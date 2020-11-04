@@ -19,7 +19,7 @@ wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
 # requested in the problem set for question 2
 include("5_functions_q2.jl")
 input = prepare_inputs(pso_dir, "8_weeks", carbon_tax = false)
-solutions = solve_model(input)    
+solutions = solve_model(input, "MILP")    
 write_results(wd, solutions, "8_weeks", false)
 
 # Produce analysis for question 2b...
