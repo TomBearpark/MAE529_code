@@ -609,8 +609,7 @@ function solve_model(input, solve_type::String)
         transmission_results = transmission_results, 
         nse_results = nse_results, 
         cost_results = cost_results, 
-        time = time, 
-        time1= time1
+        time = time
     )
 end
 
