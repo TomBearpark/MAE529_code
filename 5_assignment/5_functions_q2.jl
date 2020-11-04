@@ -233,6 +233,9 @@ function solve_model(input)
 
     # LP model using Clp solver
     Expansion_Model =  Model(Cbc.Optimizer);
+    # To keep solve times down -  allow a tolerance. Used value from Notebook 05
+    set_optimizer_attribute(Expansion_Model, "ratioGap", 0.01)
+
     # DECISION VARIABLES
     # By naming convention, all decision variables start with v and then are in UPPER_SNAKE_CASE
   
@@ -484,8 +487,9 @@ function solve_model(input)
     )
 
     time = @elapsed optimize!(Expansion_Model)
-    time1 = @elapsed optimize!(Expansion_Model)
-
+    
+    println("solved")
+    
     # Record generation capacity and energy results
     generation = zeros(size(G,1))
     for i in 1:size(G,1)

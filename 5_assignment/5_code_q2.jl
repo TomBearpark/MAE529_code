@@ -22,4 +22,16 @@ input = prepare_inputs(pso_dir, "8_weeks", carbon_tax = false)
 solutions = solve_model(input)    
 write_results(wd, solutions, "8_weeks", false)
 
+# Produce analysis for question 2b...
+function load_results(file, q_string, time_string, wd) 
+     file_name =  wd * "/results/data/question_" * q_string * 
+          "/"* time_string * "_Thomas_Bearpark/without_carbon_tax/" * file * ".CSV"
+     return CSV.read(file_name)
+end
+
+load_results("cost_results", "1", "8_weeks", wd)     
+load_results("cost_results", "2", "8_weeks", wd)     
+
+
 # Solve a linear version as an approximation, to compare
+
