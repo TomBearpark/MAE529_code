@@ -15,8 +15,9 @@ wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
 
 include("5_functions_q3_captrade.jl")
 
-# Get a value for baseline emmisions, as a comparison... 
 
+# Solve the model for different stringency levels
+# 1 corresponds to 100% CES generation. 0 is the unbounded solution 
 input = prepare_inputs(pso_dir, "8_weeks", carbon_tax = false)
 zero_col =  [0.0; 0.0; 0.0; 0.0; 0.0; 0.0 ]
 
@@ -24,7 +25,6 @@ df = DataFrame(stringency = [0; 0.2; 0.4; 0.6; 0.8; 1],
                 emmisions =zero_col, 
                 cost = zero_col, 
                 time = zero_col)
-
 for s in df.stringency
     println(s)
     solution = solve_model_q3(input, s)
@@ -33,6 +33,7 @@ for s in df.stringency
     df.time[df.stringency .== s] .= solution.time[1]
 end
 
+# Produce a plot of the key ouputs asked for in the question. 
 p1  = plot(df.stringency, df.cost, ylabel = "Cost")
 p2 =  plot(df.stringency, df.time, ylabel = "Compute Time")
 p3 =  plot(df.stringency, df.emmisions, ylabel = "Emmisions")
