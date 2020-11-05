@@ -407,7 +407,7 @@ function solve_model_q2(input, solve_type::String)
 
     # First we record a subset of time steps that begin a sub period 
     # (these will be subject to 'wrapping' constraints that link the start/end of each period)
-    STARTS = 1:hours_per_period:maximum(T)        
+    STARTS = 1:hours_per_period:maximum(T)     
     # Then we record all time periods that do not begin a sub period 
     # (these will be subject to normal time couping constraints, looking back one period)
     INTERIORS = setdiff(T,STARTS)
@@ -448,14 +448,15 @@ function solve_model_q2(input, solve_type::String)
     generators.Max_MinPower_Ramp_DOWN = max.(generators.Min_power, generators.Ramp_Dn_percentage)
 
     # Constraints from instruction (9) - ramp rates 
+    UC_INTERIOR = setdiff(T,1)
     @constraints(Expansion_Model, begin
-        cRampRateUcUP[t in INTERIORS, g in UC],     
+        cRampRateUcUP[t in UC_INTERIOR, g in UC],     
             vGEN[t, g] - vGEN[t-1, g] <= generators.Ramp_Up_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t, g] - vSTART[t,g]) + 
                     generators.Max_MinPower_Ramp_UP[g] * generators.Cap_size[g] * vSTART[t, g] - 
                     generators.Min_power[g] * generators.Cap_size[g] * vSHUT[t, g]
     end)
     @constraints(Expansion_Model, begin
-        cRampRateUcDn[t in INTERIORS, g in UC],     
+        cRampRateUcDn[t in UC_INTERIOR, g in UC],     
             vGEN[t-1, g] - vGEN[t, g] <= generators.Ramp_Dn_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t, g] - vSTART[t,g]) + 
                     generators.Max_MinPower_Ramp_DOWN[g] * generators.Cap_size[g] * vSHUT[t, g] - 
                     generators.Min_power[g] * generators.Cap_size[g] * vSTART[t, g]
