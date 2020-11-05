@@ -1,5 +1,5 @@
 ID,Resource,Zone,Total_MW,Start_MW,Change_in_MW,Percent_MW,GWh,Percent_GWh
-1,onshore_wind_turbine,1,6254.434870755197,8495.9,-2241.4651292448025,6.683302384786978,17657.24003305979,3.882335525775349
+1,onshore_wind_turbine,1,6260.781329274481,8495.9,-2235.1186707255183,6.690084020895334,16472.81944673253,3.621914411764976
 4,conventional_steam_coal,2,0.0,13567.68,-13567.68,0.0,0.0,0.0
 5,natural_gas_fired_combined_cycle,2,0.0,36734.21,-36734.21,0.0,0.0,0.0
 6,natural_gas_fired_combustion_turbine,2,0.0,4704.48,-4704.48,0.0,0.0,0.0
@@ -10,10 +10,10 @@ ID,Resource,Zone,Total_MW,Start_MW,Change_in_MW,Percent_MW,GWh,Percent_GWh
 12,conventional_steam_coal,3,0.0,650.0,-650.0,0.0,0.0,0.0
 13,natural_gas_fired_combined_cycle,3,0.0,3427.34,-3427.34,0.0,0.0,0.0
 14,natural_gas_fired_combustion_turbine,3,0.0,1207.96,-1207.96,0.0,0.0,0.0
-15,onshore_wind_turbine,3,9450.5,9450.5,0.0,10.098522167487685,25123.393789630234,5.523934887610132
-16,solar_photovoltaic,3,137.5,137.5,0.0,0.1469283951144973,291.27791,0.06404390356303234
+15,onshore_wind_turbine,3,9450.5,9450.5,0.0,10.098522167487685,26321.52401790487,5.787370370223883
+16,solar_photovoltaic,3,137.5,137.5,0.0,0.1469283951144973,291.53876125,0.06410125749110498
 17,naturalgas_ccccsavgcf,1,0.0,0.0,0.0,0.0,0.0,0.0
-18,naturalgas_ccavgcf,1,0.0,0.0,0.0,0.0,0.0,0.0
+18,naturalgas_ccavgcf,1,0.0,0.0,0.0,0.0,-4.3136361967613736e-16,-9.484485129386947e-20
 19,naturalgas_ctavgcf,1,0.0,0.0,0.0,0.0,0.0,0.0
 20,landbasedwind_ltrg1,1,0.0,0.0,0.0,0.0,0.0,0.0
 21,landbasedwind_ltrg1,1,0.0,0.0,0.0,0.0,0.0,0.0
@@ -25,8 +25,8 @@ ID,Resource,Zone,Total_MW,Start_MW,Change_in_MW,Percent_MW,GWh,Percent_GWh
 27,battery,1,0.0,0.0,0.0,0.0,0.0,0.0
 28,naturalgas_ccs100,1,0.0,0.0,0.0,0.0,0.0,0.0
 29,naturalgas_ccccsavgcf,2,0.0,0.0,0.0,0.0,0.0,0.0
-30,naturalgas_ccavgcf,2,86000.0,0.0,86000.0,91.89703258070377,394503.08588272985,86.74024606806678
-31,naturalgas_ctavgcf,2,0.0,0.0,0.0,0.0,0.0,0.0
+30,naturalgas_ccavgcf,2,74000.0,0.0,74000.0,79.07419082525674,375698.2767281488,82.60559203948901
+31,naturalgas_ctavgcf,2,5000.0,0.0,5000.0,5.342850731436266,313.3702629640539,0.06890139695382994
 32,landbasedwind_ltrg1,2,0.0,0.0,0.0,0.0,0.0,0.0
 33,landbasedwind_ltrg1,2,0.0,0.0,0.0,0.0,0.0,0.0
 34,landbasedwind_ltrg1,2,0.0,0.0,0.0,0.0,0.0,0.0
@@ -38,8 +38,8 @@ ID,Resource,Zone,Total_MW,Start_MW,Change_in_MW,Percent_MW,GWh,Percent_GWh
 40,battery,2,0.0,0.0,0.0,0.0,0.0,0.0
 41,naturalgas_ccs100,2,0.0,0.0,0.0,0.0,0.0,0.0
 42,naturalgas_ccccsavgcf,3,0.0,0.0,0.0,0.0,0.0,0.0
-43,naturalgas_ccavgcf,3,0.0,0.0,0.0,0.0,0.0,0.0
-44,naturalgas_ctavgcf,3,0.0,0.0,0.0,0.0,0.0,0.0
+43,naturalgas_ccavgcf,3,5500.000000000001,0.0,5500.000000000001,5.8771358045798925,18266.47649286619,4.016289662836153
+44,naturalgas_ctavgcf,3,1800.0,0.0,1800.0,1.9234262633170556,215.82037595324735,0.047452892478139365
 45,landbasedwind_ltrg1,3,0.0,0.0,0.0,0.0,0.0,0.0
 46,landbasedwind_ltrg1,3,0.0,0.0,0.0,0.0,0.0,0.0
 47,landbasedwind_ltrg1,3,0.0,0.0,0.0,0.0,0.0,0.0
