@@ -1,0 +1,1 @@
+All run instructions, and explanation of files and file structure can be found in the writeup pdf. 
