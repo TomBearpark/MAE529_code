@@ -200,7 +200,7 @@ println("-----------------------------------------------")
 # Function for solving the model, given the cleaned inputs from the 
 # above function 
 
-function solve_model(input)
+function solve_model_q3(input, stringency::Number)
 
     # Get the relevant names so it matches Jesse's code... 
     # params
@@ -364,6 +364,21 @@ function solve_model(input)
             vSOC[t,g] == vSOC[t+hours_per_period-1,g] + generators.Eff_up[g]*vCHARGE[t,g] - vGEN[t,g]/generators.Eff_down[g]
     end)
 
+    # Additional constraint -defining the renewable standard 
+    CES = intersect(generators.R_ID[generators.CES.==1], G);
+
+    @constraint(Expansion_Model, cCleanEnergy,
+        # Fixed costs for total capacity 
+        sum(vGEN[t,g]*sample_weight[t] for g in CES, t in T) >= 
+            stringency * sum(vGEN[t,g]*sample_weight[t] for g in G, t in T)
+    )
+
+    @expression(Expansion_Model, eEmmisions,
+        # Fixed costs for total capacity 
+        sum(vGEN[t,g]*sample_weight[t] * generators.CO2_Rate[g] for g in G, t in T)
+    )
+
+
     println("assigned constraints")
     # The objective function is to minimize the sum of fixed costs associated with
     # capacity decisions and variable costs associated with operational decisions
@@ -401,7 +416,6 @@ function solve_model(input)
     )
 
     time = @elapsed optimize!(Expansion_Model)
-    time1 = @elapsed optimize!(Expansion_Model)
 
     # Record generation capacity and energy results
     generation = zeros(size(G,1))
@@ -492,82 +506,82 @@ function solve_model(input)
         nse_results = nse_results, 
         cost_results = cost_results, 
         time = time, 
-        time1= time1
+        emmisions = value.(eEmmisions)
     )
 end
 
-# Function for writing results to csv files
-function write_results(wd::String, solutions, time_subset::String, 
-        carbon_tax::Bool)
+# # Function for writing results to csv files
+# function write_results(wd::String, solutions, time_subset::String, 
+#         carbon_tax::Bool)
 
-        outpath = wd * "/results/data/question_1/" * time_subset* "_Thomas_Bearpark/"
+#         outpath = wd * "/results/data/question_1/" * time_subset* "_Thomas_Bearpark/"
     
-        if carbon_tax
-            outpath = outpath * "carbon_tax"
-        else 
-            outpath = outpath * "without_carbon_tax"
-        end
+#         if carbon_tax
+#             outpath = outpath * "carbon_tax"
+#         else 
+#             outpath = outpath * "without_carbon_tax"
+#         end
 
-    if !(isdir(outpath))
-        mkpath(outpath)
-    end
-    print("w")
-    times = DataFrame(time = solutions.time)
+#     if !(isdir(outpath))
+#         mkpath(outpath)
+#     end
+#     print("w")
+#     times = DataFrame(time = solutions.time)
 
-    CSV.write(joinpath(outpath, "generator_results.csv"), 
-        solutions.generator_results)
-    CSV.write(joinpath(outpath, "storage_results.csv"), 
-        solutions.storage_results)
-    CSV.write(joinpath(outpath, "transmission_results.csv"), 
-        solutions.transmission_results)
-    CSV.write(joinpath(outpath, "nse_results.csv"), 
-        solutions.nse_results)
-    CSV.write(joinpath(outpath, "cost_results.csv"), 
-        solutions.cost_results)
-    CSV.write(joinpath(outpath, "time.csv"), 
-        times);
-end
+#     CSV.write(joinpath(outpath, "generator_results.csv"), 
+#         solutions.generator_results)
+#     CSV.write(joinpath(outpath, "storage_results.csv"), 
+#         solutions.storage_results)
+#     CSV.write(joinpath(outpath, "transmission_results.csv"), 
+#         solutions.transmission_results)
+#     CSV.write(joinpath(outpath, "nse_results.csv"), 
+#         solutions.nse_results)
+#     CSV.write(joinpath(outpath, "cost_results.csv"), 
+#         solutions.cost_results)
+#     CSV.write(joinpath(outpath, "time.csv"), 
+#         times);
+# end
 
-# Helper function for loading csv files 
-function return_totals(wd, d, carbon_tax::Bool)
+# # Helper function for loading csv files 
+# function return_totals(wd, d, carbon_tax::Bool)
     
-    # Load in the relevant data
-    path = wd * "/results/data/question_1/" * d* "_Thomas_Bearpark/"
+#     # Load in the relevant data
+#     path = wd * "/results/data/question_1/" * d* "_Thomas_Bearpark/"
     
-    if carbon_tax
-        path = path * "carbon_tax"
-    else 
-        path = path * "without_carbon_tax"
-    end
+#     if carbon_tax
+#         path = path * "carbon_tax"
+#     else 
+#         path = path * "without_carbon_tax"
+#     end
 
-    cost_results = CSV.read(joinpath(path, "cost_results.csv"))
-    gen = CSV.read(joinpath(path, "generator_results.csv"))
-    times = DataFrame(
-        time_subset = ["10_days", "4_weeks", "8_weeks", "16_weeks"], 
-        hours = [10 * 24, 4 * 7 * 24, 8 * 7 * 24, 16 * 7 * 24])
+#     cost_results = CSV.read(joinpath(path, "cost_results.csv"))
+#     gen = CSV.read(joinpath(path, "generator_results.csv"))
+#     times = DataFrame(
+#         time_subset = ["10_days", "4_weeks", "8_weeks", "16_weeks"], 
+#         hours = [10 * 24, 4 * 7 * 24, 8 * 7 * 24, 16 * 7 * 24])
 
-    # Return dataframe of needed data 
-    return DataFrame(time_subset = d, 
-                total_hours = times.hours[times.time_subset .== d][1],
-                total_cost = cost_results.Total_Costs[1], 
-                total_final_capacity = sum(gen.Total_MW), 
-                total_generation = sum(gen.GWh))
-end
+#     # Return dataframe of needed data 
+#     return DataFrame(time_subset = d, 
+#                 total_hours = times.hours[times.time_subset .== d][1],
+#                 total_cost = cost_results.Total_Costs[1], 
+#                 total_final_capacity = sum(gen.Total_MW), 
+#                 total_generation = sum(gen.GWh))
+# end
 
-# Wraps around return totals, to append for each time period 
-function append_all_totals(wd, carbon_tax::Bool)
-    df = return_totals(wd, "10_days", carbon_tax) 
-    df = append!(df, return_totals(wd, "4_weeks", carbon_tax))
-    df = append!(df, return_totals(wd, "8_weeks", carbon_tax))
-    df = append!(df, return_totals(wd, "16_weeks", carbon_tax))
-    # Find percentage differences, relative to 16 week version 
-    for var in ("total_cost",  "total_final_capacity", "total_generation")
-        df[var * "_deviation"] = 0.0
-        for i in 1:3
-            df[var * "_deviation"][i] =  100 * 
-                (df[var][i] - df[var][4]) / df[var][4]
-        end
-    end
-    return(df)
-end
+# # Wraps around return totals, to append for each time period 
+# function append_all_totals(wd, carbon_tax::Bool)
+#     df = return_totals(wd, "10_days", carbon_tax) 
+#     df = append!(df, return_totals(wd, "4_weeks", carbon_tax))
+#     df = append!(df, return_totals(wd, "8_weeks", carbon_tax))
+#     df = append!(df, return_totals(wd, "16_weeks", carbon_tax))
+#     # Find percentage differences, relative to 16 week version 
+#     for var in ("total_cost",  "total_final_capacity", "total_generation")
+#         df[var * "_deviation"] = 0.0
+#         for i in 1:3
+#             df[var * "_deviation"][i] =  100 * 
+#                 (df[var][i] - df[var][4]) / df[var][4]
+#         end
+#     end
+#     return(df)
+# end
 
