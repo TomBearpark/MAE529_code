@@ -200,7 +200,7 @@ println("-----------------------------------------------")
 # Function for solving the model, given the cleaned inputs from the 
 # above function 
 
-function solve_model(input, solve_type::String)
+function solve_model_q2(input, solve_type::String)
 
     # Get the relevant names so it matches Jesse's code... 
     # params
@@ -231,12 +231,11 @@ function solve_model(input, solve_type::String)
     sample_weight = input.sample_weight
     hours_per_period = input.hours_per_period
 
-
     if solve_type == "MILP"
         # LP model using Clp solver
         Expansion_Model =  Model(Cbc.Optimizer);
         # To keep solve times down -  allow a tolerance. Used value from Notebook 05
-        set_optimizer_attribute(Expansion_Model, "ratioGap", 0.05)
+        set_optimizer_attribute(Expansion_Model, "ratioGap", 0.02)
     else
         Expansion_Model =  Model(Clp.Optimizer);
     end
@@ -614,7 +613,7 @@ function solve_model(input, solve_type::String)
 end
 
 # Function for writing results to csv files
-function write_results(wd::String, solutions, time_subset::String, 
+function write_results_q2(wd::String, solutions, time_subset::String, 
         carbon_tax::Bool)
 
     outpath = wd * "/results/data/question_2/" * time_subset* "_Thomas_Bearpark/"
@@ -646,42 +645,4 @@ function write_results(wd::String, solutions, time_subset::String,
         times);
 end
 
-# Helper function for loading csv files 
-function return_totals(wd, d, carbon_tax::Bool)
-    
-    # Load in the relevant data
-    path = "/results/data/" * d * "_Thomas_Bearpark/"
-    
-    if carbon_tax
-        path = path * "carbon_tax"
-        println("returning version with carbon tax")
-    end
-
-    cost_results = CSV.read(joinpath(wd * path, "cost_results.csv"))
-    gen = CSV.read(joinpath(wd * path, "generator_results.csv"))
-    
-    # Return dataframe of needed data 
-    return DataFrame(time_subset = d, 
-                total_hours = times.hours[times.time_subset .== d][1],
-                total_cost = cost_results.Total_Costs[1], 
-                total_final_capacity = sum(gen.Total_MW), 
-                total_generation = sum(gen.GWh))
-end
-
-# Wraps around return totals, to append for each time period 
-function append_all_totals(wd, carbon_tax::Bool)
-    df = return_totals(wd, "10_days", carbon_tax) 
-    df = append!(df, return_totals(wd, "4_weeks", carbon_tax))
-    df = append!(df, return_totals(wd, "8_weeks", carbon_tax))
-    df = append!(df, return_totals(wd, "16_weeks", carbon_tax))
-    # Find percentage differences, relative to 16 week version 
-    for var in ("total_cost",  "total_final_capacity", "total_generation")
-        df[var * "_deviation"] = 0.0
-        for i in 1:3
-            df[var * "_deviation"][i] =  100 * 
-                (df[var][i] - df[var][4]) / df[var][4]
-        end
-    end
-    return(df)
-end
 
