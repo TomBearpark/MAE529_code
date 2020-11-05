@@ -370,19 +370,12 @@ function solve_model(input, solve_type::String)
 
     # Upper bound constraints on start-up, shut down, commitment state vars
     # From instruction number (6)
-    for g in UC
-            for t in T
-                set_upper_bound(vCOMMIT[t,g], vCAP[g] / generators.Cap_size[g])
-                set_upper_bound(vSTART[t,g], vCAP[g] / generators.Cap_size[g])
-                set_upper_bound(vSHUT[t,g], vCAP[g] / generators.Cap_size[g])
-            end
-    end
 
-    # @constraints(Expansion_Model, begin
-    #     cCommitUB[t in T, g in UC], vCOMMIT[t,g] <= vCAP[g] / generators.Cap_size[g]
-    #     cStartUB[t in T, g in UC],  vSTART[t,g]  <= vCAP[g] / generators.Cap_size[g]
-    #     cShutUB[t in T, g in UC],   vSHUT[t,g]   <= vCAP[g] / generators.Cap_size[g]
-    # end)
+    @constraints(Expansion_Model, begin
+        cCommitUB[t in T, g in UC], vCOMMIT[t,g] <= vCAP[g] / generators.Cap_size[g]
+        cStartUB[t in T, g in UC],  vSTART[t,g]  <= vCAP[g] / generators.Cap_size[g]
+        cShutUB[t in T, g in UC],   vSHUT[t,g]   <= vCAP[g] / generators.Cap_size[g]
+    end)
 
 
     # (7-9) Total capacity constraints:
@@ -471,8 +464,9 @@ function solve_model(input, solve_type::String)
 
     # Constraints for instruction (10) - minimum up and down time constraints
     @constraints(Expansion_Model, begin
-        cCommitMin[t in T, g in UC], vCOMMIT[t,g] >= sum(vSTART[i, g] 
-            for i in intersect(T, (t-generators.Up_time[g]):t))
+        cCommitMin[t in T, g in UC], 
+            vCOMMIT[t,g] >= sum(vSTART[i, g] 
+                for i in intersect(T, (t-generators.Up_time[g]):t))
     end)
     @constraints(Expansion_Model, begin
         cCommitShut[t in T, g in UC], vCAP[g] / generators.Cap_size[g] - vCOMMIT[t,g]  >= 
@@ -494,7 +488,7 @@ function solve_model(input, solve_type::String)
         sum(generators.Fixed_OM_cost_per_MWyr[g]*vCAP[g] for g in G) +
         # Investment cost for new capacity - split this into two parts 
         sum(generators.Inv_cost_per_MWyr[g]*vNEW_CAP_ED[g] for g in intersect(ED, NEW)) + 
-        sum(generators.Inv_cost_per_MWyr[g]*vNEW_CAP_UC[g] for g in intersect(UC, NEW)) 
+        sum(generators.Inv_cost_per_MWyr[g]*vNEW_CAP_UC[g]*generators.Cap_size[g] for g in intersect(UC, NEW)) 
     )
     @expression(Expansion_Model, eFixedCostsStorage,
         # Fixed costs for total storage energy capacity 
