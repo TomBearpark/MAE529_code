@@ -370,17 +370,20 @@ function solve_model(input, solve_type::String)
 
     # Upper bound constraints on start-up, shut down, commitment state vars
     # From instruction number (6)
-    @constraints(Expansion_Model, begin
-        cCommitUB[t in T, g in UC], vCOMMIT[t,g] <= vCAP[g] / generators.Cap_size[g]
-        cStartUB[t in T, g in UC],  vSTART[t,g]  <= vCAP[g] / generators.Cap_size[g]
-        cShutUB[t in T, g in UC],   vSHUT[t,g]   <= vCAP[g] / generators.Cap_size[g]
-    end)
+    for g in UC
+            for t in T
+                set_upper_bound(vCOMMIT[t,g], vCAP[g] / generators.Cap_size[g])
+                set_upper_bound(vSTART[t,g], vCAP[g] / generators.Cap_size[g])
+                set_upper_bound(vSHUT[t,g], vCAP[g] / generators.Cap_size[g])
+            end
+    end
 
-    # New constraint, defining COMMIT, from instruction (7). Copied approach from notebook 05
-    @constraints(Expansion_Model, begin
-        cCommit[t in setdiff(T,length(T)), g in UC], 
-                vCOMMIT[t+1,g] == vCOMMIT[t,g] + vSTART[t+1,g] - vSHUT[t+1,g]
-    end)
+    # @constraints(Expansion_Model, begin
+    #     cCommitUB[t in T, g in UC], vCOMMIT[t,g] <= vCAP[g] / generators.Cap_size[g]
+    #     cStartUB[t in T, g in UC],  vSTART[t,g]  <= vCAP[g] / generators.Cap_size[g]
+    #     cShutUB[t in T, g in UC],   vSHUT[t,g]   <= vCAP[g] / generators.Cap_size[g]
+    # end)
+
 
     # (7-9) Total capacity constraints:
     @constraints(Expansion_Model, begin
@@ -417,6 +420,12 @@ function solve_model(input, solve_type::String)
     # (these will be subject to normal time couping constraints, looking back one period)
     INTERIORS = setdiff(T,STARTS)
     
+    # New constraint, defining COMMIT, from instruction (7). Copied approach from notebook 05
+    @constraints(Expansion_Model, begin
+        cCommit[t in INTERIORS, g in UC], 
+                vCOMMIT[t,g] == vCOMMIT[t-1,g] + vSTART[t,g] - vSHUT[t,g]
+    end)
+
     println("check")
     
     # (10-12) Time coupling constraints
@@ -446,18 +455,18 @@ function solve_model(input, solve_type::String)
     generators.Max_MinPower_Ramp_UP = max.(generators.Min_power, generators.Ramp_Up_percentage)
     generators.Max_MinPower_Ramp_DOWN = max.(generators.Min_power, generators.Ramp_Dn_percentage)
 
-    # Constraints from instruction (9)
+    # Constraints from instruction (9) - ramp rates 
     @constraints(Expansion_Model, begin
-        cRampRateUcUP[t in setdiff(T,length(T)), g in UC],     
-            vGEN[t+1, g] - vGEN[t, g] <= generators.Ramp_Up_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t+1, g] - vSTART[t+1,g]) + 
-                    generators.Max_MinPower_Ramp_UP[g] * generators.Cap_size[g] * vSTART[t+1, g] - 
-                    generators.Min_power[g] * generators.Cap_size[g] * vSHUT[t+1, g]
+        cRampRateUcUP[t in INTERIORS, g in UC],     
+            vGEN[t, g] - vGEN[t-1, g] <= generators.Ramp_Up_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t, g] - vSTART[t,g]) + 
+                    generators.Max_MinPower_Ramp_UP[g] * generators.Cap_size[g] * vSTART[t, g] - 
+                    generators.Min_power[g] * generators.Cap_size[g] * vSHUT[t, g]
     end)
     @constraints(Expansion_Model, begin
-        cRampRateUcDn[t in setdiff(T,length(T)), g in UC],     
-            vGEN[t, g] - vGEN[t+1, g] <= generators.Ramp_Dn_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t+1, g] - vSTART[t+1,g]) + 
-                    generators.Max_MinPower_Ramp_DOWN[g] * generators.Cap_size[g] * vSHUT[t+1, g] - 
-                    generators.Min_power[g] * generators.Cap_size[g] * vSTART[t+1, g]
+        cRampRateUcDn[t in INTERIORS, g in UC],     
+            vGEN[t-1, g] - vGEN[t, g] <= generators.Ramp_Dn_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t, g] - vSTART[t,g]) + 
+                    generators.Max_MinPower_Ramp_DOWN[g] * generators.Cap_size[g] * vSHUT[t, g] - 
+                    generators.Min_power[g] * generators.Cap_size[g] * vSTART[t, g]
     end)
 
     # Constraints for instruction (10) - minimum up and down time constraints
