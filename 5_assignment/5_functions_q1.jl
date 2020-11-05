@@ -280,11 +280,11 @@ function solve_model(input)
 
     # (1) Supply-demand balance constraint for all time steps and zones
     @constraint(Expansion_Model, cDemandBalance[t in T, z in Z], 
-    sum(vGEN[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],G)) +
-    sum(vNSE[t,s,z] for s in S) - 
-    sum(vCHARGE[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],STOR)) -
-    demand[t,z] - 
-    sum(lines[l,Symbol(string("z",z))] * vFLOW[t,l] for l in L) == 0
+        sum(vGEN[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],G)) +
+        sum(vNSE[t,s,z] for s in S) - 
+        sum(vCHARGE[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],STOR)) -
+        demand[t,z] - 
+        sum(lines[l,Symbol(string("z",z))] * vFLOW[t,l] for l in L) == 0
     )
     # Notes: 
     # 1. intersect(generators[generators.zone.==z,:R_ID],G) is the subset of all 

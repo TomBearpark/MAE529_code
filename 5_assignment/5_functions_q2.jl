@@ -236,7 +236,7 @@ function solve_model(input, solve_type::String)
         # LP model using Clp solver
         Expansion_Model =  Model(Cbc.Optimizer);
         # To keep solve times down -  allow a tolerance. Used value from Notebook 05
-        set_optimizer_attribute(Expansion_Model, "ratioGap", 0.02)
+        set_optimizer_attribute(Expansion_Model, "ratioGap", 0.05)
     else
         Expansion_Model =  Model(Clp.Optimizer);
     end
@@ -301,10 +301,6 @@ function solve_model(input, solve_type::String)
 
     # Set upper bounds on capacity for renewable resources 
     # (which are limited in each resource 'cluster')
-    # Split this into two parts, due to change in formulation 
-    for g in intersect(NEW, UC)[generators[intersect(NEW, UC),:Max_Cap_MW].>0]
-        set_upper_bound(vNEW_CAP_UC[g], generators.Max_Cap_MW[g])
-    end
     for g in intersect(NEW, ED)[generators[intersect(NEW, ED),:Max_Cap_MW].>0]
         set_upper_bound(vNEW_CAP_ED[g], generators.Max_Cap_MW[g])
     end
@@ -355,7 +351,7 @@ function solve_model(input, solve_type::String)
 
     # Instruction (4) and instruction (5)
     # (2b) Max power constraints for all time steps and all generators/storage in UC
-        cMaxPowerUC[t in T, g in UC, G], vGEN[t,g] <= vCOMMIT[t, g] * generators.Cap_size[g]
+        cMaxPowerUC[t in T, g in UC], vGEN[t,g] <= vCOMMIT[t, g] * generators.Cap_size[g]
     # (2c) Min power constraints for all time steps and all generators/storage in UC
         cMinPowerUC[t in T, g in UC], vGEN[t,g] >= vCOMMIT[t, g] * generators.Cap_size[g] * generators.Min_power[g]
 
