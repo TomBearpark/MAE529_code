@@ -235,7 +235,7 @@ function solve_model_q2(input, solve_type::String)
         # LP model using Clp solver
         Expansion_Model =  Model(Cbc.Optimizer);
         # To keep solve times down -  allow a tolerance. Used value from Notebook 05
-        set_optimizer_attribute(Expansion_Model, "ratioGap", 0.02)
+        set_optimizer_attribute(Expansion_Model, "ratioGap", 0.001)
     else
         Expansion_Model =  Model(Clp.Optimizer);
     end

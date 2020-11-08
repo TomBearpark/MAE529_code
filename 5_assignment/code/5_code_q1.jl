@@ -52,7 +52,7 @@ times |>
         x={:hours, title="Number of hours optimized"}, 
         y={:time, title="Time to compute (sec)"}, 
         title= "Solve time vs hours", width=400, height=400) |> 
-    save(joinpath(wd, "results/figs/time_subset_compute_scatter.png"))
+    save(joinpath(wd, "results/figs/q1_time_subset_compute_scatter.png"))
 
 # Question 1C
 # Compile a spreadsheet that compares 
@@ -81,6 +81,22 @@ CSV.write(joinpath(wd, "results/q1_summary_without_carbon_tax.csv"),
     df)  
 plot_percent_diffs(df) |> 
     save(joinpath(wd, "results/figs/q1_accuracy_losses_without_carbon_tax.png"))
+
+# Additional analysis of cost breakdown - can we find whats driving the non
+# montonic trends?
+df = load_cost_result(wd, "10_days", false)
+df = append!(df, load_cost_result(wd, "4_weeks", false))
+df = append!(df, load_cost_result(wd, "8_weeks", false))
+df = append!(df, load_cost_result(wd, "16_weeks", false))
+plot(df.Variable_Costs)
+
+# Generation results by resource
+df = load_generator_result(wd, "10_days", false)
+df = append!(df, load_generator_result(wd, "4_weeks", false))
+df = append!(df, load_generator_result(wd, "8_weeks", false))
+df = append!(df, load_generator_result(wd, "16_weeks", false))
+CSV.write(joinpath(wd, "results/q1_gen_by_resource_without_carbon_tax.csv"), 
+    df)  
 
 
 # Save a new copy of your Julia file and then modify the following 
@@ -117,10 +133,17 @@ plot_percent_diffs(df_ct) |>
     save(joinpath(wd, "results/figs/q1_accuracy_losses_with_carbon_tax.png"))
 
 # Visualise some of the outputs
-scatter(times.hours, times.time, label = "Without carbon tax")
+scatter(times.hours, times.time, label = "Without carbon tax", size=(800,500), location=4)
 scatter!(times_tax.hours, times_tax.time, label = "With carbon tax")
 title!("Number of hours in subset vs compute time (seconds)")
 png(joinpath(wd, "results/figs/times_comparison.png"))
+
+df = load_generator_result(wd, "10_days", true)
+df = append!(df, load_generator_result(wd, "4_weeks", true))
+df = append!(df, load_generator_result(wd, "8_weeks", true))
+df = append!(df, load_generator_result(wd, "16_weeks", true))
+CSV.write(joinpath(wd, "results/q1_gen_by_resource_with_carbon_tax.csv"), 
+    df)  
 
 # Bonus: run the model for a full year of hours.. 
 # not working...?

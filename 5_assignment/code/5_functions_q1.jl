@@ -571,3 +571,28 @@ function append_all_totals(wd, carbon_tax::Bool)
     return(df)
 end
 
+function load_cost_result(wd, time_subset, carbon_tax)
+    outpath = wd * "/results/data/question_1/" * time_subset* "_Thomas_Bearpark/"
+    
+    if carbon_tax
+        outpath = outpath * "carbon_tax"
+    else 
+        outpath = outpath * "without_carbon_tax"
+    end
+    df = CSV.read(joinpath(outpath, "cost_results.csv")) 
+    df.time_subset = time_subset
+    return df
+end
+
+function load_generator_result(wd, time_subset, carbon_tax)
+    outpath = wd * "/results/data/question_1/" * time_subset* "_Thomas_Bearpark/"
+    
+    if carbon_tax
+        outpath = outpath * "carbon_tax"
+    else 
+        outpath = outpath * "without_carbon_tax"
+    end
+    df = CSV.read(joinpath(outpath, "generator_results.csv")) 
+    df.time_subset = time_subset
+    return df
+end
