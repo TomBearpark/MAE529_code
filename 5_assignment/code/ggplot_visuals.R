@@ -34,3 +34,25 @@ ggplot(data = plot_df) +
   geom_point(aes(x = hours, y = Total_MW, color = carbon_tax)) + 
   facet_wrap(~Resource, ncol = 3)
 ggsave(paste0(dir, "/figs/generation_comparison.png"))
+
+# Question 2
+path = function(q) paste0(dir, "/data/question_", q, 
+            "/8_weeks_Thomas_Bearpark/without_carbon_tax/generator_results.csv")
+
+df = bind_rows(read_csv(path(2)) %>% mutate(UC = "yes") ,
+               read_csv(path(1)) %>% mutate(UC = "no") )
+  
+plot_df = df %>% 
+  group_by(Resource, UC) %>%
+  summarise(Total_MW = sum(Total_MW)) %>% 
+  ungroup() %>% 
+  mutate(n = row_number()) %>% 
+  mutate(facet = ifelse(n >= 16,1,0))
+
+ggplot(data = plot_df) + 
+  geom_bar(aes(x = Resource, y = Total_MW, fill = UC), stat = "identity", 
+           position=position_dodge()) +
+  facet_wrap(~facet,ncol = 1, scales = "free") + 
+  theme(axis.text.x=element_text(angle=45,hjust=1))
+ggsave(paste0(dir, "/figs/q2_UC_generation_comparison.png"))
+

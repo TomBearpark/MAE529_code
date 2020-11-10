@@ -234,7 +234,7 @@ function solve_model_q2(input, solve_type::String)
     if solve_type == "MILP"
         # LP model using Clp solver
         Expansion_Model =  Model(Cbc.Optimizer);
-        # To keep solve times down -  allow a tolerance. Used value from Notebook 05
+        # To keep solve times down -  allow a tolerance. 
         set_optimizer_attribute(Expansion_Model, "ratioGap", 0.001)
     else
         Expansion_Model =  Model(Clp.Optimizer);
@@ -383,9 +383,9 @@ function solve_model_q2(input, solve_type::String)
         cCapOld[g in intersect(ED, OLD)], vCAP[g] == generators.Existing_Cap_MW[g] - vRET_CAP_ED[g]
     # (7b) Total capacity for new units
         cCapNew[g in intersect(ED, NEW)], vCAP[g] == vNEW_CAP_ED[g]
-    # UC versions...
+    # UC versions..., introduced for instruction (11)
     # (7c) Total capacity for existing units
-        cCapOldUC[g in intersect(UC, OLD)], vCAP[g] == generators.Existing_Cap_MW[g] / generators.Cap_size[g] - vRET_CAP_UC[g]
+        cCapOldUC[g in intersect(UC, OLD)], vCAP[g] == generators.Existing_Cap_MW[g] - generators.Cap_size[g] * vRET_CAP_UC[g]
     # (7d) Total capacity for new units
         cCapNewUC[g in intersect(UC, NEW)], vCAP[g] == generators.Cap_size[g] * vNEW_CAP_UC[g]
 
