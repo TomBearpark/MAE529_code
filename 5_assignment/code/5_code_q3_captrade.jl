@@ -25,7 +25,8 @@ df = DataFrame(stringency = [0; 0.2; 0.4; 0.6; 0.8; 1],
                 emmisions =zero_col, 
                 cost = zero_col, 
                 time = zero_col, 
-                NSE_Cost = zero_col)
+                NSE_Cost = zero_col, 
+                storage = zero_col)
 for s in df.stringency
     println(s)
     solution = solve_model_q3(input, s)
@@ -33,6 +34,7 @@ for s in df.stringency
     df.cost[df.stringency .== s] .= solution.cost_results.Total_Costs[1]
     df.time[df.stringency .== s] .= solution.time[1]
     df.NSE_Cost[df.stringency .== s] .= solution.cost_results.NSE_Costs[1]
+    df.storage[df.stringency .== s] .= solution.cost_results.[1]
 end
 
 # Produce a plot of the key ouputs asked for in the question. 
