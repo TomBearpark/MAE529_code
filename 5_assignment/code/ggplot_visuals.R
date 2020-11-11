@@ -3,7 +3,7 @@
 # Load packages
 library(ggplot2)
 library(tidyverse)
-
+theme_set(theme_bw())
 # Set strings 
 dir = "/Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/5_assignment/results"
 file = paste0(dir, "/q1_gen_by_resource_without_carbon_tax.csv")
@@ -27,13 +27,13 @@ plot_df = df %>%
 plot_df_noCT = plot_df %>% filter(carbon_tax == "no")
 ggplot(data = plot_df_noCT) + 
   geom_point(aes(x = hours, y = Total_MW, color = carbon_tax)) + 
-  facet_wrap(~Resource, ncol = 3)
-ggsave(paste0(dir, "/figs/generation_no_CT.png"))
+  facet_wrap(~Resource, ncol = 3, scales = "free")
+ggsave(paste0(dir, "/figs/q1_generation_no_CT.png"), height = 12.5, width = 12)
 
 ggplot(data = plot_df) + 
   geom_point(aes(x = hours, y = Total_MW, color = carbon_tax)) + 
-  facet_wrap(~Resource, ncol = 3)
-ggsave(paste0(dir, "/figs/generation_comparison.png"))
+  facet_wrap(~Resource, ncol = 3, scales = "free")
+ggsave(paste0(dir, "/figs/q1_generation_comparison.png"), height = 12.5, width = 12)
 
 # Question 2
 path = function(q) paste0(dir, "/data/question_", q, 
@@ -45,14 +45,38 @@ df = bind_rows(read_csv(path(2)) %>% mutate(UC = "yes") ,
 plot_df = df %>% 
   group_by(Resource, UC) %>%
   summarise(Total_MW = sum(Total_MW)) %>% 
-  ungroup() %>% 
-  mutate(n = row_number()) %>% 
-  mutate(facet = ifelse(n >= 16,1,0))
+  ungroup() 
 
 ggplot(data = plot_df) + 
-  geom_bar(aes(x = Resource, y = Total_MW, fill = UC), stat = "identity", 
-           position=position_dodge()) +
-  facet_wrap(~facet,ncol = 1, scales = "free") + 
-  theme(axis.text.x=element_text(angle=45,hjust=1))
-ggsave(paste0(dir, "/figs/q2_UC_generation_comparison.png"))
+  geom_bar(aes(x = UC, y = Total_MW, fill = UC), stat = "identity", 
+              position=position_dodge()) + 
+  facet_wrap(~Resource, ncol = 3, scales = "free")
+
+ggsave(paste0(dir, "/figs/q2_UC_generation_comparison.png"), 
+       height = 12.5, width = 12)
+
+# 2c - linear relaxation
+df2c = read_csv(paste0(dir, "/q2c_linear_gen.csv"))
+plot_df = bind_rows(read_csv(path(2)) %>% mutate(UC = "yes") ,
+               read_csv(path(1)) %>% mutate(UC = "no"), 
+               df2c %>% mutate(UC = "linear"))
+ggplot(data = plot_df) + 
+  geom_bar(aes(x = UC, y = Total_MW, fill = UC), stat = "identity", 
+           position=position_dodge()) + 
+  facet_wrap(~Resource, ncol = 3, scales = "free")
+
+ggsave(paste0(dir, "/figs/q2_UC_and_linear_generation_comparison.png"), 
+       height = 12.5, width = 12)
+       
+
+
+
+
+
+
+
+
+
+
+
 

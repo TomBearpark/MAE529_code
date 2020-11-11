@@ -423,7 +423,7 @@ function solve_model_q2(input, solve_type::String)
     
     # (10-12) Time coupling constraints
     @constraints(Expansion_Model, begin
-        # (10a) Ramp up constraints, normal
+        # (10a) Ramp up constraints, normal - instructoin (8) changes the sets here
         cRampUp[t in INTERIORS, g in ED], 
             vGEN[t,g] - vGEN[t-1,g] <= generators.Ramp_Up_percentage[g]*vCAP[g]
         # (10b) Ramp up constraints, sub-period wrapping
