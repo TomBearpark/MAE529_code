@@ -1,13 +1,13 @@
-# Utility functions for assignment 5
+# Utility functions for assignment 5, question 2
 println("-----------------------------------------------")
 println("1 loading data preparation function")
 println("-----------------------------------------------")
 
-
+# Note - this function is exactly the same as the one in question 1
 function prepare_inputs(input_path::String, time_subset::String; 
             carbon_tax::Bool)
 
-    # Read input data for a case with 10 sample days of data
+    # Read input data
     inputs_path = input_path * "/Notebooks/complex_expansion_data/" * 
                         time_subset * "/"
 
