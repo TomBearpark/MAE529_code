@@ -7,7 +7,7 @@ println("-----------------------------------------------")
 function prepare_inputs(input_path::String, time_subset::String; 
             carbon_tax::Bool)
 
-    # Read input data for a case with 10 sample days of data
+    # Input data path, based on time subset
     inputs_path = input_path * "/Notebooks/complex_expansion_data/" * 
                         time_subset * "/"
 
@@ -29,7 +29,6 @@ function prepare_inputs(input_path::String, time_subset::String;
                         :Eff_up, :Eff_down);
     # Set of all generators
     G = generators.R_ID;
-
 
     # Read demand input data and record parameters
     demand_inputs = DataFrame(CSV.File(joinpath(inputs_path, "Load_data.csv")))

@@ -1,4 +1,4 @@
-# Homework 5
+# Homework 5 - Run script for Question 1 
 
 # Set up environment
 using JuMP, Clp                       # optimisation packages
@@ -12,6 +12,7 @@ pso_dir = "/Users/tombearpark/Documents/princeton/" *
 # Working directory, for saving outputs
 wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
      "MAE529/MAE529_code/5_assignment/"
+
 
 # Load functions - loads a function for cleaning the data and sets, and
 # a wrapper for the JUMP model. 
@@ -46,7 +47,6 @@ end
 times.hours = [10 * 24, 4 * 7 * 24, 8 * 7 * 24, 16 * 7 * 24]
 CSV.write(joinpath(wd, "results/q1_times.csv"), 
         times)  
-# Scatter plot of times, for inclusion in write up 
 times |> 
     @vlplot(:point, 
         x={:hours, title="Number of hours optimized"}, 
@@ -62,7 +62,7 @@ times |>
 #     for all four iterations of the model.
 
 
-# Plot percentage divergence from 16 week version 
+# Function to plot percentage divergence from 16 week version 
 function plot_percent_diffs(df) 
     plot_df =  select(df, :total_hours, :total_cost_deviation, 
         :total_final_capacity_deviation, :total_generation_deviation) 
@@ -106,13 +106,14 @@ CSV.write(joinpath(wd, "results/q1_gen_by_resource_without_carbon_tax.csv"),
 # and Start-up Cost that includes 50 times the CO2 content of the fuel 
 # (tCO2/MMBtu) times the total fuel consumed by each resource (MMBtu).
 
+# Note - I implented this through adding an option the existing function, 
+# rather than copying it into a new one.
+
 # Run model, with carbon tax option selected 
 times_tax = DataFrame(
     time_subset = ["10_days", "4_weeks", "8_weeks", "16_weeks"], 
     time = [0.0,0.0,0.0,0.0], time1 = [0.0,0.0,0.0,0.0])
 times_tax.hours = times.hours
-
-# Run and write new results
 for d in times_tax.time_subset
     sol = run_model(pso_dir, d, true)
     write_results(wd, sol, d, true)
@@ -124,7 +125,8 @@ end
 CSV.write(joinpath(wd, "results/q1_times_w_carbon_tax.csv"), 
     times_tax)  
 
-# Load results from disk - make these into latex tables for write up 
+# Load results from disk - make these into csv tables for copying into latex
+# write up 
 df_ct = append_all_totals(wd, true)
 # Write results 
 CSV.write(joinpath(wd, "results/q1_summary_with_carbon_tax.csv"), 
@@ -133,11 +135,13 @@ plot_percent_diffs(df_ct) |>
     save(joinpath(wd, "results/figs/q1_accuracy_losses_with_carbon_tax.png"))
 
 # Visualise some of the outputs
-scatter(times.hours, times.time, label = "Without carbon tax", size=(800,500), location=4)
+scatter(times.hours, times.time, label = "Without carbon tax", size=(800,500), 
+                location=4)
 scatter!(times_tax.hours, times_tax.time, label = "With carbon tax")
 title!("Number of hours in subset vs compute time (seconds)")
 png(joinpath(wd, "results/figs/times_comparison.png"))
 
+# Get a breakdown of generators, save as a spreadsheet. 
 df = load_generator_result(wd, "10_days", true)
 df = append!(df, load_generator_result(wd, "4_weeks", true))
 df = append!(df, load_generator_result(wd, "8_weeks", true))
