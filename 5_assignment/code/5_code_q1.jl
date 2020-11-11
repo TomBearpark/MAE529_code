@@ -1,10 +1,11 @@
 # Homework 5 - Run script for Question 1 
 
-# Set up environment
+# Set up environment - make sure you have these packages installed
 using JuMP, Clp                       # optimisation packages
 using DataFrames, CSV                 # data cleaning
 using VegaLite, Plots                 # plots
 
+# Note - edit the following two strings to run on your machine
 # Set string as location of Power System Optimisation git repo. 
 pso_dir = "/Users/tombearpark/Documents/princeton/" *
                 "1st_year/MAE529/power-systems-optimization/"
@@ -34,7 +35,7 @@ end
 times = DataFrame(
     time_subset = ["10_days", "4_weeks", "8_weeks", "16_weeks"], 
     time = [0.0,0.0,0.0,0.0], time1 = [0.0,0.0,0.0,0.0])
-
+# Loop over time subsets, running and then saving results into dataframe
 for d in times.time_subset
     sol = run_model(pso_dir, d, false)
     write_results(wd, sol, d, false)
@@ -60,7 +61,6 @@ times |>
 #     (b) total final capacity (MW) results by resource, and 
 #     (c) the total generation (GWh) results 
 #     for all four iterations of the model.
-
 
 # Function to plot percentage divergence from 16 week version 
 function plot_percent_diffs(df) 
