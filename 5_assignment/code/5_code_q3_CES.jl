@@ -15,7 +15,7 @@ wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
      "MAE529/MAE529_code/5_assignment/"
 
 # load up the functions we need 
-include("5_functions_q3_captrade.jl")
+include("5_functions_q3_CES.jl")
 
 # Solve the model for different stringency levels
 # 1 corresponds to 100% CES generation. 0 is the unrestricted solution 

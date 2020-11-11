@@ -235,7 +235,7 @@ function solve_model_q2(input, solve_type::String)
         # LP model using Clp solver
         Expansion_Model =  Model(Cbc.Optimizer);
         # To keep solve times down -  allow a tolerance. 
-        set_optimizer_attribute(Expansion_Model, "ratioGap", 0.001)
+        set_optimizer_attribute(Expansion_Model, "ratioGap", 0.01)
         # set_optimizer_attribute(model, "threads", length(Sys.cpu_info())) 
     else
         Expansion_Model =  Model(Clp.Optimizer);
@@ -413,10 +413,14 @@ function solve_model_q2(input, solve_type::String)
     # (these will be subject to normal time couping constraints, looking back one period)
     INTERIORS = setdiff(T,STARTS)
     
-    # New constraint, defining COMMIT, from instruction (7). Copied approach from notebook 05
+    # New constraint, defining COMMIT, from instruction (7). Copied approach from notebook 05. 
+    # Also needs a wrap around constraint, to preserve logical consistency whilst time sampling
     @constraints(Expansion_Model, begin
         cCommit[t in INTERIORS, g in UC], 
                 vCOMMIT[t,g] == vCOMMIT[t-1,g] + vSTART[t,g] - vSHUT[t,g]
+        # Wrap around version
+        cCommitWrap[t in STARTS, g in UC], 
+            vCOMMIT[t, g] == vCOMMIT[t+hours_per_period-1, g] + vSTART[t, g] - vSHUT[t, g]
     end)
 
     println("check")
@@ -449,21 +453,35 @@ function solve_model_q2(input, solve_type::String)
     generators.Max_MinPower_Ramp_DOWN = max.(generators.Min_power, generators.Ramp_Dn_percentage)
 
     # Constraints from instruction (9) - ramp rates 
-    UC_INTERIOR = setdiff(T,1)
     @constraints(Expansion_Model, begin
-        cRampRateUcUP[t in UC_INTERIOR, g in UC],     
+        cRampRateUcUp[t in INTERIORS, g in UC],     
             vGEN[t, g] - vGEN[t-1, g] <= generators.Ramp_Up_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t, g] - vSTART[t,g]) + 
                     generators.Max_MinPower_Ramp_UP[g] * generators.Cap_size[g] * vSTART[t, g] - 
                     generators.Min_power[g] * generators.Cap_size[g] * vSHUT[t, g]
+
+        # Wrap around version - due to time sampling method
+        cRampRateUcUpWrap[t in STARTS, g in UC], 
+            vGEN[t, g] - vGEN[t+hours_per_period-1,g] <= generators.Ramp_Up_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t,g]-vSTART[t,g]) + 
+                    generators.Max_MinPower_Ramp_UP[g] * generators.Cap_size[g] * vSTART[t,g] -
+                    generators.Min_power[g] * generators.Cap_size[g] * vSHUT[t ,g]
+
     end)
     @constraints(Expansion_Model, begin
-        cRampRateUcDn[t in UC_INTERIOR, g in UC],     
+        cRampRateUcDn[t in INTERIORS, g in UC],     
             vGEN[t-1, g] - vGEN[t, g] <= generators.Ramp_Dn_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t, g] - vSTART[t,g]) + 
                     generators.Max_MinPower_Ramp_DOWN[g] * generators.Cap_size[g] * vSHUT[t, g] - 
                     generators.Min_power[g] * generators.Cap_size[g] * vSTART[t, g]
+        # Wrap around verions
+        cRampRateUcDnWrap[t in STARTS, g in UC], 
+            vGEN[t+hours_per_period-1,g] - vGEN[t,g] <= generators.Ramp_Dn_percentage[g] * generators.Cap_size[g]*(vCOMMIT[t, g]-vSTART[t, g]) + 
+                    generators.Max_MinPower_Ramp_DOWN[g] * generators.Cap_size[g] * vSHUT[t, g] - 
+                    generators.Min_power[g] * generators.Cap_size[g] * vSTART[t, g]
+
     end)
 
     # Constraints for instruction (10) - minimum up and down time constraints
+    # To get this totally right - we should have wrap round constraints here. I wasn't able to do that
+    # in time 
     @constraints(Expansion_Model, begin
         cCommitMin[t in T, g in UC], 
             vCOMMIT[t,g] >= sum(vSTART[i, g] 
