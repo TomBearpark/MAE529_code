@@ -236,6 +236,7 @@ function solve_model_q2(input, solve_type::String)
         Expansion_Model =  Model(Cbc.Optimizer);
         # To keep solve times down -  allow a tolerance. 
         set_optimizer_attribute(Expansion_Model, "ratioGap", 0.001)
+        # set_optimizer_attribute(model, "threads", length(Sys.cpu_info())) 
     else
         Expansion_Model =  Model(Clp.Optimizer);
     end
