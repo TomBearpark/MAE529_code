@@ -200,7 +200,7 @@ println("-----------------------------------------------")
 # Function for solving the model, given the cleaned inputs from the 
 # above function 
 
-# function solve_model(input)
+function solve_model_q2(input, solve_type::String)
 
     # Get the relevant names so it matches Jesse's code... 
     # params
@@ -231,46 +231,85 @@ println("-----------------------------------------------")
     sample_weight = input.sample_weight
     hours_per_period = input.hours_per_period
 
-    # LP model using Clp solver
-    Expansion_Model =  Model(Cbc.Optimizer);
+    if solve_type == "MILP"
+        # LP model using Clp solver
+        Expansion_Model =  Model(Cbc.Optimizer);
+        # To keep solve times down -  allow a tolerance. 
+        set_optimizer_attribute(Expansion_Model, "ratioGap", 0.001)
+        # set_optimizer_attribute(model, "threads", length(Sys.cpu_info())) 
+    else
+        Expansion_Model =  Model(Clp.Optimizer);
+    end
+
     # DECISION VARIABLES
     # By naming convention, all decision variables start with v and then are in UPPER_SNAKE_CASE
-    
-    @variables(Expansion_Model, begin
-        # Non-UC ret and new 
-        vRET_CAP[g in intersect(ED, OLD)] >= 0, Int     # retirement of power capacity (MW)
-        vNEW_CAP[g in intersect(ED, NEW)] >= 0, Int     # new build power capacity (MW)
+    if solve_type == "MILP"
+        # Capacity decision variables
+        @variables(Expansion_Model, begin
+            
+            # Leave this one as it is. 
+            vCAP[g in G]            >= 0     # power capacity (MW)
 
-    end)
+            # Change in Instruction (1)- UC Ret and NEW as integer problem
+            vRET_CAP_UC[g in intersect(OLD, UC)] >= 0, Int     # retirement of power capacity (MW), UC
+            vNEW_CAP_UC[g in intersect(NEW, UC)] >= 0, Int     # new build power capacity (MW), UC
+            vRET_CAP_ED[g in intersect(OLD, ED)] >= 0          # retirement of power capacity (MW), ED
+            vNEW_CAP_ED[g in intersect(NEW, ED)] >= 0          # new build power capacity (MW), ED
 
+            vE_CAP[g in STOR]       >= 0     # storage energy capacity (MWh)
+            vRET_E_CAP[g in intersect(STOR, OLD)]   >= 0     # retirement of storage energy capacity (MWh)
+            vNEW_E_CAP[g in intersect(STOR, NEW)]   >= 0     # new build storage energy capacity (MWh)
 
-    # Capacity decision variables
-    @variables(Expansion_Model, begin
-        vCAP[g in G]            >= 0     # power capacity (MW)
+            vT_CAP[l in L]          >= 0     # transmission capacity (MW)
+            vRET_T_CAP[l in L]      >= 0     # retirement of transmission capacity (MW)
+            vNEW_T_CAP[l in L]      >= 0     # new build transmission capacity (MW)
+        end)
+            # Operational decision variables added for UC problem (instruction (3))
+        @variables(Expansion_Model, begin
+            vSTART[T, UC]  >=0, Int
+            vSHUT[T, UC]   >=0, Int
+            vCOMMIT[T, UC] >=0, Int
+        end)
+        # linear version... 
+    else
+        # Capacity decision variables
+        @variables(Expansion_Model, begin
+            
+            # Leave this one as it is. 
+            vCAP[g in G]            >= 0     # power capacity (MW)
 
-        # Integer decisions
-        vRET_CAP[g in intersect(UC, OLD)]      >= 0     # retirement of power capacity (MW)
-        vNEW_CAP[g in intersect(UC, NEW)]      >= 0     # new build power capacity (MW)
+            # Change in Instruction (1)- UC Ret and NEW as integer problem
+            vRET_CAP_UC[g in intersect(OLD, UC)] >= 0     # retirement of power capacity (MW), UC
+            vNEW_CAP_UC[g in intersect(NEW, UC)] >= 0     # new build power capacity (MW), UC
+            vRET_CAP_ED[g in intersect(OLD, ED)] >= 0          # retirement of power capacity (MW), ED
+            vNEW_CAP_ED[g in intersect(NEW, ED)] >= 0          # new build power capacity (MW), ED
 
-        vE_CAP[g in STOR]       >= 0     # storage energy capacity (MWh)
-        vRET_E_CAP[g in intersect(STOR, OLD)]   >= 0     # retirement of storage energy capacity (MWh)
-        vNEW_E_CAP[g in intersect(STOR, NEW)]   >= 0     # new build storage energy capacity (MWh)
+            vE_CAP[g in STOR]       >= 0     # storage energy capacity (MWh)
+            vRET_E_CAP[g in intersect(STOR, OLD)]   >= 0     # retirement of storage energy capacity (MWh)
+            vNEW_E_CAP[g in intersect(STOR, NEW)]   >= 0     # new build storage energy capacity (MWh)
 
-        vT_CAP[l in L]          >= 0     # transmission capacity (MW)
-        vRET_T_CAP[l in L]      >= 0     # retirement of transmission capacity (MW)
-        vNEW_T_CAP[l in L]      >= 0     # new build transmission capacity (MW)
-    end)
+            vT_CAP[l in L]          >= 0     # transmission capacity (MW)
+            vRET_T_CAP[l in L]      >= 0     # retirement of transmission capacity (MW)
+            vNEW_T_CAP[l in L]      >= 0     # new build transmission capacity (MW)
+        end)
+        @variables(Expansion_Model, begin
+            vSTART[T, UC]  >=0
+            vSHUT[T, UC]   >=0
+            vCOMMIT[T, UC] >=0
+        end)
+    end
 
     # Set upper bounds on capacity for renewable resources 
     # (which are limited in each resource 'cluster')
-    for g in NEW[generators[NEW,:Max_Cap_MW].>0]
-        set_upper_bound(vNEW_CAP[g], generators.Max_Cap_MW[g])
+    for g in intersect(NEW, ED)[generators[intersect(NEW, ED),:Max_Cap_MW].>0]
+        set_upper_bound(vNEW_CAP_ED[g], generators.Max_Cap_MW[g])
     end
 
     # Set upper bounds on transmission capacity expansion
     for l in L
         set_upper_bound(vNEW_T_CAP[l], lines.Line_Max_Reinforcement_MW[l])
     end
+
 
     # Operational decision variables
     @variables(Expansion_Model, begin
@@ -290,11 +329,11 @@ println("-----------------------------------------------")
 
     # (1) Supply-demand balance constraint for all time steps and zones
     @constraint(Expansion_Model, cDemandBalance[t in T, z in Z], 
-    sum(vGEN[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],G)) +
-    sum(vNSE[t,s,z] for s in S) - 
-    sum(vCHARGE[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],STOR)) -
-    demand[t,z] - 
-    sum(lines[l,Symbol(string("z",z))] * vFLOW[t,l] for l in L) == 0
+        sum(vGEN[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],G)) +
+        sum(vNSE[t,s,z] for s in S) - 
+        sum(vCHARGE[t,g] for g in intersect(generators[generators.zone.==z,:R_ID],STOR)) -
+        demand[t,z] - 
+        sum(lines[l,Symbol(string("z",z))] * vFLOW[t,l] for l in L) == 0
     )
     # Notes: 
     # 1. intersect(generators[generators.zone.==z,:R_ID],G) is the subset of all 
@@ -307,8 +346,15 @@ println("-----------------------------------------------")
     # for each line l in L.
     # (2-6) Capacitated constraints:
     @constraints(Expansion_Model, begin
-    # (2) Max power constraints for all time steps and all generators/storage
-        cMaxPower[t in T, g in G], vGEN[t,g] <= variability[t,g]*vCAP[g]
+    # (2a) Max power constraints for all time steps and all generators/storage not in UC
+        cMaxPower[t in T, g in ED], vGEN[t,g] <= variability[t,g]*vCAP[g]
+
+    # Instruction (4) and instruction (5)
+    # (2b) Max power constraints for all time steps and all generators/storage in UC
+        cMaxPowerUC[t in T, g in UC], vGEN[t,g] <= vCOMMIT[t, g] * generators.Cap_size[g]
+    # (2c) Min power constraints for all time steps and all generators/storage in UC
+        cMinPowerUC[t in T, g in UC], vGEN[t,g] >= vCOMMIT[t, g] * generators.Cap_size[g] * generators.Min_power[g]
+
     # (3) Max charge constraints for all time steps and all storage resources
         cMaxCharge[t in T, g in STOR], vCHARGE[t,g] <= vCAP[g]
     # (4) Max state of charge constraints for all time steps and all storage resources
@@ -321,13 +367,29 @@ println("-----------------------------------------------")
         cMinFlow[t in T, l in L], vFLOW[t,l] >= -vT_CAP[l]
     end)
 
+
+    # Upper bound constraints on start-up, shut down, commitment state vars
+    # From instruction number (6)
+
+    @constraints(Expansion_Model, begin
+        cCommitUB[t in T, g in UC], vCOMMIT[t,g] <= vCAP[g] / generators.Cap_size[g]
+        cStartUB[t in T, g in UC],  vSTART[t,g]  <= vCAP[g] / generators.Cap_size[g]
+        cShutUB[t in T, g in UC],   vSHUT[t,g]   <= vCAP[g] / generators.Cap_size[g]
+    end)
+
+
     # (7-9) Total capacity constraints:
     @constraints(Expansion_Model, begin
     # (7a) Total capacity for existing units
-        cCapOld[g in OLD], vCAP[g] == generators.Existing_Cap_MW[g] - vRET_CAP[g]
+        cCapOld[g in intersect(ED, OLD)], vCAP[g] == generators.Existing_Cap_MW[g] - vRET_CAP_ED[g]
     # (7b) Total capacity for new units
-        cCapNew[g in NEW], vCAP[g] == vNEW_CAP[g]
-            
+        cCapNew[g in intersect(ED, NEW)], vCAP[g] == vNEW_CAP_ED[g]
+    # UC versions..., introduced for instruction (11)
+    # (7c) Total capacity for existing units
+        cCapOldUC[g in intersect(UC, OLD)], vCAP[g] == generators.Existing_Cap_MW[g] - generators.Cap_size[g] * vRET_CAP_UC[g]
+    # (7d) Total capacity for new units
+        cCapNewUC[g in intersect(UC, NEW)], vCAP[g] == generators.Cap_size[g] * vNEW_CAP_UC[g]
+
     # (8a) Total energy storage capacity for existing units
         cCapEnergyOld[g in intersect(STOR, OLD)], 
             vE_CAP[g] == generators.Existing_Cap_MWh[g] - vRET_E_CAP[g]
@@ -338,32 +400,40 @@ println("-----------------------------------------------")
     # (9) Total transmission capacity
         cTransCap[l in L], vT_CAP[l] == lines.Line_Max_Flow_MW[l] - vRET_T_CAP[l] + vNEW_T_CAP[l]
     end)
+
+
     # Because we are using time domain reduction via sample periods (days or weeks),
     # we must be careful with time coupling constraints at the start and end of each
     # sample period. 
 
     # First we record a subset of time steps that begin a sub period 
     # (these will be subject to 'wrapping' constraints that link the start/end of each period)
-    STARTS = 1:hours_per_period:maximum(T)        
+    STARTS = 1:hours_per_period:maximum(T)     
     # Then we record all time periods that do not begin a sub period 
     # (these will be subject to normal time couping constraints, looking back one period)
     INTERIORS = setdiff(T,STARTS)
     
+    # New constraint, defining COMMIT, from instruction (7). Copied approach from notebook 05
+    @constraints(Expansion_Model, begin
+        cCommit[t in INTERIORS, g in UC], 
+                vCOMMIT[t,g] == vCOMMIT[t-1,g] + vSTART[t,g] - vSHUT[t,g]
+    end)
+
     println("check")
     
     # (10-12) Time coupling constraints
     @constraints(Expansion_Model, begin
         # (10a) Ramp up constraints, normal
-        cRampUp[t in INTERIORS, g in G], 
+        cRampUp[t in INTERIORS, g in ED], 
             vGEN[t,g] - vGEN[t-1,g] <= generators.Ramp_Up_percentage[g]*vCAP[g]
         # (10b) Ramp up constraints, sub-period wrapping
-        cRampUpWrap[t in STARTS, g in G], 
+        cRampUpWrap[t in STARTS, g in ED], 
             vGEN[t,g] - vGEN[t+hours_per_period-1,g] <= generators.Ramp_Up_percentage[g]*vCAP[g]    
         # (11a) Ramp down, normal
-        cRampDown[t in INTERIORS, g in G], 
+        cRampDown[t in INTERIORS, g in ED], 
             vGEN[t-1,g] - vGEN[t,g] <= generators.Ramp_Dn_percentage[g]*vCAP[g] 
         # (11b) Ramp down, sub-period wrapping
-        cRampDownWrap[t in STARTS, g in G], 
+        cRampDownWrap[t in STARTS, g in ED], 
             vGEN[t+hours_per_period-1,g] - vGEN[t,g] <= generators.Ramp_Dn_percentage[g]*vCAP[g]     
         
         # (12a) Storage state of charge, normal
@@ -374,22 +444,59 @@ println("-----------------------------------------------")
             vSOC[t,g] == vSOC[t+hours_per_period-1,g] + generators.Eff_up[g]*vCHARGE[t,g] - vGEN[t,g]/generators.Eff_down[g]
     end)
 
+    # Add a max Min power and Ramp Up percent columnn to generator DF
+    generators.Max_MinPower_Ramp_UP = max.(generators.Min_power, generators.Ramp_Up_percentage)
+    generators.Max_MinPower_Ramp_DOWN = max.(generators.Min_power, generators.Ramp_Dn_percentage)
+
+    # Constraints from instruction (9) - ramp rates 
+    UC_INTERIOR = setdiff(T,1)
+    @constraints(Expansion_Model, begin
+        cRampRateUcUP[t in UC_INTERIOR, g in UC],     
+            vGEN[t, g] - vGEN[t-1, g] <= generators.Ramp_Up_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t, g] - vSTART[t,g]) + 
+                    generators.Max_MinPower_Ramp_UP[g] * generators.Cap_size[g] * vSTART[t, g] - 
+                    generators.Min_power[g] * generators.Cap_size[g] * vSHUT[t, g]
+    end)
+    @constraints(Expansion_Model, begin
+        cRampRateUcDn[t in UC_INTERIOR, g in UC],     
+            vGEN[t-1, g] - vGEN[t, g] <= generators.Ramp_Dn_percentage[g] * generators.Cap_size[g] * (vCOMMIT[t, g] - vSTART[t,g]) + 
+                    generators.Max_MinPower_Ramp_DOWN[g] * generators.Cap_size[g] * vSHUT[t, g] - 
+                    generators.Min_power[g] * generators.Cap_size[g] * vSTART[t, g]
+    end)
+
+    # Constraints for instruction (10) - minimum up and down time constraints
+    @constraints(Expansion_Model, begin
+        cCommitMin[t in T, g in UC], 
+            vCOMMIT[t,g] >= sum(vSTART[i, g] 
+                for i in intersect(T, (t-generators.Up_time[g]):t))
+    end)
+    @constraints(Expansion_Model, begin
+        cCommitShut[t in T, g in UC], vCAP[g] / generators.Cap_size[g] - vCOMMIT[t,g]  >= 
+            sum(vSHUT[i, g] for i in intersect(T, (t-generators.Down_time[g]):t))
+    end)
+
     println("assigned constraints")
     # The objective function is to minimize the sum of fixed costs associated with
     # capacity decisions and variable costs associated with operational decisions
+
+    # Instruction (12) - add start cost expression
+    @expression(Expansion_Model, eStartCost, 
+        sum(sample_weight[t] * generators.Start_Cost[g] * vSTART[t,g] for t in T, g in UC)
+    )
 
     # Create expressions for each sub-component of the total cost (for later retrieval)
     @expression(Expansion_Model, eFixedCostsGeneration,
         # Fixed costs for total capacity 
         sum(generators.Fixed_OM_cost_per_MWyr[g]*vCAP[g] for g in G) +
-        # Investment cost for new capacity
-        sum(generators.Inv_cost_per_MWyr[g]*vNEW_CAP[g] for g in NEW)
+        # Investment cost for new capacity - split this into two parts 
+        sum(generators.Inv_cost_per_MWyr[g]*vNEW_CAP_ED[g] for g in intersect(ED, NEW)) + 
+        sum(generators.Inv_cost_per_MWyr[g]*vNEW_CAP_UC[g]*generators.Cap_size[g] for g in intersect(UC, NEW)) 
     )
     @expression(Expansion_Model, eFixedCostsStorage,
         # Fixed costs for total storage energy capacity 
         sum(generators.Fixed_OM_cost_per_MWhyr[g]*vE_CAP[g] for g in STOR) + 
         # Investment costs for new storage energy capacity
-        sum(generators.Inv_cost_per_MWhyr[g]*vNEW_CAP[g] for g in intersect(STOR, NEW))
+        sum(generators.Inv_cost_per_MWhyr[g]*vNEW_CAP_ED[g] for g in intersect(ED, STOR, NEW)) +
+        sum(generators.Inv_cost_per_MWhyr[g]*vNEW_CAP_UC[g] for g in intersect(UC, STOR, NEW))
     )
     @expression(Expansion_Model, eFixedCostsTransmission,
         # Investment and fixed O&M costs for transmission lines
@@ -406,13 +513,14 @@ println("-----------------------------------------------")
     )
 
     @objective(Expansion_Model, Min,
-        eFixedCostsGeneration + eFixedCostsStorage + eFixedCostsTransmission +
+        eStartCost + eFixedCostsGeneration + eFixedCostsStorage + eFixedCostsTransmission +
         eVariableCosts + eNSECosts
     )
 
     time = @elapsed optimize!(Expansion_Model)
-    time1 = @elapsed optimize!(Expansion_Model)
-
+    
+    println("solved")
+    
     # Record generation capacity and energy results
     generation = zeros(size(G,1))
     for i in 1:size(G,1)
@@ -493,7 +601,8 @@ println("-----------------------------------------------")
         Fixed_Costs_Storage = value.(eFixedCostsStorage)/10^6,
         Fixed_Costs_Transmission = value.(eFixedCostsTransmission)/10^6,
         Variable_Costs = value.(eVariableCosts)/10^6,
-        NSE_Costs = value.(eNSECosts)/10^6
+        NSE_Costs = value.(eNSECosts)/10^6, 
+        Start_costs = value.(eStartCost) / 10^6
     )
     return(
         generator_results = generator_results, 
@@ -501,25 +610,29 @@ println("-----------------------------------------------")
         transmission_results = transmission_results, 
         nse_results = nse_results, 
         cost_results = cost_results, 
-        time = time, 
-        time1= time1
+        time = time
     )
 end
 
 # Function for writing results to csv files
-function write_results(wd::String, solutions, time_subset::String, 
+function write_results_q2(wd::String, solutions, time_subset::String, 
         carbon_tax::Bool)
 
-    outpath = wd * "/results/data/" * time_subset* "_Thomas_Bearpark/"
-
+    outpath = wd * "/results/data/question_2/" * time_subset* "_Thomas_Bearpark/"
+    
     if carbon_tax
         outpath = outpath * "carbon_tax"
+    else 
+        outpath = outpath * "without_carbon_tax"
     end
 
     if !(isdir(outpath))
         mkpath(outpath)
     end
-    print("w")
+    println(outpath)
+
+    times = DataFrame(time = solutions.time)
+
     CSV.write(joinpath(outpath, "generator_results.csv"), 
         solutions.generator_results)
     CSV.write(joinpath(outpath, "storage_results.csv"), 
@@ -529,45 +642,9 @@ function write_results(wd::String, solutions, time_subset::String,
     CSV.write(joinpath(outpath, "nse_results.csv"), 
         solutions.nse_results)
     CSV.write(joinpath(outpath, "cost_results.csv"), 
-        solutions.cost_results);
+        solutions.cost_results)
+    CSV.write(joinpath(outpath, "time.csv"), 
+        times);
 end
 
-# Helper function for loading csv files 
-function return_totals(wd, d, carbon_tax::Bool)
-    
-    # Load in the relevant data
-    path = "/results/data/" * d * "_Thomas_Bearpark/"
-    
-    if carbon_tax
-        path = path * "carbon_tax"
-        println("returning version with carbon tax")
-    end
-
-    cost_results = CSV.read(joinpath(wd * path, "cost_results.csv"))
-    gen = CSV.read(joinpath(wd * path, "generator_results.csv"))
-    
-    # Return dataframe of needed data 
-    return DataFrame(time_subset = d, 
-                total_hours = times.hours[times.time_subset .== d][1],
-                total_cost = cost_results.Total_Costs[1], 
-                total_final_capacity = sum(gen.Total_MW), 
-                total_generation = sum(gen.GWh))
-end
-
-# Wraps around return totals, to append for each time period 
-function append_all_totals(wd, carbon_tax::Bool)
-    df = return_totals(wd, "10_days", carbon_tax) 
-    df = append!(df, return_totals(wd, "4_weeks", carbon_tax))
-    df = append!(df, return_totals(wd, "8_weeks", carbon_tax))
-    df = append!(df, return_totals(wd, "16_weeks", carbon_tax))
-    # Find percentage differences, relative to 16 week version 
-    for var in ("total_cost",  "total_final_capacity", "total_generation")
-        df[var * "_deviation"] = 0.0
-        for i in 1:3
-            df[var * "_deviation"][i] =  100 * 
-                (df[var][i] - df[var][4]) / df[var][4]
-        end
-    end
-    return(df)
-end
 
