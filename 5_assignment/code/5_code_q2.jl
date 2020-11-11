@@ -70,3 +70,6 @@ CSV.write(wd * "/results/q2c_times_comparison.csv", times_df)
 cost_df = append!(solutions.cost_results, 
                     load_results("cost_results", "2", "8_weeks", wd))
 CSV.write(wd * "/results/q2c_costs_comparison.csv", cost_df)
+
+# Save the generation breakdown, for ggploting 
+CSV.write(wd * "/results/q2c_linear_gen.csv", solutions.generator_results)
