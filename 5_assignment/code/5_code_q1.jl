@@ -89,6 +89,8 @@ df = append!(df, load_cost_result(wd, "4_weeks", false))
 df = append!(df, load_cost_result(wd, "8_weeks", false))
 df = append!(df, load_cost_result(wd, "16_weeks", false))
 plot(df.Variable_Costs)
+CSV.write(joinpath(wd, "results/q1_cost_break_down_without_carbon_tax.csv"), 
+    df)  
 
 # Generation results by resource
 df = load_generator_result(wd, "10_days", false)
