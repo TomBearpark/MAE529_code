@@ -1,9 +1,8 @@
 # Initial code for project run 
 
 # Set up environment - make sure you have these packages installed
-using JuMP, Clp                       # optimisation packages
-using DataFrames, CSV                 # data cleaning
-using VegaLite, Plots                 # plots
+# using Distributed
+using JuMP, Clp, DataFrames, CSV, VegaLite, Plots       # optimisation packages
 
 # Note - edit the following two strings to run on your machine
 # Set string as location of Power System Optimisation git repo. 
@@ -21,10 +20,45 @@ wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
 # to allow for data analysis before solving the model 
 include("draft_functions.jl")
 
+# Loop over carbon tax, for quick to solve case
+for i in 0:10:100
+    input = prepare_inputs(input_path, "10_days", carbon_tax = i)
+    solutions = solve_model(input)   
+    write_results(wd, solutions, "10_days", i)
+end
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+addprocs(3)
+
+using Distributed
+addprocs(7)
+@everywhere function solver_test(i)
+    input = prepare_inputs(input_path, "10_days", carbon_tax = i)
+    solutions = solve_model(input)   
+    write_results(wd, solutions, "10_days", i)
+end
+
+pmap(solver_test, 0:10:100)
+# To do - 
+# Add in hydrogen 
 
 
 
