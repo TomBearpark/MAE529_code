@@ -6,7 +6,7 @@ println("-----------------------------------------------")
 
 function prepare_inputs(input_path::String, time_subset::String; 
             carbon_tax::Number, 
-            H2_inv_cost_MWyr, H2_OM_cost_MWyr, H2_var_cost_MWyr, 
+            H2_Fixed_Inv_cost_MWyr, H2_Fixed_OM_cost_MWyr, H2_Var_OM_cost_per_MWh, 
             H2_STOR_Inv_cost_MWhyr, H2_STOR_OM_cost_MWhyr, 
             H2_eff)
 
@@ -32,9 +32,9 @@ function prepare_inputs(input_path::String, time_subset::String;
     
     # Add in hydrogen information, based on scenario
     generators = add_H2_rows_to_gen_df(generators, 
-        H2_inv_cost_MWyr = H2_inv_cost_MWyr, 
-        H2_OM_cost_MWyr = H2_OM_cost_MWyr, 
-        H2_var_cost_MWyr = H2_var_cost_MWyr, 
+        H2_Fixed_Inv_cost_MWyr = H2_Fixed_Inv_cost_MWyr, 
+        H2_Fixed_OM_cost_MWyr = H2_Fixed_OM_cost_MWyr, 
+        H2_Var_OM_cost_per_MWh = H2_Var_OM_cost_per_MWh, 
         H2_STOR_Inv_cost_MWhyr = H2_STOR_Inv_cost_MWhyr, 
         H2_STOR_OM_cost_MWhyr = H2_STOR_OM_cost_MWhyr, 
         H2_eff = H2_eff)

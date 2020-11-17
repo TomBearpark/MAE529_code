@@ -1,6 +1,10 @@
 # # Prepare hydrogen data
 # using CSV, DataFrames
 
+# hydrogen 
+# * low efficiency
+# 
+
 # input_path = "/Users/tombearpark/Documents/princeton/1st_year/MAE529/" * 
 #     "MAE529_code/project/input_data/ercot_brownfield_expansion/"
 
@@ -24,8 +28,11 @@
 #     :Eff_up, :Eff_down);
 
 function add_H2_rows_to_gen_df(generators; 
-    H2_inv_cost_MWyr, H2_OM_cost_MWyr, H2_var_cost_MWyr, 
-    H2_STOR_Inv_cost_MWhyr, H2_STOR_OM_cost_MWhyr, 
+    H2_Fixed_Inv_cost_MWyr, 
+    H2_Fixed_OM_cost_MWyr, 
+    H2_Var_OM_cost_per_MWh, 
+    H2_STOR_Inv_cost_MWhyr, 
+    H2_STOR_OM_cost_MWhyr, 
     H2_eff)
 
     genH2 = copy(generators) 
@@ -61,14 +68,14 @@ function add_H2_rows_to_gen_df(generators;
     # Parameters of interest to vary
     
     # Electrolyser costs
-    genH2.Inv_cost_per_MWyr = H2_inv_cost_MWyr
-    genH2.Fixed_OM_cost_per_MWyr = H2_OM_cost_MWyr
+    genH2.Inv_cost_per_MWyr = round(H2_Fixed_Inv_cost_MWyr)
+    genH2.Fixed_OM_cost_per_MWyr = round(H2_Fixed_OM_cost_MWyr)
 
-    genH2.Var_OM_cost_per_MWh = H2_var_cost_MWyr
+    genH2.Var_OM_cost_per_MWh = round(H2_Var_OM_cost_per_MWh)
 
     # Storage fixed costs
-    genH2.Inv_cost_per_MWhyr = H2_STOR_Inv_cost_MWhyr
-    genH2.Fixed_OM_cost_per_MWhyr = H2_STOR_OM_cost_MWhyr
+    genH2.Inv_cost_per_MWhyr = round(H2_STOR_Inv_cost_MWhyr)
+    genH2.Fixed_OM_cost_per_MWhyr = round(H2_STOR_OM_cost_MWhyr)
     
     # Storage efficiency
     genH2.Eff_up .= H2_eff
@@ -89,8 +96,8 @@ end
 
 # Add variability information for consistency with other inputs
 function add_H2_to_variability(variability)
-    variability.Hydrogen_56 = .1
-    variability.Hydrogen_57 = .1
-    variability.Hydrogen_58 = .1
+    variability.Hydrogen_56 = 1
+    variability.Hydrogen_57 = 1
+    variability.Hydrogen_58 = 1
     return(variability)
 end
