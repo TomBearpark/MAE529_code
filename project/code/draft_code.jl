@@ -18,7 +18,22 @@ wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
 # a wrapper for the JUMP model. 
 # This code is just copied from Notebook 7, broken up into two functions
 # to allow for data analysis before solving the model 
+include("H2_functions.jl")
 include("draft_functions.jl")
+
+# Test run... no carbon tax, and no hydrogen
+input = prepare_inputs(input_path, "10_days", 
+                        carbon_tax = 0, 
+                        H2_inv_cost_MWyr = 1, 
+                        H2_OM_cost_MWyr = 1, 
+                        H2_var_cost_MWyr = 1, 
+                        H2_STOR_Inv_cost_MWhyr = 1, 
+                        H2_STOR_OM_cost_MWhyr = 1, 
+                        H2_eff = 0.00000000001)
+
+solutions = solve_model(input)   
+
+
 
 # Loop over carbon tax, for quick to solve case
 for i in 0:10:100

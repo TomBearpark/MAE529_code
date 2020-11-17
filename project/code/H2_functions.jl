@@ -86,3 +86,11 @@ end
 #     H2_STOR_Inv_cost_MWhyr = 1, 
 #     H2_STOR_OM_cost_MWhyr = 1, 
 #     H2_eff = 1)
+
+# Add variability information for consistency with other inputs
+function add_H2_to_variability(variability)
+    variability.Hydrogen_56 = .1
+    variability.Hydrogen_57 = .1
+    variability.Hydrogen_58 = .1
+    return(variability)
+end

@@ -5,7 +5,10 @@ println("-----------------------------------------------")
 
 
 function prepare_inputs(input_path::String, time_subset::String; 
-            carbon_tax::Number)
+            carbon_tax::Number, 
+            H2_inv_cost_MWyr, H2_OM_cost_MWyr, H2_var_cost_MWyr, 
+            H2_STOR_Inv_cost_MWhyr, H2_STOR_OM_cost_MWhyr, 
+            H2_eff)
 
     # Input data path, based on time subset
     inputs_path = input_path  * time_subset * "/"
@@ -26,6 +29,16 @@ function prepare_inputs(input_path::String, time_subset::String;
                         :Min_power, :Ramp_Up_percentage, :Ramp_Dn_percentage, 
                         :Up_time, :Down_time,
                         :Eff_up, :Eff_down);
+    
+    # Add in hydrogen information, based on scenario
+    generators = add_H2_rows_to_gen_df(generators, 
+        H2_inv_cost_MWyr = H2_inv_cost_MWyr, 
+        H2_OM_cost_MWyr = H2_OM_cost_MWyr, 
+        H2_var_cost_MWyr = H2_var_cost_MWyr, 
+        H2_STOR_Inv_cost_MWhyr = H2_STOR_Inv_cost_MWhyr, 
+        H2_STOR_OM_cost_MWhyr = H2_STOR_OM_cost_MWhyr, 
+        H2_eff = H2_eff)
+    
     # Set of all generators
     G = generators.R_ID;
 
@@ -90,6 +103,8 @@ function prepare_inputs(input_path::String, time_subset::String;
         # Read generator capacity factors by hour (used for variable renewables)
     # There is one column here for each resource (row) in the generators DataFrame
     variability = DataFrame(CSV.File(joinpath(inputs_path, "Generators_variability.csv")))
+    variability = add_H2_to_variability(variability)
+
     # Drop the first column with row indexes, as these are unecessary
     variability = variability[:,2:ncol(variability)];
     # Uncomment this line to explore the data if you wish:
@@ -290,6 +305,7 @@ function solve_model(input)
             demand[t,z] - 
         sum(lines[l,Symbol(string("z",z))] * vFLOW[t,l] for l in L) == 0
     )
+    println("assigned constraint 1")
     # Notes: 
     # 1. intersect(generators[generators.zone.==z,:R_ID],G) is the subset of all 
     # generators/storage located at zone z in Z.
@@ -314,6 +330,7 @@ function solve_model(input)
     # (6b) Min flow constraints for all time steps and all lines
         cMinFlow[t in T, l in L], vFLOW[t,l] >= -vT_CAP[l]
     end)
+    println("assigned constraint 2")
 
     # (7-9) Total capacity constraints:
     @constraints(Expansion_Model, begin
@@ -332,6 +349,8 @@ function solve_model(input)
     # (9) Total transmission capacity
         cTransCap[l in L], vT_CAP[l] == lines.Line_Max_Flow_MW[l] - vRET_T_CAP[l] + vNEW_T_CAP[l]
     end)
+    println("assigned constraint 3")
+
     # Because we are using time domain reduction via sample periods (days or weeks),
     # we must be careful with time coupling constraints at the start and end of each
     # sample period. 
