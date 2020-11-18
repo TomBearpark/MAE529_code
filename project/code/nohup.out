@@ -1349,3 +1349,26 @@ in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529
 2 loading model solving function
 -----------------------------------------------
 0
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+ERROR: LoadError: ArgumentError: "0.8/input_data/ercot_brownfield_expansion/52_weeks/Generators_data.csv" is not a valid file
+Stacktrace:
+ [1] CSV.Header(::String, ::Int64, ::Bool, ::Int64, ::Nothing, ::Int64, ::Bool, ::Nothing, ::Nothing, ::Bool, ::Nothing, ::Nothing, ::Array{String,1}, ::String, ::Nothing, ::Bool, ::Char, ::Nothing, ::Nothing, ::Char, ::Nothing, ::Nothing, ::UInt8, ::Array{String,1}, ::Array{String,1}, ::Nothing, ::Nothing, ::Dict{Type,Type}, ::Nothing, ::Float64, ::Bool, ::Bool, ::Bool, ::Bool, ::Bool, ::Bool) at /Users/tombearpark/.julia/packages/CSV/MKemC/src/header.jl:92
+ [2] CSV.File(::String; header::Int64, normalizenames::Bool, datarow::Int64, skipto::Nothing, footerskip::Int64, transpose::Bool, comment::Nothing, use_mmap::Nothing, ignoreemptylines::Bool, select::Nothing, drop::Nothing, missingstrings::Array{String,1}, missingstring::String, delim::Nothing, ignorerepeated::Bool, quotechar::Char, openquotechar::Nothing, closequotechar::Nothing, escapechar::Char, dateformat::Nothing, dateformats::Nothing, decimal::UInt8, truestrings::Array{String,1}, falsestrings::Array{String,1}, type::Nothing, types::Nothing, typemap::Dict{Type,Type}, categorical::Nothing, pool::Float64, lazystrings::Bool, strict::Bool, silencewarnings::Bool, debug::Bool, parsingdebug::Bool, kw::Base.Iterators.Pairs{Union{},Union{},Tuple{},NamedTuple{(),Tuple{}}}) at /Users/tombearpark/.julia/packages/CSV/MKemC/src/file.jl:216
+ [3] CSV.File(::String) at /Users/tombearpark/.julia/packages/CSV/MKemC/src/file.jl:216
+ [4] prepare_inputs(::String, ::String; carbon_tax::Int64, H2_Fixed_Inv_cost_MWyr::Float64, H2_Fixed_OM_cost_MWyr::Float64, H2_Var_OM_cost_per_MWh::Int64, H2_STOR_Inv_cost_MWhyr::Float64, H2_STOR_OM_cost_MWhyr::Float64, H2_eff::Float64) at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/functions.jl:17
+ [5] run_model(::String, ::String; time_subset::String, carbon_tax::Int64, electro_capex::Float64, stor_capex::Float64, H2_eff::Float64) at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/run_code.jl:72
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/run_code.jl:91
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/run_code.jl:89
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0

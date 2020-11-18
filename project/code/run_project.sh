@@ -10,9 +10,9 @@ do
 	do
 		echo $eff
 		echo $elec_cpx
-		nohup julia run_code.jl $elec_cpx $eff $dir &
+		nohup julia run_code.jl $elec_cpx $eff $dir & 
 	done
 done
 
 
-# nohup julia run_code.jl 200 0.8 $dir &
+# julia run_code.jl 200 0.8 $dir
