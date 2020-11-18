@@ -8,7 +8,7 @@ if runBash
     # Parse command line arguments 
     electro_capex = parse(Float64, ARGS[1])
     H2_eff = parse(Float64, ARGS[2])
-    dir = string(ARGS[2])
+    dir = string(ARGS[3])
 else 
     electro_capex = 200
     H2_eff = 0.85
@@ -21,12 +21,13 @@ input_path = dir * "/input_data/ercot_brownfield_expansion/"
 # Working directory, for saving outputs
 wd = dir
 
-
 # Global variables - holding constant for all runs 
 time_subset = "52_weeks"
 stor_capex = 0.6
 CT_list = [0, 50, 100]
 # CT_list = [0]
+
+println(time_subset)
 
 # Set up environment - make sure you have these packages installed
 using JuMP, Clp, DataFrames, CSV     
