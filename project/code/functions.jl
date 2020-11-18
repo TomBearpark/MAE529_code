@@ -536,11 +536,11 @@ function write_results(wd::String, solutions, time_subset::String;
         carbon_tax::Number, 
         electro_capex::Number, stor_capex::Number, efficiency::Number)
 
-        outpath = wd * "/results/data/" * time_subset* "/"  * 
+        outpath = wd * "/results/" * time_subset* "/"  * 
                     "c_tax_"* string(carbon_tax) *"/" * 
                     "EleCpx_" * string(electro_capex) * 
                     "_StorCpx_" * string(stor_capex) * 
-                    "_Eff_" * string(100*efficiency) 
+                    "_Eff_" * string(Int(round(100*efficiency)))
 
     if !(isdir(outpath))
         mkpath(outpath)
