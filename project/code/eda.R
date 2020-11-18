@@ -33,6 +33,15 @@ df_var = read_csv(paste0(input,
 plot_df_var = df_var %>% 
   pivot_longer(!Time_index, names_to = "generator", values_to = "variability")
 
+df_gen = read_csv(paste0(input, 
+                         "52_weeks/Generators_data.csv")) 
+
+
 ggplot(data = plot_df_var) + 
-  geom_line(aes(x = Time_index, y = variability)) + 
-  facet_wrap(~generator)
+  geom_line(aes(x = Time_index, y = variability, color = generator)) 
+
+
+for (var in names(df_gen)){
+  cor(df_var$onshore_wind_turbine_1, df$Load_MW_z3)
+}
+
