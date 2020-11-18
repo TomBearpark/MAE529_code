@@ -402,7 +402,7 @@ function solve_model(input)
         # Fixed costs for total storage energy capacity 
         sum(generators.Fixed_OM_cost_per_MWhyr[g]*vE_CAP[g] for g in STOR) + 
         # Investment costs for new storage energy capacity
-        sum(generators.Inv_cost_per_MWhyr[g]*vNEW_CAP[g] for g in intersect(STOR, NEW))
+        sum(generators.Inv_cost_per_MWhyr[g]*vNEW_E_CAP[g] for g in intersect(STOR, NEW))
     )
     @expression(Expansion_Model, eFixedCostsTransmission,
         # Investment and fixed O&M costs for transmission lines
@@ -461,6 +461,19 @@ function solve_model(input)
         Change_in_Storage_MWh = value.(vE_CAP).data.-generators.Existing_Cap_MWh[STOR],
     )
 
+    # Record charging profile, and SOC, for hydrogen analysis
+    charge_results = DataFrame(
+        value.(vCHARGE).data
+    )
+    rename!(charge_results, [Symbol("C$i") for i in STOR])
+    charge_results.hour = 1:length(charge_results[1])
+
+    SOC_results = DataFrame(
+        value.(vSOC).data
+    )
+    rename!(SOC_results, [Symbol("SOC$i") for i in STOR])
+    SOC_results.hour = 1:length(SOC_results[1])
+    charge_results = innerjoin(charge_results, SOC_results, on = :hour)
 
     # Record transmission capacity results
     transmission_results = DataFrame(
@@ -513,6 +526,7 @@ function solve_model(input)
         transmission_results = transmission_results, 
         nse_results = nse_results, 
         cost_results = cost_results, 
+        charge_results = charge_results, 
         time = time
     )
 end
@@ -543,8 +557,10 @@ function write_results(wd::String, solutions, time_subset::String;
     CSV.write(joinpath(outpath, "nse_results.csv"), 
         solutions.nse_results)
     CSV.write(joinpath(outpath, "cost_results.csv"), 
-        solutions.cost_results)
-    CSV.write(joinpath(outpath, "time.csv"), 
+        solutions.cost_results), 
+    CSV.write(joinpath(outpath, "charge_results.csv"), 
+        solutions.charge_results), 
+    CSV.write(joinpath(outpath, "time_results.csv"), 
         times);
 end
 
