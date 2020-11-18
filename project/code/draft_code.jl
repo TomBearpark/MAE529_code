@@ -22,12 +22,11 @@ function calc_annuitised_capex(;N, capex, WACC)
     return 1000* capex * ((WACC * (1 + WACC)^N)) / ((1 + WACC)^N - 1)
 end 
 
-
-electro_capex = 200
-time_subset = "10_days"
-carbon_tax = 90
+time_subset = "52_weeks"
+electro_capex = 600
+carbon_tax = 0
 stor_capex = 0.6
-
+H2_eff = 0.8
 
 # Calculate reasonable parameter inputs for test run... 
 # * 1. H2_Fixed_Inv_cost_MWyr
@@ -57,7 +56,7 @@ H2_STOR_Inv_cost_MWhyr =
 H2_STOR_OM_cost_MWhyr =  0.05 * H2_STOR_Inv_cost_MWhyr
 
 # * H2_eff
-H2_eff = 0.75
+H2_eff = H2_eff
 
 # Test run... 
 input = prepare_inputs(input_path, time_subset, 
@@ -70,6 +69,7 @@ input = prepare_inputs(input_path, time_subset,
                         H2_eff = H2_eff)
 
 solutions = solve_model(input)   
-write_results(wd, solutions, time_subset , carbon_tax = carbon_tax, 
+write_results(wd, solutions, 
+                time_subset , carbon_tax = carbon_tax, 
                 electro_capex = electro_capex, 
                 stor_capex = stor_capex, efficiency = H2_eff)
