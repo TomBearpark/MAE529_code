@@ -23,7 +23,7 @@ wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
 # Load functions - loads a function for cleaning the data and sets, and
 # a wrapper for the JUMP model. 
 include("H2_functions.jl")
-include("draft_functions.jl")
+include("functions.jl")
 
 # Helper function for annuitsing costs 
 function calc_annuitised_capex(;N, capex, WACC)

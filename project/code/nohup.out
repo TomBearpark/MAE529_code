@@ -364,3 +364,947 @@ in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529
 ┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
 │ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
 └ @ Base loading.jl:1017
+
+signal (15): Terminated: 15
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+
+signal (15): Terminated: 15
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+
+signal (15): Terminated: 15
+
+signal (15): Terminated: 15
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+
+signal (15): Terminated: 15
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+
+signal (15): Terminated: 15
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+unknown function (ip: 0x14b6118d9)
+broadcasted at ./broadcast.jl:1265 [inlined]
+broadcasted at ./broadcast.jl:1263
+getproperty at ./Base.jl:33 [inlined]
+map_indices at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/functions.jl:113
+map_indices at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/functions.jl:73 [inlined]
+_broadcast_getindex_evalf at ./broadcast.jl:648 [inlined]
+_broadcast_getindex at ./broadcast.jl:621 [inlined]
+map_indices at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/functions.jl:113
+getindex at ./broadcast.jl:575 [inlined]
+macro expansion at ./broadcast.jl:932 [inlined]
+macro expansion at ./simdloop.jl:77 [inlined]
+copyto! at ./broadcast.jl:931 [inlined]
+copyto! at ./broadcast.jl:886 [inlined]
+copy at ./broadcast.jl:862 [inlined]
+materialize at ./broadcast.jl:837 [inlined]
+copy_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:226
+unknown function (ip: 0x15210e180)
+map_indices at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/functions.jl:73 [inlined]
+_broadcast_getindex_evalf at ./broadcast.jl:648 [inlined]
+_broadcast_getindex at ./broadcast.jl:621 [inlined]
+getindex at ./broadcast.jl:575 [inlined]
+macro expansion at ./broadcast.jl:932 [inlined]
+macro expansion at ./simdloop.jl:77 [inlined]
+copyto! at ./broadcast.jl:931 [inlined]
+copyto! at ./broadcast.jl:886 [inlined]
+copy at ./broadcast.jl:862 [inlined]
+materialize at ./broadcast.jl:837 [inlined]
+copy_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:226
+unknown function (ip: 0x14b62f1e0)
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:265
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:240
+unknown function (ip: 0x14b6141f9)
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:265
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:240
+
+signal (15): Terminated: 15
+unknown function (ip: 0x1520f3219)
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+default_copy_to at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:340
+#automatic_copy_to#109 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:15 [inlined]
+automatic_copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:14 [inlined]
+#copy_to#3 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268 [inlined]
+copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268
+unknown function (ip: 0x14b5f8691)
+attach_optimizer at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:149
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:185
+default_copy_to at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:340
+#optimize!#95 at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:131
+#automatic_copy_to#109 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:15 [inlined]
+automatic_copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:14 [inlined]
+#copy_to#3 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268 [inlined]
+copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268
+unknown function (ip: 0x1520d7691)
+attach_optimizer at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:149
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:185
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+macro expansion at ./timing.jl:233 [inlined]
+solve_model at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_functions.jl:426
+unknown function (ip: 0x13f329f55)
+#run_model#73 at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:71
+#optimize!#95 at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:131
+run_model##kw at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:39
+unknown function (ip: 0x13f27c456)
+top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:81
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+macro expansion at ./timing.jl:233 [inlined]
+solve_model at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_functions.jl:426
+unknown function (ip: 0x145e08f35)
+#run_model#73 at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:71
+run_model##kw at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:39
+unknown function (ip: 0x145d5b456)
+top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:81
+_ZN12_GLOBAL__N_16LSRUse13RecomputeRegsEmRNS_13RegUseTrackerE at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/libLLVM.dylib (unknown line)
+_platform_memmove$VARIANT$Haswell at /usr/lib/system/libsystem_platform.dylib (unknown line)
+_ZN12_GLOBAL__N_111LSRInstance38FilterOutUndesirableDedicatedRegistersEv at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/libLLVM.dylib (unknown line)
+unknown function (ip: 0x0)
+Allocations: 188620432 (Pool: 188562112; Big: 58320); GC: 124
+_ZN12_GLOBAL__N_111LSRInstanceC2EPN4llvm4LoopERNS1_7IVUsersERNS1_15ScalarEvolutionERNS1_13DominatorTreeERNS1_8LoopInfoERKNS1_19TargetTransformInfoERNS1_15AssumptionCacheERNS1_17TargetLibraryInfoE at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/libLLVM.dylib (unknown line)
+_ZL18ReduceLoopStrengthPN4llvm4LoopERNS_7IVUsersERNS_15ScalarEvolutionERNS_13DominatorTreeERNS_8LoopInfoERKNS_19TargetTransformInfoERNS_15AssumptionCacheERNS_17TargetLibraryInfoE at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/libLLVM.dylib (unknown line)
+_ZN12_GLOBAL__N_118LoopStrengthReduce9runOnLoopEPN4llvm4LoopERNS1_13LPPassManagerE at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/libLLVM.dylib (unknown line)
+_ZN4llvm13LPPassManager13runOnFunctionERNS_8FunctionE at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/libLLVM.dylib (unknown line)
+_ZN4llvm13FPPassManager13runOnFunctionERNS_8FunctionE at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/libLLVM.dylib (unknown line)
+_ZN4llvm13FPPassManager11runOnModuleERNS_6ModuleE at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/libLLVM.dylib (unknown line)
+jl_toplevel_eval_flex at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:834
+jl_parse_eval_all at /Users/julia/buildbot/worker/package_macos64/build/src/ast.c:913
+jl_load_rewrite at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:914 [inlined]
+jl_load at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:919
+_ZN4llvm6legacy15PassManagerImpl3runERNS_6ModuleE at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/libLLVM.dylib (unknown line)
+jl_unwrap_unionall at /Users/julia/buildbot/worker/package_macos64/build/src/jltypes.c:930
+jl_typemap_entry_assoc_by_type at /Users/julia/buildbot/worker/package_macos64/build/src/typemap.c:440
+jl_typemap_assoc_by_type at /Users/julia/buildbot/worker/package_macos64/build/src/typemap.c:608
+jl_lookup_generic_ at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2332
+jl_apply_generic at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2394
+ml_matches at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2799
+jl_matching_methods at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:1891
+gc_try_setmark at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:1642 [inlined]
+gc_mark_scan_objarray at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:1754 [inlined]
+gc_mark_loop at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:2093
+_jl_gc_collect at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:2902
+jl_gc_collect at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:3108
+maybe_collect at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:827 [inlined]
+jl_gc_pool_alloc at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:1142
+jl_gc_alloc_ at /Users/julia/buildbot/worker/package_macos64/build/src/./julia_internal.h:277 [inlined]
+jl_gc_alloc at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:3150
+_new_array_ at /Users/julia/buildbot/worker/package_macos64/build/src/array.c:106
+_new_array at /Users/julia/buildbot/worker/package_macos64/build/src/array.c:162
+jl_alloc_array_1d at /Users/julia/buildbot/worker/package_macos64/build/src/array.c:433
+Array at ./boot.jl:406 [inlined]
+vcat at ./array.jl:1676
+broadcastvcat at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/model.jl:996
+get at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/model.jl:638 [inlined]
+get at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/universalfallback.jl:228
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:263
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:240
+unknown function (ip: 0x1464961f9)
+default_copy_to at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:340
+#automatic_copy_to#109 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:15 [inlined]
+automatic_copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:14 [inlined]
+#copy_to#3 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268 [inlined]
+copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268
+unknown function (ip: 0x14647a691)
+attach_optimizer at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:149
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:185
+jl_toplevel_eval_flex at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:834
+#optimize!#95 at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:131
+jl_parse_eval_all at /Users/julia/buildbot/worker/package_macos64/build/src/ast.c:913
+jl_load_rewrite at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:914 [inlined]
+jl_load at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:919
+include at ./Base.jl:380
+include at ./Base.jl:368
+_methods_by_ftype at ./reflection.jl:861 [inlined]
+#216 at ./compiler/abstractinterpretation.jl:57 [inlined]
+get! at ./iddict.jl:152
+jfptr_getNOT._19531.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+macro expansion at ./timing.jl:233 [inlined]
+solve_model at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_functions.jl:426
+unknown function (ip: 0x13a1abf55)
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:55
+exec_options at ./client.jl:296
+_start at ./client.jl:506
+jfptr__start_35953.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+true_main at /usr/local/bin/julia (unknown line)
+main at /usr/local/bin/julia (unknown line)
+unknown function (ip: 0x0)
+Allocations: 175008057 (Pool: 174951478; Big: 56579); GC: 127
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+#run_model#73 at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:71
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call at ./compiler/abstractinterpretation.jl:911
+run_model##kw at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:39
+unknown function (ip: 0x13a0fe456)
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+batch_inline! at ./compiler/ssair/inlining.jl:534
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+ssa_inlining_pass! at ./compiler/ssair/inlining.jl:77 [inlined]
+run_passes at ./compiler/ssair/driver.jl:138
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+optimize at ./compiler/optimize.jl:174
+typeinf at ./compiler/typeinfer.jl:12
+typeinf_edge at ./compiler/typeinfer.jl:484
+typeinf at ./compiler/typeinfer.jl:33
+abstract_call_method at ./compiler/abstractinterpretation.jl:419
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:111
+abstract_call at ./compiler/abstractinterpretation.jl:924
+abstract_call_method_with_const_args at ./compiler/abstractinterpretation.jl:266
+top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:81
+operator() at /Users/julia/buildbot/worker/package_macos64/build/src/jitlayers.cpp:520
+addModule at /Users/julia/buildbot/worker/package_macos64/build/usr/include/llvm/ExecutionEngine/Orc/IRCompileLayer.h:93
+abstract_call at ./compiler/abstractinterpretation.jl:911
+addModule at /Users/julia/buildbot/worker/package_macos64/build/src/jitlayers.cpp:648
+jl_add_to_ee at /Users/julia/buildbot/worker/package_macos64/build/src/jitlayers.cpp:893 [inlined]
+jl_add_to_ee at /Users/julia/buildbot/worker/package_macos64/build/src/jitlayers.cpp:955
+jl_add_to_ee at /Users/julia/buildbot/worker/package_macos64/build/src/jitlayers.cpp:977 [inlined]
+_jl_compile_codeinst at /Users/julia/buildbot/worker/package_macos64/build/src/jitlayers.cpp:126
+jl_generate_fptr at /Users/julia/buildbot/worker/package_macos64/build/src/jitlayers.cpp:302
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:134
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+jl_toplevel_eval_flex at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:834
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+jl_parse_eval_all at /Users/julia/buildbot/worker/package_macos64/build/src/ast.c:913
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+jl_load_rewrite at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:914 [inlined]
+jl_load at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:919
+typeinf at ./compiler/typeinfer.jl:12
+jl_compile_method_internal at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:1964
+_jl_invoke at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2224 [inlined]
+jl_apply_generic at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2398
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:246
+typeinf_edge at ./compiler/typeinfer.jl:484
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:240
+unknown function (ip: 0x14b9421f9)
+default_copy_to at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:340
+#automatic_copy_to#109 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:15 [inlined]
+automatic_copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:14 [inlined]
+#copy_to#3 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268 [inlined]
+copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268
+unknown function (ip: 0x14b926691)
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call_method at ./compiler/abstractinterpretation.jl:419
+abstract_call at ./compiler/abstractinterpretation.jl:911
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:111
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call at ./compiler/abstractinterpretation.jl:911
+attach_optimizer at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:149
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:185
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+typeinf at ./compiler/typeinfer.jl:12
+typeinf_edge at ./compiler/typeinfer.jl:484
+abstract_call_method at ./compiler/abstractinterpretation.jl:419
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:111
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+#optimize!#95 at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:131
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+include at ./Base.jl:380
+include at ./Base.jl:368
+typeinf at ./compiler/typeinfer.jl:12
+abstract_call_method_with_const_args at ./compiler/abstractinterpretation.jl:266
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:134
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_apply at ./compiler/abstractinterpretation.jl:635
+abstract_call at ./compiler/abstractinterpretation.jl:911
+abstract_call_known at ./compiler/abstractinterpretation.jl:704
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+abstract_call at ./compiler/abstractinterpretation.jl:926
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+abstract_call at ./compiler/abstractinterpretation.jl:911
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+typeinf at ./compiler/typeinfer.jl:12
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+abstract_call_method_with_const_args at ./compiler/abstractinterpretation.jl:266
+typeinf at ./compiler/typeinfer.jl:12
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:134
+typeinf_edge at ./compiler/typeinfer.jl:484
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+exec_options at ./client.jl:296
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call_method at ./compiler/abstractinterpretation.jl:419
+_start at ./client.jl:506
+abstract_call at ./compiler/abstractinterpretation.jl:911
+jfptr__start_35953.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:111
+true_main at /usr/local/bin/julia (unknown line)
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+main at /usr/local/bin/julia (unknown line)
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+unknown function (ip: 0x0)
+Allocations: 205115645 (Pool: 205055002; Big: 60643); GC: 133
+macro expansion at ./timing.jl:233 [inlined]
+solve_model at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_functions.jl:426
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+unknown function (ip: 0x13f657f45)
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+typeinf_local at ./compiler/abstractinterpretation.jl:1255
+abstract_call at ./compiler/abstractinterpretation.jl:926
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+abstract_call at ./compiler/abstractinterpretation.jl:911
+typeinf at ./compiler/typeinfer.jl:12
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+abstract_call_method_with_const_args at ./compiler/abstractinterpretation.jl:266
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:134
+typeinf at ./compiler/typeinfer.jl:12
+#run_model#73 at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:71
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+abstract_call at ./compiler/abstractinterpretation.jl:926
+typeinf_ext at ./compiler/typeinfer.jl:570
+run_model##kw at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:39
+unknown function (ip: 0x13f5aa456)
+abstract_call at ./compiler/abstractinterpretation.jl:911
+typeinf_ext at ./compiler/typeinfer.jl:601
+jfptr_typeinf_ext_20855.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+jl_apply at /Users/julia/buildbot/worker/package_macos64/build/src/./julia.h:1690 [inlined]
+jl_type_infer at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:296
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1255
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+typeinf at ./compiler/typeinfer.jl:12
+typeinf_ext at ./compiler/typeinfer.jl:570
+typeinf_ext at ./compiler/typeinfer.jl:601
+jfptr_typeinf_ext_20855.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+jl_apply at /Users/julia/buildbot/worker/package_macos64/build/src/./julia.h:1690 [inlined]
+jl_type_infer at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:296
+top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:81
+jl_toplevel_eval_flex at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:834
+jl_parse_eval_all at /Users/julia/buildbot/worker/package_macos64/build/src/ast.c:913
+jl_load_rewrite at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:914 [inlined]
+jl_load at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:919
+include at ./Base.jl:380
+include at ./Base.jl:368
+exec_options at ./client.jl:296
+_start at ./client.jl:506
+jfptr__start_35953.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+true_main at /usr/local/bin/julia (unknown line)
+main at /usr/local/bin/julia (unknown line)
+unknown function (ip: 0x0)
+Allocations: 197396176 (Pool: 197335798; Big: 60378); GC: 130
+jl_generate_fptr at /Users/julia/buildbot/worker/package_macos64/build/src/jitlayers.cpp:290
+jl_compile_method_internal at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:1964
+_jl_invoke at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2224 [inlined]
+jl_apply_generic at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2398
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:265
+include at ./Base.jl:380
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:240
+unknown function (ip: 0x14df901f9)
+include at ./Base.jl:368
+default_copy_to at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:340
+#automatic_copy_to#109 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:15 [inlined]
+automatic_copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:14 [inlined]
+#copy_to#3 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268 [inlined]
+copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268
+unknown function (ip: 0x14df74691)
+jl_generate_fptr at /Users/julia/buildbot/worker/package_macos64/build/src/jitlayers.cpp:290
+jl_compile_method_internal at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:1964
+_jl_invoke at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2224 [inlined]
+jl_apply_generic at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2398
+pass_attributes at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:124
+unknown function (ip: 0x14a0f476b)
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:246
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:240
+unknown function (ip: 0x14a0f11f9)
+default_copy_to at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:340
+exec_options at ./client.jl:296
+attach_optimizer at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:149
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:185
+_start at ./client.jl:506
+jfptr__start_35953.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+#automatic_copy_to#109 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:15 [inlined]
+automatic_copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:14 [inlined]
+#copy_to#3 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268 [inlined]
+copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268
+unknown function (ip: 0x14a0d5691)
+attach_optimizer at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:149
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:185
+true_main at /usr/local/bin/julia (unknown line)
+main at /usr/local/bin/julia (unknown line)
+unknown function (ip: 0x0)
+Allocations: 189478887 (Pool: 189420445; Big: 58442); GC: 127
+#optimize!#95 at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:131
+#optimize!#95 at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:131
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+macro expansion at ./timing.jl:233 [inlined]
+solve_model at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_functions.jl:426
+macro expansion at ./timing.jl:233 [inlined]
+solve_model at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_functions.jl:426
+unknown function (ip: 0x13de06f55)
+unknown function (ip: 0x141d0df45)
+#run_model#73 at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:71
+run_model##kw at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:39
+#run_model#73 at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:71
+unknown function (ip: 0x13dd59456)
+run_model##kw at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:39
+unknown function (ip: 0x141c60456)
+top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:81
+top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:81
+jl_toplevel_eval_flex at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:834
+jl_toplevel_eval_flex at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:834
+jl_parse_eval_all at /Users/julia/buildbot/worker/package_macos64/build/src/ast.c:913
+jl_load_rewrite at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:914 [inlined]
+jl_load at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:919
+jl_parse_eval_all at /Users/julia/buildbot/worker/package_macos64/build/src/ast.c:913
+jl_load_rewrite at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:914 [inlined]
+jl_load at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:919
+include at ./Base.jl:380
+include at ./Base.jl:368
+include at ./Base.jl:380
+include at ./Base.jl:368
+exec_options at ./client.jl:296
+_start at ./client.jl:506
+exec_options at ./client.jl:296
+jfptr__start_35953.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+_start at ./client.jl:506
+true_main at /usr/local/bin/julia (unknown line)
+main at /usr/local/bin/julia (unknown line)
+unknown function (ip: 0x0)
+Allocations: 182015958 (Pool: 181958369; Big: 57589); GC: 124
+jfptr__start_35953.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+true_main at /usr/local/bin/julia (unknown line)
+main at /usr/local/bin/julia (unknown line)
+unknown function (ip: 0x0)
+Allocations: 189496253 (Pool: 189437806; Big: 58447); GC: 131
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0
+adding in carbon tax elements
+assigned variables
+assigned constraint 1
+assigned constraint 2
+assigned constraint 3
+check
+assigned constraints
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0
+adding in carbon tax elements
+assigned variables
+assigned constraint 1
+assigned constraint 2
+assigned constraint 3
+check
+assigned constraints
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0
+adding in carbon tax elements
+assigned variables
+assigned constraint 1
+assigned constraint 2
+assigned constraint 3
+check
+assigned constraints
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0
+adding in carbon tax elements
+assigned variables
+assigned constraint 1
+assigned constraint 2
+assigned constraint 3
+check
+assigned constraints
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0
+adding in carbon tax elements
+assigned variables
+assigned constraint 1
+assigned constraint 2
+assigned constraint 3
+check
+assigned constraints
+
+signal (11): Segmentation fault: 11
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+jl_typemap_entry_assoc_by_type at /Users/julia/buildbot/worker/package_macos64/build/src/typemap.c:440
+jl_typemap_assoc_by_type at /Users/julia/buildbot/worker/package_macos64/build/src/typemap.c:608
+jl_typemap_assoc_by_type at /Users/julia/buildbot/worker/package_macos64/build/src/typemap.c:599
+ml_matches at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2799
+jl_matching_methods at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:1891
+_methods_by_ftype at ./reflection.jl:861 [inlined]
+#216 at ./compiler/abstractinterpretation.jl:57 [inlined]
+get! at ./iddict.jl:152
+jfptr_getNOT._19531.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:55
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call at ./compiler/abstractinterpretation.jl:911
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1255
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+typeinf at ./compiler/typeinfer.jl:12
+typeinf_edge at ./compiler/typeinfer.jl:484
+abstract_call_method at ./compiler/abstractinterpretation.jl:419
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:111
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call at ./compiler/abstractinterpretation.jl:911
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+typeinf at ./compiler/typeinfer.jl:12
+typeinf_edge at ./compiler/typeinfer.jl:484
+abstract_call_method at ./compiler/abstractinterpretation.jl:419
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:111
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call at ./compiler/abstractinterpretation.jl:911
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+typeinf at ./compiler/typeinfer.jl:12
+typeinf_edge at ./compiler/typeinfer.jl:484
+abstract_call_method at ./compiler/abstractinterpretation.jl:419
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:111
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call at ./compiler/abstractinterpretation.jl:911
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1255
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+typeinf at ./compiler/typeinfer.jl:12
+typeinf_edge at ./compiler/typeinfer.jl:484
+abstract_call_method at ./compiler/abstractinterpretation.jl:419
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:111
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call at ./compiler/abstractinterpretation.jl:911
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+typeinf at ./compiler/typeinfer.jl:12
+typeinf_ext at ./compiler/typeinfer.jl:570
+typeinf_ext at ./compiler/typeinfer.jl:601
+jfptr_typeinf_ext_20855.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+jl_apply at /Users/julia/buildbot/worker/package_macos64/build/src/./julia.h:1690 [inlined]
+jl_type_infer at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:296
+jl_generate_fptr at /Users/julia/buildbot/worker/package_macos64/build/src/jitlayers.cpp:290
+jl_compile_method_internal at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:1964
+_jl_invoke at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2224 [inlined]
+jl_apply_generic at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2398
+jl_apply at /Users/julia/buildbot/worker/package_macos64/build/src/./julia.h:1690 [inlined]
+jl_atexit_hook at /Users/julia/buildbot/worker/package_macos64/build/src/init.c:230
+jl_exit at /Users/julia/buildbot/worker/package_macos64/build/src/jl_uv.c:624
+Allocations: 220282761 (Pool: 220219969; Big: 62792); GC: 134
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0
+adding in carbon tax elements
+assigned variables
+assigned constraint 1
+assigned constraint 2
+assigned constraint 3
+check
+assigned constraints
+
+signal (15): Terminated: 15
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+sweep_page at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:1255 [inlined]
+sweep_pool_page at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:1323 [inlined]
+sweep_pool_pagetable0 at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:1343 [inlined]
+sweep_pool_pagetable1 at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:1363 [inlined]
+sweep_pool_pagetable at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:1393 [inlined]
+gc_sweep_pool at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:1468
+_jl_gc_collect at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:3015
+jl_gc_collect at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:3108
+maybe_collect at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:827 [inlined]
+jl_gc_pool_alloc at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:1142
+unknown function (ip: 0x147dac95c)
+broadcasted at ./broadcast.jl:1265 [inlined]
+broadcasted at ./broadcast.jl:1263
+map_indices at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/functions.jl:113
+map_indices at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/functions.jl:73 [inlined]
+_broadcast_getindex_evalf at ./broadcast.jl:648 [inlined]
+_broadcast_getindex at ./broadcast.jl:621 [inlined]
+getindex at ./broadcast.jl:575 [inlined]
+macro expansion at ./broadcast.jl:932 [inlined]
+macro expansion at ./simdloop.jl:77 [inlined]
+copyto! at ./broadcast.jl:931 [inlined]
+copyto! at ./broadcast.jl:886 [inlined]
+copy at ./broadcast.jl:862 [inlined]
+materialize at ./broadcast.jl:837 [inlined]
+copy_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:226
+unknown function (ip: 0x147dca1b0)
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:265
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:240
+unknown function (ip: 0x147daf209)
+default_copy_to at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:340
+#automatic_copy_to#109 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:15 [inlined]
+automatic_copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:14 [inlined]
+#copy_to#3 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268 [inlined]
+copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268
+unknown function (ip: 0x147d93691)
+attach_optimizer at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:149
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:185
+#optimize!#95 at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:131
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+macro expansion at ./timing.jl:233 [inlined]
+solve_model at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_functions.jl:426
+unknown function (ip: 0x13babff25)
+#run_model#73 at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:71
+run_model##kw at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:39
+unknown function (ip: 0x13ba12446)
+top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:81
+jl_toplevel_eval_flex at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:834
+jl_parse_eval_all at /Users/julia/buildbot/worker/package_macos64/build/src/ast.c:913
+jl_load_rewrite at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:914 [inlined]
+jl_load at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:919
+include at ./Base.jl:380
+include at ./Base.jl:368
+exec_options at ./client.jl:296
+_start at ./client.jl:506
+jfptr__start_35953.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+true_main at /usr/local/bin/julia (unknown line)
+main at /usr/local/bin/julia (unknown line)
+unknown function (ip: 0x0)
+Allocations: 208114173 (Pool: 208053530; Big: 60643); GC: 130
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0
+adding in carbon tax elements
+assigned variables
+assigned constraint 1
+assigned constraint 2
+assigned constraint 3
+check
+assigned constraints
+
+signal (15): Terminated: 15
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+getproperty at ./Base.jl:33 [inlined]
+copy at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/functions.jl:407 [inlined]
+add_constraint at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/model.jl:550
+add_constraint at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/universalfallback.jl:376 [inlined]
+add_constraint at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:265
+_broadcast_getindex_evalf at ./broadcast.jl:648 [inlined]
+_broadcast_getindex at ./broadcast.jl:621 [inlined]
+getindex at ./broadcast.jl:575 [inlined]
+macro expansion at ./broadcast.jl:932 [inlined]
+macro expansion at ./simdloop.jl:77 [inlined]
+copyto! at ./broadcast.jl:931 [inlined]
+copyto! at ./broadcast.jl:886 [inlined]
+copy at ./broadcast.jl:862 [inlined]
+materialize at ./broadcast.jl:837 [inlined]
+add_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/constraints.jl:175
+add_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:1079
+copy_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:228
+unknown function (ip: 0x10dce51b0)
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:265
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:240
+unknown function (ip: 0x10dcca209)
+default_copy_to at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:340
+#automatic_copy_to#109 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:15 [inlined]
+automatic_copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:14 [inlined]
+#copy_to#3 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268 [inlined]
+copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268
+unknown function (ip: 0x10dcae691)
+attach_optimizer at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:149
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:185
+#optimize!#95 at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:131
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+macro expansion at ./timing.jl:233 [inlined]
+solve_model at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_functions.jl:426
+unknown function (ip: 0x10d9e6f35)
+#run_model#73 at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:71
+run_model##kw at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:39
+unknown function (ip: 0x10d939456)
+top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:81
+jl_toplevel_eval_flex at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:834
+jl_parse_eval_all at /Users/julia/buildbot/worker/package_macos64/build/src/ast.c:913
+jl_load_rewrite at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:914 [inlined]
+jl_load at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:919
+include at ./Base.jl:380
+include at ./Base.jl:368
+exec_options at ./client.jl:296
+_start at ./client.jl:506
+jfptr__start_35953.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+true_main at /usr/local/bin/julia (unknown line)
+main at /usr/local/bin/julia (unknown line)
+unknown function (ip: 0x0)
+Allocations: 211857856 (Pool: 211797204; Big: 60652); GC: 131
+
+signal (15): Terminated: 15
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+
+signal (11): Segmentation fault: 11
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+speccache_eq at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:102
+jl_smallintset_lookup at /Users/julia/buildbot/worker/package_macos64/build/src/smallintset.c:101
+jl_specializations_get_linfo at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:120
+specialize_method at ./compiler/utilities.jl:133 [inlined]
+specialize_method at ./compiler/utilities.jl:128 [inlined]
+typeinf_edge at ./compiler/typeinfer.jl:454
+abstract_call_method at ./compiler/abstractinterpretation.jl:419
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:111
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call at ./compiler/abstractinterpretation.jl:911
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+typeinf at ./compiler/typeinfer.jl:12
+abstract_call_method_with_const_args at ./compiler/abstractinterpretation.jl:266
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:134
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_apply at ./compiler/abstractinterpretation.jl:635
+abstract_call_known at ./compiler/abstractinterpretation.jl:704
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call at ./compiler/abstractinterpretation.jl:911
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+typeinf at ./compiler/typeinfer.jl:12
+abstract_call_method_with_const_args at ./compiler/abstractinterpretation.jl:266
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:134
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call at ./compiler/abstractinterpretation.jl:911
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+typeinf at ./compiler/typeinfer.jl:12
+typeinf_edge at ./compiler/typeinfer.jl:484
+abstract_call_method at ./compiler/abstractinterpretation.jl:419
+abstract_call_gf_by_type at ./compiler/abstractinterpretation.jl:111
+abstract_call_known at ./compiler/abstractinterpretation.jl:904
+abstract_call at ./compiler/abstractinterpretation.jl:926
+abstract_call at ./compiler/abstractinterpretation.jl:911
+abstract_eval at ./compiler/abstractinterpretation.jl:1005
+typeinf_local at ./compiler/abstractinterpretation.jl:1270
+typeinf_nocycle at ./compiler/abstractinterpretation.jl:1326
+typeinf at ./compiler/typeinfer.jl:12
+typeinf_ext at ./compiler/typeinfer.jl:570
+typeinf_ext at ./compiler/typeinfer.jl:601
+jfptr_typeinf_ext_20855.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+jl_apply at /Users/julia/buildbot/worker/package_macos64/build/src/./julia.h:1690 [inlined]
+jl_type_infer at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:296
+jl_generate_fptr at /Users/julia/buildbot/worker/package_macos64/build/src/jitlayers.cpp:290
+jl_compile_method_internal at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:1964
+_jl_invoke at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2224 [inlined]
+jl_apply_generic at /Users/julia/buildbot/worker/package_macos64/build/src/gf.c:2398
+jl_apply at /Users/julia/buildbot/worker/package_macos64/build/src/./julia.h:1690 [inlined]
+jl_atexit_hook at /Users/julia/buildbot/worker/package_macos64/build/src/init.c:230
+jl_exit at /Users/julia/buildbot/worker/package_macos64/build/src/jl_uv.c:624
+Allocations: 217713500 (Pool: 217652839; Big: 60661); GC: 132
+jl_gc_pool_alloc at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:1148
+ScalarAffineFunction at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/functions.jl:90 [inlined]
+copy at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/functions.jl:407 [inlined]
+add_constraint at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/model.jl:550
+add_constraint at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/universalfallback.jl:376 [inlined]
+add_constraint at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:265
+_broadcast_getindex_evalf at ./broadcast.jl:648 [inlined]
+_broadcast_getindex at ./broadcast.jl:621 [inlined]
+getindex at ./broadcast.jl:575 [inlined]
+macro expansion at ./broadcast.jl:932 [inlined]
+macro expansion at ./simdloop.jl:77 [inlined]
+copyto! at ./broadcast.jl:931 [inlined]
+copyto! at ./broadcast.jl:886 [inlined]
+copy at ./broadcast.jl:862 [inlined]
+materialize at ./broadcast.jl:837 [inlined]
+add_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/constraints.jl:175
+add_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:1079
+copy_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:228
+unknown function (ip: 0x1459171e0)
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:265
+pass_constraints at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:240
+unknown function (ip: 0x1458fc1f9)
+default_copy_to at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:340
+#automatic_copy_to#109 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:15 [inlined]
+automatic_copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/copy.jl:14 [inlined]
+#copy_to#3 at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268 [inlined]
+copy_to##kw at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:268
+unknown function (ip: 0x1458e0691)
+attach_optimizer at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:149
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:185
+#optimize!#95 at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:131
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+macro expansion at ./timing.jl:233 [inlined]
+solve_model at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_functions.jl:426
+unknown function (ip: 0x139611f25)
+#run_model#73 at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:71
+run_model##kw at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:39
+unknown function (ip: 0x139564456)
+top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:81
+jl_toplevel_eval_flex at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:834
+jl_parse_eval_all at /Users/julia/buildbot/worker/package_macos64/build/src/ast.c:913
+jl_load_rewrite at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:914 [inlined]
+jl_load at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:919
+include at ./Base.jl:380
+include at ./Base.jl:368
+exec_options at ./client.jl:296
+_start at ./client.jl:506
+jfptr__start_35953.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+true_main at /usr/local/bin/julia (unknown line)
+main at /usr/local/bin/julia (unknown line)
+unknown function (ip: 0x0)
+Allocations: 212327676 (Pool: 212267023; Big: 60653); GC: 133
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0
+adding in carbon tax elements
+assigned variables
+assigned constraint 1
+assigned constraint 2
+assigned constraint 3
+check
+assigned constraints
+
+signal (15): Terminated: 15
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
+gc_setmark_pool_ at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:728 [inlined]
+gc_setmark_pool at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:751 [inlined]
+gc_setmark at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:758 [inlined]
+gc_mark_loop at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:2572
+_jl_gc_collect at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:2902
+jl_gc_collect at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:3108
+maybe_collect at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:827 [inlined]
+jl_gc_pool_alloc at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:1142
+jl_gc_alloc_ at /Users/julia/buildbot/worker/package_macos64/build/src/./julia_internal.h:277 [inlined]
+jl_gc_alloc at /Users/julia/buildbot/worker/package_macos64/build/src/gc.c:3150
+jl_new_bits at /Users/julia/buildbot/worker/package_macos64/build/src/datatype.c:671
+jl_get_nth_field_checked at /Users/julia/buildbot/worker/package_macos64/build/src/datatype.c:1053
+attach_optimizer at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:155
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:185
+#optimize!#95 at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:131
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+macro expansion at ./timing.jl:233 [inlined]
+solve_model at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_functions.jl:426
+unknown function (ip: 0x13b3ddf35)
+#run_model#73 at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:71
+run_model##kw at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:39
+unknown function (ip: 0x13b330446)
+top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:81
+jl_toplevel_eval_flex at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:834
+jl_parse_eval_all at /Users/julia/buildbot/worker/package_macos64/build/src/ast.c:913
+jl_load_rewrite at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:914 [inlined]
+jl_load at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:919
+include at ./Base.jl:380
+include at ./Base.jl:368
+exec_options at ./client.jl:296
+_start at ./client.jl:506
+jfptr__start_35953.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+true_main at /usr/local/bin/julia (unknown line)
+main at /usr/local/bin/julia (unknown line)
+unknown function (ip: 0x0)
+Allocations: 230021926 (Pool: 229961070; Big: 60856); GC: 133
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0
+adding in carbon tax elements
+assigned variables
+assigned constraint 1
+assigned constraint 2
+assigned constraint 3
+check
+assigned constraints
+
+signal (15): Terminated: 15
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:79
++ at ./int.jl:86 [inlined]
+ht_keyindex at ./dict.jl:294
+getindex at ./dict.jl:466
+unknown function (ip: 0x15293ec48)
+_extract_row_data at /Users/tombearpark/.julia/packages/Clp/cX6R7/src/MOI_wrapper/MOI_wrapper.jl:227
+unknown function (ip: 0x15293f836)
+#copy_to#5 at /Users/tombearpark/.julia/packages/Clp/cX6R7/src/MOI_wrapper/MOI_wrapper.jl:264
+copy_to##kw at /Users/tombearpark/.julia/packages/Clp/cX6R7/src/MOI_wrapper/MOI_wrapper.jl:243 [inlined]
+attach_optimizer at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:149
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:185
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Bridges/bridge_optimizer.jl:239
+optimize! at /Users/tombearpark/.julia/packages/MathOptInterface/RmalA/src/Utilities/cachingoptimizer.jl:189
+#optimize!#95 at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:131
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+optimize! at /Users/tombearpark/.julia/packages/JuMP/YXK4e/src/optimizer_interface.jl:107 [inlined]
+macro expansion at ./timing.jl:233 [inlined]
+solve_model at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_functions.jl:426
+unknown function (ip: 0x146669f45)
+#run_model#73 at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:71
+run_model##kw at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:39
+unknown function (ip: 0x1465bc456)
+top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:81
+jl_toplevel_eval_flex at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:834
+jl_parse_eval_all at /Users/julia/buildbot/worker/package_macos64/build/src/ast.c:913
+jl_load_rewrite at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:914 [inlined]
+jl_load at /Users/julia/buildbot/worker/package_macos64/build/src/toplevel.c:919
+include at ./Base.jl:380
+include at ./Base.jl:368
+exec_options at ./client.jl:296
+_start at ./client.jl:506
+jfptr__start_35953.clone_1 at /Applications/Julia-1.5.app/Contents/Resources/julia/lib/julia/sys.dylib (unknown line)
+true_main at /usr/local/bin/julia (unknown line)
+main at /usr/local/bin/julia (unknown line)
+unknown function (ip: 0x0)
+Allocations: 249783090 (Pool: 249721910; Big: 61180); GC: 134
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0
+adding in carbon tax elements
+assigned variables
+assigned constraint 1
+assigned constraint 2
+assigned constraint 3
+check
+assigned constraints
