@@ -424,7 +424,6 @@ function solve_model(input)
     )
 
     time = @elapsed optimize!(Expansion_Model)
-    time1 = @elapsed optimize!(Expansion_Model)
 
     # Record generation capacity and energy results
     generation = zeros(size(G,1))
@@ -514,23 +513,25 @@ function solve_model(input)
         transmission_results = transmission_results, 
         nse_results = nse_results, 
         cost_results = cost_results, 
-        time = time, 
-        time1= time1
+        time = time
     )
 end
 
 # Function for writing results to csv files
-function write_results(wd::String, solutions, time_subset::String, 
-        carbon_tax::Number)
+function write_results(wd::String, solutions, time_subset::String;
+        carbon_tax::Number, 
+        electro_capex::Number, stor_capex::Number, efficiency::Number)
 
-        outpath = wd * "/results/data/" * time_subset* "/"
-    
-        outpath = outpath * "c_tax_"* string(carbon_tax) *"/"
+        outpath = wd * "/results/data/" * time_subset* "/"  * 
+                    "c_tax_"* string(carbon_tax) *"/" * 
+                    "EleCpx_" * string(electro_capex) * 
+                    "_StorCpx_" * string(stor_capex) * 
+                    "_Eff_" * string(100*efficiency) 
 
     if !(isdir(outpath))
         mkpath(outpath)
     end
-    print("w")
+    
     times = DataFrame(time = solutions.time)
 
     CSV.write(joinpath(outpath, "generator_results.csv"), 
