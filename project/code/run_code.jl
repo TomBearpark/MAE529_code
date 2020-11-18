@@ -1,24 +1,35 @@
-# Initial code for project 
+# Initial code for project. Run using acompanying bash script: run_project.sh
+# To run this interactively in this code, set runBash = false, and then
+# change the dir string to the location of the project on your machine 
 
-# Parse command line arguments 
-electro_capex = parse(Float64, ARGS[1])
-H2_eff = parse(Float64, ARGS[2])
+runBash = true
 
-# Global variables - holding constant
+if runBash
+    # Parse command line arguments 
+    electro_capex = parse(Float64, ARGS[1])
+    H2_eff = parse(Float64, ARGS[2])
+    dir = string(ARGS[2])
+else 
+    electro_capex = 200
+    H2_eff = 0.85
+    # Note - edit the following string to run on your machine
+    dir = "/Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/"
+end 
+
+# Data input path
+input_path = dir * "/input_data/ercot_brownfield_expansion/"
+# Working directory, for saving outputs
+wd = dir
+
+
+# Global variables - holding constant for all runs 
 time_subset = "52_weeks"
 stor_capex = 0.6
+CT_list = [0, 50, 100]
+# CT_list = [0]
 
 # Set up environment - make sure you have these packages installed
 using JuMP, Clp, DataFrames, CSV     
-
-# Note - edit the following two strings to run on your machine
-# Set string as location of Power System Optimisation git repo. 
-input_path = "/Users/tombearpark/Documents/princeton/1st_year/MAE529/" * 
-    "MAE529_code/project/input_data/ercot_brownfield_expansion/"
-
-# Working directory, for saving outputs
-wd = "/Users/tombearpark/Documents/princeton/1st_year/" *
-     "MAE529/MAE529_code/project/"
 
 # Load functions - loads a function for cleaning the data and sets, and
 # a wrapper for the JUMP model. 
@@ -30,7 +41,7 @@ function calc_annuitised_capex(;N, capex, WACC)
     return 1000* capex * ((WACC * (1 + WACC)^N)) / ((1 + WACC)^N - 1)
 end 
 
-function run_model(;time_subset, carbon_tax, electro_capex, stor_capex, H2_eff)
+function run_model(input_path, wd;time_subset, carbon_tax, electro_capex, stor_capex, H2_eff)
     # Calculate reasonable parameter inputs for test run... 
     # * 1. H2_Fixed_Inv_cost_MWyr
     # Note - this is really really low compared to other estimates 
@@ -76,12 +87,11 @@ function run_model(;time_subset, carbon_tax, electro_capex, stor_capex, H2_eff)
 end 
 
 # Run and save results
-for carbon_tax in [0, 50, 100]
+for carbon_tax in CT_list
     println(carbon_tax)
-    run_model(time_subset = time_subset, carbon_tax = carbon_tax, 
+    run_model(input_path, wd, time_subset = time_subset, carbon_tax = carbon_tax, 
             electro_capex = electro_capex, stor_capex = stor_capex, 
             H2_eff = H2_eff)
-
     println("done")
 end
 
