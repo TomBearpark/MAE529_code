@@ -1,0 +1,366 @@
+ERROR: LoadError: BoundsError: attempt to access 0-element Array{String,1} at index [1]
+Stacktrace:
+ [1] getindex(::Array{String,1}, ::Int64) at ./array.jl:809
+ [2] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/test_args.jl:5
+ [3] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [4] include(::Module, ::String) at ./Base.jl:368
+ [5] exec_options(::Base.JLOptions) at ./client.jl:296
+ [6] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/test_args.jl:5
+args = String[]
+args = ["1"]
+2.0test
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+args = ["200"]
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0
+adding in carbon tax elements
+assigned variables
+assigned constraint 1
+assigned constraint 2
+assigned constraint 3
+check
+assigned constraints
+done
+Coin0506I Presolve 41758 (-5345) rows, 16305 (-1823) columns and 123822 (-12546) elements
+Clp0006I 0  Obj 0 Primal inf 23505530 (1200)
+Clp0006I 433  Obj 8420111.7 Primal inf 24152012 (2153)
+Clp0006I 866  Obj 10585715 Primal inf 26030057 (2975)
+Clp0006I 1299  Obj 53921081 Primal inf 32616772 (3474)
+Clp0006I 1732  Obj 3.0812833e+09 Primal inf 32712162 (3761)
+Clp0006I 2165  Obj 4.0701347e+09 Primal inf 60101973 (4908)
+Clp0006I 2598  Obj 4.2387404e+09 Primal inf 57908696 (5302)
+Clp0006I 3031  Obj 4.3976365e+09 Primal inf 31015847 (5071)
+Clp0006I 3464  Obj 4.5555647e+09 Primal inf 37491616 (5228)
+Clp0006I 3897  Obj 5.0725908e+09 Primal inf 28308442 (5618)
+Clp0006I 4330  Obj 5.6797912e+09 Primal inf 1.0848068e+08 (6618)
+Clp0006I 4763  Obj 6.375823e+09 Primal inf 1.8255408e+08 (6662)
+Clp0006I 5196  Obj 6.8219721e+09 Primal inf 39649085 (6560)
+Clp0006I 5629  Obj 7.3913197e+09 Primal inf 65718621 (7068)
+Clp0006I 6062  Obj 7.9210379e+09 Primal inf 9.0469704e+08 (8154)
+Clp0006I 6495  Obj 8.3910685e+09 Primal inf 20416723 (6351)
+Clp0006I 6928  Obj 8.6287904e+09 Primal inf 96773909 (8720)
+Clp0006I 7361  Obj 8.903039e+09 Primal inf 42853409 (7409)
+Clp0006I 7794  Obj 9.0719777e+09 Primal inf 44417142 (8255)
+Clp0006I 8227  Obj 9.1710929e+09 Primal inf 22051888 (7124)
+Clp0006I 8660  Obj 9.3631679e+09 Primal inf 82862848 (7717)
+Clp0006I 9093  Obj 9.5823553e+09 Primal inf 41316757 (7698)
+Clp0006I 9526  Obj 9.8496683e+09 Primal inf 1.150852e+08 (8985)
+Clp0006I 9959  Obj 9.9748468e+09 Primal inf 32198042 (7764)
+Clp0006I 10392  Obj 1.0037467e+10 Primal inf 28704958 (7750)
+Clp0006I 10825  Obj 1.008016e+10 Primal inf 57297071 (9059)
+Clp0006I 11258  Obj 1.024804e+10 Primal inf 2.8154889e+08 (8831)
+Clp0006I 11691  Obj 1.0353776e+10 Primal inf 3.1161295e+08 (10469)
+Clp0006I 12124  Obj 1.0508907e+10 Primal inf 69267354 (9397)
+Clp0006I 12557  Obj 1.0639979e+10 Primal inf 1.6463806e+08 (9774)
+Clp0006I 12990  Obj 1.0725198e+10 Primal inf 91380168 (9687)
+Clp0006I 13423  Obj 1.0972153e+10 Primal inf 52167029 (10359)
+Clp0006I 13856  Obj 1.1169647e+10 Primal inf 45281686 (8248)
+Clp0006I 14289  Obj 1.1384718e+10 Primal inf 4.6358017e+08 (10568)
+Clp0006I 14623  Obj 1.1500842e+10 Primal inf 71183627 (9559)
+Clp0006I 15056  Obj 1.1593601e+10 Primal inf 1.1726825e+08 (10743)
+Clp0006I 15489  Obj 1.1690077e+10 Primal inf 1.6554635e+08 (10269)
+Clp0006I 15922  Obj 1.1838459e+10 Primal inf 36188216 (8983)
+Clp0006I 16355  Obj 1.1929579e+10 Primal inf 64296751 (8665)
+Clp0006I 16788  Obj 1.2022201e+10 Primal inf 2.373042e+08 (12024)
+Clp0006I 17221  Obj 1.2175893e+10 Primal inf 4.3074638e+08 (10576)
+Clp0006I 17654  Obj 1.231477e+10 Primal inf 24330447 (7579)
+Clp0006I 18087  Obj 1.2368091e+10 Primal inf 32954080 (10340)
+Clp0006I 18520  Obj 1.2488669e+10 Primal inf 72300472 (10204)
+Clp0006I 18953  Obj 1.2661008e+10 Primal inf 69001968 (7802)
+Clp0006I 19386  Obj 1.2860919e+10 Primal inf 2.1237573e+08 (8696)
+Clp0006I 19819  Obj 1.2983233e+10 Primal inf 1.5919912e+08 (11590)
+Clp0006I 20252  Obj 1.3067526e+10 Primal inf 2.805701e+08 (7516)
+Clp0006I 20685  Obj 1.3137918e+10 Primal inf 4.6313592e+08 (8652)
+Clp0006I 21118  Obj 1.3275342e+10 Primal inf 9780855 (5908)
+Clp0006I 21551  Obj 1.3495409e+10 Primal inf 28565857 (6821)
+Clp0006I 21984  Obj 1.3570796e+10 Primal inf 27135630 (6153)
+Clp0006I 22417  Obj 1.3765151e+10 Primal inf 12659144 (5724)
+Clp0006I 22850  Obj 1.3973708e+10 Primal inf 3349403.6 (4429)
+Clp0006I 23283  Obj 1.4104171e+10 Primal inf 6138434.8 (3839)
+Clp0006I 23716  Obj 1.4153858e+10 Primal inf 1360151.4 (2660)
+Clp0006I 24149  Obj 1.4184077e+10 Primal inf 2681639.5 (2559)
+Clp0006I 24582  Obj 1.4190015e+10 Primal inf 74961.745 (1011)
+Clp0006I 25015  Obj 1.4190326e+10 Primal inf 16.50454 (213)
+Clp0006I 25342  Obj 1.4190355e+10
+Clp0000I Optimal - objective value 1.4190355e+10
+Coin0511I After Postsolve, objective 1.4190355e+10, infeasibilities - dual 0 (0), primal 0 (0)
+Clp0032I Optimal objective 1.41903552e+10 - 25342 iterations time 5.412, Presolve 0.05
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+args = ["300", "0.8"]
+-----------------------------------------------
+1 loading data preparation function
+-----------------------------------------------
+-----------------------------------------------
+2 loading model solving function
+-----------------------------------------------
+0
+adding in carbon tax elements
+assigned variables
+assigned constraint 1
+assigned constraint 2
+assigned constraint 3
+check
+assigned constraints
+done
+Coin0506I Presolve 41758 (-5345) rows, 16305 (-1823) columns and 123822 (-12546) elements
+Clp0006I 0  Obj 0 Primal inf 23505530 (1200)
+Clp0006I 433  Obj 8420111.7 Primal inf 24152012 (2153)
+Clp0006I 866  Obj 10585715 Primal inf 26030057 (2975)
+Clp0006I 1299  Obj 53921081 Primal inf 32616772 (3474)
+Clp0006I 1732  Obj 3.0812833e+09 Primal inf 32712162 (3761)
+Clp0006I 2165  Obj 4.0781005e+09 Primal inf 32228981 (4161)
+Clp0006I 2598  Obj 4.317649e+09 Primal inf 41286378 (5367)
+Clp0006I 3031  Obj 4.3926444e+09 Primal inf 39807299 (5353)
+Clp0006I 3464  Obj 4.7548513e+09 Primal inf 86128064 (7103)
+Clp0006I 3897  Obj 4.9430762e+09 Primal inf 1.129446e+08 (6068)
+Clp0006I 4330  Obj 5.7320734e+09 Primal inf 38408114 (6540)
+Clp0006I 4763  Obj 6.2893098e+09 Primal inf 31263596 (6088)
+Clp0006I 5196  Obj 6.7068451e+09 Primal inf 99722448 (6841)
+Clp0006I 5629  Obj 7.5183435e+09 Primal inf 26324206 (6661)
+Clp0006I 6062  Obj 8.2418679e+09 Primal inf 52388048 (7370)
+Clp0006I 6495  Obj 8.3738839e+09 Primal inf 30426083 (7026)
+Clp0006I 6928  Obj 8.5125032e+09 Primal inf 32984765 (7566)
+Clp0006I 7361  Obj 8.865966e+09 Primal inf 25927720 (7593)
+Clp0006I 7794  Obj 9.1879233e+09 Primal inf 41137879 (8057)
+Clp0006I 8227  Obj 9.3830784e+09 Primal inf 15433623 (7749)
+Clp0006I 8660  Obj 9.5942144e+09 Primal inf 13573121 (6861)
+Clp0006I 9093  Obj 9.9006412e+09 Primal inf 54068963 (8152)
+Clp0006I 9526  Obj 9.9361326e+09 Primal inf 38007111 (8220)
+Clp0006I 9959  Obj 9.9675725e+09 Primal inf 19149768 (7278)
+Clp0006I 10392  Obj 1.0009207e+10 Primal inf 25027141 (7098)
+Clp0006I 10825  Obj 1.0197458e+10 Primal inf 3.2347745e+09 (9391)
+Clp0006I 11258  Obj 1.0386177e+10 Primal inf 28810468 (7049)
+Clp0006I 11691  Obj 1.0464071e+10 Primal inf 42116348 (9194)
+Clp0006I 12124  Obj 1.0527829e+10 Primal inf 1.7494342e+08 (8981)
+Clp0006I 12557  Obj 1.0677812e+10 Primal inf 88421066 (9174)
+Clp0006I 12990  Obj 1.0727108e+10 Primal inf 1.5327634e+09 (10842)
+Clp0006I 13423  Obj 1.0992296e+10 Primal inf 86830114 (10557)
+Clp0006I 13856  Obj 1.1081963e+10 Primal inf 1.6883275e+08 (10997)
+Clp0006I 14289  Obj 1.117021e+10 Primal inf 67117410 (9333)
+Clp0006I 14722  Obj 1.138095e+10 Primal inf 2.7217683e+08 (9594)
+Clp0006I 15155  Obj 1.167366e+10 Primal inf 92894060 (10144)
+Clp0006I 15588  Obj 1.1803368e+10 Primal inf 88651320 (8275)
+Clp0006I 16021  Obj 1.1931284e+10 Primal inf 26208233 (8189)
+Clp0006I 16454  Obj 1.201131e+10 Primal inf 92397645 (8396)
+Clp0006I 16887  Obj 1.2165708e+10 Primal inf 54300488 (9613)
+Clp0006I 17320  Obj 1.2318033e+10 Primal inf 2.4034826e+08 (9231)
+Clp0006I 17753  Obj 1.2474842e+10 Primal inf 16548978 (6553)
+Clp0006I 18186  Obj 1.2625637e+10 Primal inf 54363562 (7967)
+Clp0006I 18619  Obj 1.2843256e+10 Primal inf 75536771 (7316)
+Clp0006I 19052  Obj 1.3128974e+10 Primal inf 17884290 (5984)
+Clp0006I 19485  Obj 1.3281743e+10 Primal inf 19508739 (5815)
+Clp0006I 19918  Obj 1.3413854e+10 Primal inf 1.2007279e+08 (6296)
+Clp0006I 20351  Obj 1.3636381e+10 Primal inf 9619758.2 (6535)
+Clp0006I 20784  Obj 1.3818574e+10 Primal inf 1924594.7 (5387)
+Clp0006I 21217  Obj 1.4000021e+10 Primal inf 3650744.8 (4188)
+Clp0006I 21650  Obj 1.4108339e+10 Primal inf 931357.35 (2320)
+Clp0006I 22083  Obj 1.4165447e+10 Primal inf 330933.36 (1410)
+Clp0006I 22516  Obj 1.4188062e+10 Primal inf 867478.51 (1943)
+Clp0006I 22949  Obj 1.4196311e+10 Primal inf 54835.954 (2311)
+Clp0006I 23382  Obj 1.4196576e+10 Primal inf 16.417916 (262)
+Clp0006I 23683  Obj 1.4196606e+10
+Clp0000I Optimal - objective value 1.4196606e+10
+Coin0511I After Postsolve, objective 1.4196606e+10, infeasibilities - dual 0 (0), primal 0 (0)
+Clp0032I Optimal objective 1.419660636e+10 - 23683 iterations time 5.262, Presolve 0.05
+ERROR: LoadError: ArgumentError: cannot parse "elec_cpx" as Float64
+Stacktrace:
+ [1] _parse_failure(::Type{T} where T, ::String, ::Int64, ::Int64) at ./parse.jl:370 (repeats 2 times)
+ [2] #tryparse_internal#364 at ./parse.jl:366 [inlined]
+ [3] tryparse_internal at ./parse.jl:364 [inlined]
+ [4] #parse#365 at ./parse.jl:376 [inlined]
+ [5] parse(::Type{Float64}, ::String) at ./parse.jl:376
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ERROR: LoadError: ArgumentError: cannot parse "elec_cpx" as Float64
+Stacktrace:
+ [1] _parse_failure(::Type{T} where T, ::String, ::Int64, ::Int64) at ./parse.jl:370 (repeats 2 times)
+ [2] #tryparse_internal#364 at ./parse.jl:366 [inlined]
+ [3] tryparse_internal at ./parse.jl:364 [inlined]
+ [4] #parse#365 at ./parse.jl:376 [inlined]
+ [5] parse(::Type{Float64}, ::String) at ./parse.jl:376
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ERROR: LoadError: ArgumentError: cannot parse "elec_cpx" as Float64
+Stacktrace:
+ [1] _parse_failure(::Type{T} where T, ::String, ::Int64, ::Int64) at ./parse.jl:370 (repeats 2 times)
+ [2] #tryparse_internal#364 at ./parse.jl:366 [inlined]
+ [3] tryparse_internal at ./parse.jl:364 [inlined]
+ [4] #parse#365 at ./parse.jl:376 [inlined]
+ [5] parse(::Type{Float64}, ::String) at ./parse.jl:376
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ERROR: LoadError: ArgumentError: cannot parse "elec_cpx" as Float64
+Stacktrace:
+ [1] _parse_failure(::Type{T} where T, ::String, ::Int64, ::Int64) at ./parse.jl:370 (repeats 2 times)
+ [2] #tryparse_internal#364 at ./parse.jl:366 [inlined]
+ [3] tryparse_internal at ./parse.jl:364 [inlined]
+ [4] #parse#365 at ./parse.jl:376 [inlined]
+ [5] parse(::Type{Float64}, ::String) at ./parse.jl:376
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ERROR: LoadError: ArgumentError: cannot parse "elec_cpx" as Float64
+Stacktrace:
+ [1] _parse_failure(::Type{T} where T, ::String, ::Int64, ::Int64) at ./parse.jl:370 (repeats 2 times)
+ [2] #tryparse_internal#364 at ./parse.jl:366 [inlined]
+ [3] tryparse_internal at ./parse.jl:364 [inlined]
+ [4] #parse#365 at ./parse.jl:376 [inlined]
+ [5] parse(::Type{Float64}, ::String) at ./parse.jl:376
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ERROR: LoadError: ArgumentError: cannot parse "elec_cpx" as Float64
+Stacktrace:
+ [1] _parse_failure(::Type{T} where T, ::String, ::Int64, ::Int64) at ./parse.jl:370 (repeats 2 times)
+ [2] #tryparse_internal#364 at ./parse.jl:366 [inlined]
+ [3] tryparse_internal at ./parse.jl:364 [inlined]
+ [4] #parse#365 at ./parse.jl:376 [inlined]
+ [5] parse(::Type{Float64}, ::String) at ./parse.jl:376
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ERROR: LoadError: ArgumentError: cannot parse "elec_cpx" as Float64
+Stacktrace:
+ [1] _parse_failure(::Type{T} where T, ::String, ::Int64, ::Int64) at ./parse.jl:370 (repeats 2 times)
+ [2] #tryparse_internal#364 at ./parse.jl:366 [inlined]
+ [3] tryparse_internal at ./parse.jl:364 [inlined]
+ [4] #parse#365 at ./parse.jl:376 [inlined]
+ [5] parse(::Type{Float64}, ::String) at ./parse.jl:376
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ERROR: LoadError: ArgumentError: cannot parse "elec_cpx" as Float64
+Stacktrace:
+ [1] _parse_failure(::Type{T} where T, ::String, ::Int64, ::Int64) at ./parse.jl:370 (repeats 2 times)
+ [2] #tryparse_internal#364 at ./parse.jl:366 [inlined]
+ [3] tryparse_internal at ./parse.jl:364 [inlined]
+ [4] #parse#365 at ./parse.jl:376 [inlined]
+ [5] parse(::Type{Float64}, ::String) at ./parse.jl:376
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ERROR: LoadError: ArgumentError: cannot parse "elec_cpx" as Float64
+Stacktrace:
+ [1] _parse_failure(::Type{T} where T, ::String, ::Int64, ::Int64) at ./parse.jl:370 (repeats 2 times)
+ [2] #tryparse_internal#364 at ./parse.jl:366 [inlined]
+ [3] tryparse_internal at ./parse.jl:364 [inlined]
+ [4] #parse#365 at ./parse.jl:376 [inlined]
+ [5] parse(::Type{Float64}, ::String) at ./parse.jl:376
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ERROR: LoadError: ArgumentError: cannot parse "elec_cpx" as Float64
+Stacktrace:
+ [1] _parse_failure(::Type{T} where T, ::String, ::Int64, ::Int64) at ./parse.jl:370 (repeats 2 times)
+ [2] #tryparse_internal#364 at ./parse.jl:366 [inlined]
+ [3] tryparse_internal at ./parse.jl:364 [inlined]
+ [4] #parse#365 at ./parse.jl:376 [inlined]
+ [5] parse(::Type{Float64}, ::String) at ./parse.jl:376
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ERROR: LoadError: ArgumentError: cannot parse "elec_cpx" as Float64
+Stacktrace:
+ [1] _parse_failure(::Type{T} where T, ::String, ::Int64, ::Int64) at ./parse.jl:370 (repeats 2 times)
+ [2] #tryparse_internal#364 at ./parse.jl:366 [inlined]
+ [3] tryparse_internal at ./parse.jl:364 [inlined]
+ [4] #parse#365 at ./parse.jl:376 [inlined]
+ [5] parse(::Type{Float64}, ::String) at ./parse.jl:376
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ERROR: LoadError: ArgumentError: cannot parse "elec_cpx" as Float64
+Stacktrace:
+ [1] _parse_failure(::Type{T} where T, ::String, ::Int64, ::Int64) at ./parse.jl:370 (repeats 2 times)
+ [2] #tryparse_internal#364 at ./parse.jl:366 [inlined]
+ [3] tryparse_internal at ./parse.jl:364 [inlined]
+ [4] #parse#365 at ./parse.jl:376 [inlined]
+ [5] parse(::Type{Float64}, ::String) at ./parse.jl:376
+ [6] top-level scope at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+ [7] include(::Function, ::Module, ::String) at ./Base.jl:380
+ [8] include(::Module, ::String) at ./Base.jl:368
+ [9] exec_options(::Base.JLOptions) at ./client.jl:296
+ [10] _start() at ./client.jl:506
+in expression starting at /Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/code/draft_code.jl:4
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017
+┌ Warning: Module MathOptInterface with build ID 1195926082186678 is missing from the cache.
+│ This may mean MathOptInterface [b8f27783-ece8-5eb3-8dc8-9495eed66fee] does not support precompilation but is imported by a module that does.
+└ @ Base loading.jl:1017

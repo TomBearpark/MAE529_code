@@ -1,5 +1,13 @@
 # Initial code for project 
 
+# Parse command line arguments 
+electro_capex = parse(Float64, ARGS[1])
+H2_eff = parse(Float64, ARGS[2])
+
+# Global variables - holding constant
+time_subset = "52_weeks"
+stor_capex = 0.6
+
 # Set up environment - make sure you have these packages installed
 using JuMP, Clp, DataFrames, CSV     
 
@@ -67,14 +75,13 @@ function run_model(;time_subset, carbon_tax, electro_capex, stor_capex, H2_eff)
                     stor_capex = stor_capex, efficiency = H2_eff)
 end 
 
-time_subset = "10_days"
-carbon_tax = 0
-electro_capex = 600
-stor_capex = 0.6
-H2_eff = 0.8
-
 # Run and save results
-run_model(time_subset = "10_days", carbon_tax = carbon_tax, 
+for carbon_tax in [0, 50, 100]
+    println(carbon_tax)
+    run_model(time_subset = time_subset, carbon_tax = carbon_tax, 
             electro_capex = electro_capex, stor_capex = stor_capex, 
             H2_eff = H2_eff)
+
+    println("done")
+end
 
