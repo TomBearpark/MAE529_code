@@ -25,7 +25,7 @@ wd = dir
 time_subset = "52_weeks"
 stor_capex = 0.6
 CT_list = [0, 50, 100]
-# CT_list = [0]
+# CT_list = [10]
 
 println(time_subset)
 
@@ -34,8 +34,8 @@ using JuMP, Clp, DataFrames, CSV
 
 # Load functions - loads a function for cleaning the data and sets, and
 # a wrapper for the JUMP model. 
-include("H2_functions.jl")
-include("functions.jl")
+include("functions/H2_functions.jl")
+include("functions/functions.jl")
 
 # Helper function for annuitsing costs 
 function calc_annuitised_capex(;N, capex, WACC)
