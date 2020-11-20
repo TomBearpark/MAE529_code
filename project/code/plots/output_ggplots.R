@@ -57,4 +57,10 @@ ggplot(data = df) +
 
 ggsave(paste0(output, "/SOC_comparison.png"))
 
+# Check out a random day
+day_df = df %>% filter(hour < 25)
+ggplot(data = day_df) + 
+  geom_line(aes(x = hour, y = SOC, color= Zone)) + 
+  facet_wrap(vars(h2_eff, CT_F)) + 
+  ggtitle("Hydrogen SOC at each node, Elec Cpx 200, Varying efficiency and Carbon Tax")
 
