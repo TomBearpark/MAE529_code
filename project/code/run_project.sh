@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # Loop over the jobs, sending them all out at once, allowing for parallel running 
+# This code tests for whether the target csv output exists - useful given 
+# sometimes the processes on my laptop got interupted.
 
 # Get into the relevant directory
 dir=/Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/
@@ -20,6 +22,9 @@ do
 		else
 			eff_s="85"
 		fi
+		# Note - the test if just on the 0 carbon tax version, since thats the first one in the 
+		# loop to run. If i want to make it more flexible, will need to bring Carbon Tax into 
+		# this script as a command line argument (or add additional logic to the julia code)
 		FILE="${dir}/results/52_weeks/c_tax_0/EleCpx_${elec_cpx}.0_StorCpx_0.6_Eff_${eff_s}/time_results.csv"
 		if test -f "$FILE"; then
 		    echo "$FILE exists."
