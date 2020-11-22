@@ -25,27 +25,18 @@ do
 		# Note - the test if just on the 0 carbon tax version, since thats the first one in the 
 		# loop to run. If i want to make it more flexible, will need to bring Carbon Tax into 
 		# this script as a command line argument (or add additional logic to the julia code)
-		FILE="${dir}/results/52_weeks/c_tax_0/EleCpx_${elec_cpx}.0_StorCpx_0.6_Eff_${eff_s}/time_results.csv"
-		if test -f "$FILE"; then
-		    echo "$FILE exists."
-		else 
-			echo "running code for $elec_cpx $eff_s"
-			echo "$FILE"
-			# Run code, with appropriate command line arguments
-			nohup julia run_code.jl $elec_cpx $eff $dir & 
-		fi
+		for CT in 0 25 50 75 100
+		do
+			FILE="${dir}/results/52_weeks/c_tax_${CT}/EleCpx_${elec_cpx}.0_StorCpx_0.6_Eff_${eff_s}/time_results.csv"
+			if test -f "$FILE"; then
+			    echo "$FILE exists."
+			else 
+				echo "running code for $elec_cpx $eff_s"
+				echo "$FILE"
+				# Run code, with appropriate command line arguments
+				nohup julia run_code.jl $elec_cpx $eff $dir $CT & 
+			fi
+		done
 	done
 done
 
-
-# julia run_code.jl 200 0.8 $dir
-# elec_cpx=200
-# eff=0.7
-# eff_s=$((${eff}*100))
-# eff_s="${eff_s%.*}"
-# FILE="${dir}/results/52_weeks/c_tax_0/EleCpx_${elec_cpx}.0_StorCpx_0.6_Eff_${eff_s}/time_results.csv"
-# if test -f "$FILE"; then
-#     echo "$FILE exists."
-# else 
-# 	echo "nice"
-# fi
