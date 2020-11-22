@@ -9,11 +9,13 @@ if runBash
     electro_capex = parse(Float64, ARGS[1])
     H2_eff = parse(Float64, ARGS[2])
     dir = string(ARGS[3])
+    carbon_tax = parse(Float64, ARGS[3])
 else 
     electro_capex = 200
     H2_eff = 0.85
     # Note - edit the following string to run on your machine
     dir = "/Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/"
+    carbon_tax = 50
 end 
 
 # Data input path
@@ -24,7 +26,7 @@ wd = dir
 # Global variables - holding constant for all runs 
 time_subset = "52_weeks"
 stor_capex = 0.6
-CT_list = [0, 50, 100]
+# CT_list = [0, 50, 100]
 # CT_list = [10]
 
 println(time_subset)
@@ -87,12 +89,12 @@ function run_model(input_path, wd;time_subset, carbon_tax, electro_capex, stor_c
                     stor_capex = stor_capex, efficiency = H2_eff)
 end 
 
-# Run and save results
-for carbon_tax in CT_list
+# Loop over carbon tax inputs, run the model and save results
+# for carbon_tax in CT_list
     println(carbon_tax)
     run_model(input_path, wd, time_subset = time_subset, carbon_tax = carbon_tax, 
             electro_capex = electro_capex, stor_capex = stor_capex, 
             H2_eff = H2_eff)
     println("done")
-end
+# end
 
