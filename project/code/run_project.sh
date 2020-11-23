@@ -8,7 +8,8 @@
 dir=/Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/
 cd "${dir}/code"
 # Electr capex is first arg. Second arg is H2 efficiency. 
-for elec_cpx in 200 500 800 
+# for elec_cpx in 200 500 800 
+for elec_cpx in 200 500
 do
 	for eff in "0.75" "0.80" "0.85"
 	do
@@ -25,7 +26,9 @@ do
 		# Note - the test if just on the 0 carbon tax version, since thats the first one in the 
 		# loop to run. If i want to make it more flexible, will need to bring Carbon Tax into 
 		# this script as a command line argument (or add additional logic to the julia code)
-		for CT in 0 25 50 75 100
+
+		# for CT in 0 50 75 100
+		for CT in 75
 		do
 			FILE="${dir}/results/52_weeks/c_tax_${CT}/EleCpx_${elec_cpx}.0_StorCpx_0.6_Eff_${eff_s}/time_results.csv"
 			if test -f "$FILE"; then
@@ -39,4 +42,6 @@ do
 		done
 	done
 done
+
+# julia run_code.jl 200 "0.75" $dir 75 
 
