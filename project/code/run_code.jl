@@ -26,10 +26,12 @@ wd = dir
 # Global variables - holding constant for all runs 
 time_subset = "52_weeks"
 stor_capex = 0.6
-# CT_list = [0, 50, 100]
-# CT_list = [10]
 
-println(time_subset)
+println("This Model run is characterised by...")
+println("Electrolyser capex cost of: " * string(electro_capex))
+println("H2 efficiency of: " * string(H2_eff))
+println("Carbon Tax: $" * string(carbon_tax))
+println("Number of weeks included: " * time_subset)
 
 # Set up environment - make sure you have these packages installed
 using JuMP, Clp, DataFrames, CSV     
@@ -39,62 +41,10 @@ using JuMP, Clp, DataFrames, CSV
 include("functions/H2_functions.jl")
 include("functions/functions.jl")
 
-# Helper function for annuitsing costs 
-function calc_annuitised_capex(;N, capex, WACC)
-    return 1000* capex * ((WACC * (1 + WACC)^N)) / ((1 + WACC)^N - 1)
-end 
-
-function run_model(input_path, wd;time_subset, carbon_tax, electro_capex, stor_capex, H2_eff)
-    # Calculate reasonable parameter inputs for test run... 
-    # * 1. H2_Fixed_Inv_cost_MWyr
-    # Note - this is really really low compared to other estimates 
-    # Bloomberg slides: Capex: Electrolysers are around 200$/kW = 200000$/MW
-    # lifetime of electrolyser: 20 years: from everywhere basically
-    H2_Fixed_Inv_cost_MWyr = 
-        calc_annuitised_capex(N= 20, capex = electro_capex, WACC = 0.069)
-
-    # * 2. H2_Fixed_OM_cost_MWyr
-    # source: p16; 5% of capex
-    # https://itpthermal.files.wordpress.com/2018/10/160321-an-assessment-of-the-cost-of-hydrogen-from-pv_final.pdf
-    H2_Fixed_OM_cost_MWyr = 0.05 * H2_Fixed_Inv_cost_MWyr
-
-    # * 3. H2_Var_OM_cost_per_MWh
-    # following approach as for batteries 
-    H2_Var_OM_cost_per_MWh = 0
-
-    # * 4. H2_STOR_Inv_cost_MWhyr
-    # 0.5	EUR/kWh ~= 0.6  $/Kwh
-    H2_STOR_Inv_cost_MWhyr = 
-        calc_annuitised_capex(N= 40, capex = stor_capex, WACC = 0.069)
-
-    # * 5 H2_STOR_OM_cost_MWhyr
-    H2_STOR_OM_cost_MWhyr =  0.05 * H2_STOR_Inv_cost_MWhyr
-
-    # * H2_eff
-    H2_eff = H2_eff
-
-    input = prepare_inputs(input_path, time_subset, 
-                            carbon_tax = carbon_tax, 
-                            H2_Fixed_Inv_cost_MWyr = H2_Fixed_Inv_cost_MWyr, 
-                            H2_Fixed_OM_cost_MWyr = H2_Fixed_OM_cost_MWyr, 
-                            H2_Var_OM_cost_per_MWh = H2_Var_OM_cost_per_MWh, 
-                            H2_STOR_Inv_cost_MWhyr = H2_STOR_Inv_cost_MWhyr, 
-                            H2_STOR_OM_cost_MWhyr = H2_STOR_OM_cost_MWhyr, 
-                            H2_eff = H2_eff)
-
-    solutions = solve_model(input)   
-    write_results(wd, solutions, 
-                    time_subset , carbon_tax = carbon_tax, 
-                    electro_capex = electro_capex, 
-                    stor_capex = stor_capex, efficiency = H2_eff)
-end 
-
-# Loop over carbon tax inputs, run the model and save results
-# for carbon_tax in CT_list
-    println(carbon_tax)
-    run_model(input_path, wd, time_subset = time_subset, carbon_tax = carbon_tax, 
+# Run the model, for a given set of parameters 
+run_model(input_path, wd, time_subset = time_subset, carbon_tax = carbon_tax, 
             electro_capex = electro_capex, stor_capex = stor_capex, 
             H2_eff = H2_eff)
-    println("done")
-# end
+
+println("Model run complete")
 
