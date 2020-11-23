@@ -9,7 +9,7 @@ if runBash
     electro_capex = parse(Float64, ARGS[1])
     H2_eff = parse(Float64, ARGS[2])
     dir = string(ARGS[3])
-    carbon_tax = parse(Float64, ARGS[3])
+    carbon_tax = parse(Float64, ARGS[4])
 else 
     electro_capex = 200
     H2_eff = 0.85
