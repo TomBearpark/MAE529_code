@@ -1,31 +1,5 @@
-# # Prepare hydrogen data
-# using CSV, DataFrames
-
-# hydrogen 
-# * low efficiency
-# 
-
-# input_path = "/Users/tombearpark/Documents/princeton/1st_year/MAE529/" * 
-#     "MAE529_code/project/input_data/ercot_brownfield_expansion/"
-
-
-# time_subset = "10_days"
-# inputs_path = input_path  * time_subset * "/"
-
-# generators = DataFrame(CSV.File(joinpath(inputs_path, "Generators_data.csv")))
-
-# generators = select(generators, :R_ID, :Resource, :zone, :THERM, :DISP, 
-#     :NDISP, :STOR, :HYDRO, :RPS, :CES,
-#     :Commit, :Existing_Cap_MW, :Existing_Cap_MWh, :Cap_size, 
-#     :New_Build, :Max_Cap_MW,
-#     :Inv_cost_per_MWyr, :Fixed_OM_cost_per_MWyr, 
-#     :Inv_cost_per_MWhyr, :Fixed_OM_cost_per_MWhyr,
-#     :Var_OM_cost_per_MWh, :Start_cost_per_MW, 
-#     :Start_fuel_MMBTU_per_MW, :Heat_rate_MMBTU_per_MWh, 
-#     :Fuel,
-#     :Min_power, :Ramp_Up_percentage, :Ramp_Dn_percentage, 
-#     :Up_time, :Down_time,
-#     :Eff_up, :Eff_down);
+# # Functions for adding hydrogen information to the notebook 07
+#  capacity model 
 
 function add_H2_rows_to_gen_df(generators; 
     H2_Fixed_Inv_cost_MWyr, 
@@ -33,7 +7,7 @@ function add_H2_rows_to_gen_df(generators;
     H2_Var_OM_cost_per_MWh, 
     H2_STOR_Inv_cost_MWhyr, 
     H2_STOR_OM_cost_MWhyr, 
-    H2_eff)
+    H2_eff_charge, H2_eff_discharge)
 
     genH2 = copy(generators) 
     genH2 = first(genH2, 3)
@@ -78,21 +52,12 @@ function add_H2_rows_to_gen_df(generators;
     genH2.Fixed_OM_cost_per_MWhyr = round(H2_STOR_OM_cost_MWhyr)
     
     # Storage efficiency
-    genH2.Eff_up .= H2_eff
-    genH2.Eff_down .= H2_eff
+    genH2.Eff_up .= H2_eff_charge
+    genH2.Eff_down .= H2_eff_discharge
 
     return(append!(generators, genH2))
 end
 
-
-# Test function
-# add_H2_rows_to_gen_df(generators, 
-#     H2_inv_cost_MWyr = 1, 
-#     H2_OM_cost_MWyr = 1, 
-#     H2_var_cost_MWyr = 1, 
-#     H2_STOR_Inv_cost_MWhyr = 1, 
-#     H2_STOR_OM_cost_MWhyr = 1, 
-#     H2_eff = 1)
 
 # Add variability information for consistency with other inputs
 function add_H2_to_variability(variability)
@@ -107,7 +72,11 @@ function calc_annuitised_capex(;N, capex, WACC)
     return 1000* capex * ((WACC * (1 + WACC)^N)) / ((1 + WACC)^N - 1)
 end 
 
-function run_model(input_path, wd;time_subset, carbon_tax, electro_capex, stor_capex, H2_eff)
+function run_model(input_path, wd;time_subset, 
+    carbon_tax, electro_capex, stor_capex, 
+    H2_eff, 
+    write_full_model = false)
+
     # Calculate reasonable parameter inputs for test run... 
     # * 1. H2_Fixed_Inv_cost_MWyr
     # Note - this is really really low compared to other estimates 
@@ -133,9 +102,11 @@ function run_model(input_path, wd;time_subset, carbon_tax, electro_capex, stor_c
     # * 5 H2_STOR_OM_cost_MWhyr
     H2_STOR_OM_cost_MWhyr =  0.05 * H2_STOR_Inv_cost_MWhyr
 
-    # * H2_eff
-    H2_eff = H2_eff
-
+    # * H2_eff, assuming symettric, for a limited search but also limited 
+    # * policy interpretation 
+    H2_eff_charge = sqrt(H2_eff)
+    H2_eff_discharge = sqrt(H2_eff)
+    
     input = prepare_inputs(input_path, time_subset, 
                             carbon_tax = carbon_tax, 
                             H2_Fixed_Inv_cost_MWyr = H2_Fixed_Inv_cost_MWyr, 
@@ -143,11 +114,16 @@ function run_model(input_path, wd;time_subset, carbon_tax, electro_capex, stor_c
                             H2_Var_OM_cost_per_MWh = H2_Var_OM_cost_per_MWh, 
                             H2_STOR_Inv_cost_MWhyr = H2_STOR_Inv_cost_MWhyr, 
                             H2_STOR_OM_cost_MWhyr = H2_STOR_OM_cost_MWhyr, 
-                            H2_eff = H2_eff)
+                            H2_eff_charge = H2_eff_charge, 
+                            H2_eff_discharge = H2_eff_discharge)
 
     solutions = solve_model(input)   
     write_results(wd, solutions, 
-                    time_subset , carbon_tax = carbon_tax, 
+                    time_subset, 
+                    carbon_tax = carbon_tax, 
                     electro_capex = electro_capex, 
-                    stor_capex = stor_capex, efficiency = H2_eff)
+                    stor_capex = stor_capex, efficiency = H2_eff, 
+                    write_full_model = write_full_model)
+    return(solutions)
 end 
+
