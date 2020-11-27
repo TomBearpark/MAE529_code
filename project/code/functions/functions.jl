@@ -6,9 +6,13 @@ println("-----------------------------------------------")
 
 function prepare_inputs(input_path::String, time_subset::String; 
             carbon_tax::Number, 
-            H2_Fixed_Inv_cost_MWyr, H2_Fixed_OM_cost_MWyr, H2_Var_OM_cost_per_MWh, 
-            H2_STOR_Inv_cost_MWhyr, H2_STOR_OM_cost_MWhyr, 
-            H2_eff)
+            H2_Fixed_Inv_cost_MWyr, 
+            H2_Fixed_OM_cost_MWyr, 
+            H2_Var_OM_cost_per_MWh, 
+            H2_STOR_Inv_cost_MWhyr, 
+            H2_STOR_OM_cost_MWhyr, 
+            H2_eff_charge::Float64, 
+            H2_eff_discharge::Float64)
 
     # Input data path, based on time subset
     inputs_path = input_path  * time_subset * "/"
@@ -37,7 +41,8 @@ function prepare_inputs(input_path::String, time_subset::String;
         H2_Var_OM_cost_per_MWh = H2_Var_OM_cost_per_MWh, 
         H2_STOR_Inv_cost_MWhyr = H2_STOR_Inv_cost_MWhyr, 
         H2_STOR_OM_cost_MWhyr = H2_STOR_OM_cost_MWhyr, 
-        H2_eff = H2_eff)
+        H2_eff_charge = H2_eff_charge, 
+        H2_eff_discharge = H2_eff_discharge)
     
     # Set of all generators
     G = generators.R_ID;
@@ -527,14 +532,16 @@ function solve_model(input)
         nse_results = nse_results, 
         cost_results = cost_results, 
         charge_results = charge_results, 
-        time = time
+        time = time, 
+        Expansion_Model = Expansion_Model
     )
 end
 
 # Function for writing results to csv files
-function write_results(wd::String, solutions, time_subset::String;
+function write_results(wd::String, solutions; time_subset::String, 
         carbon_tax::Number, 
-        electro_capex::Number, stor_capex::Number, efficiency::Number)
+        electro_capex::Number, stor_capex::Number, efficiency::Number, 
+        write_full_model = false)
 
         outpath = wd * "/results/" * time_subset* "/"  * 
                     "c_tax_"* string(carbon_tax) *"/" * 
@@ -562,73 +569,12 @@ function write_results(wd::String, solutions, time_subset::String;
         solutions.charge_results), 
     CSV.write(joinpath(outpath, "time_results.csv"), 
         times);
+    
+    # Write the full model to file, in case we want results later
+    if write_full_model
+        write_to_file(
+            solutions.Expansion_Model, 
+            joinpath(outpath, "model.mps")
+        )
+    end
 end
-
-# Helper function for loading csv files 
-# function return_totals(wd, d, carbon_tax::Bool)
-    
-#     # Load in the relevant data
-#     path = wd * "/results/data/question_1/" * d* "_Thomas_Bearpark/"
-    
-#     if carbon_tax
-#         path = path * "carbon_tax"
-#     else 
-#         path = path * "without_carbon_tax"
-#     end
-
-#     cost_results = CSV.read(joinpath(path, "cost_results.csv"))
-#     gen = CSV.read(joinpath(path, "generator_results.csv"))
-#     times = DataFrame(
-#         time_subset = ["10_days", "4_weeks", "8_weeks", "16_weeks"], 
-#         hours = [10 * 24, 4 * 7 * 24, 8 * 7 * 24, 16 * 7 * 24])
-
-#     # Return dataframe of needed data 
-#     return DataFrame(time_subset = d, 
-#                 total_hours = times.hours[times.time_subset .== d][1],
-#                 total_cost = cost_results.Total_Costs[1], 
-#                 total_final_capacity = sum(gen.Total_MW), 
-#                 total_generation = sum(gen.GWh))
-# end
-
-# # Wraps around return totals, to append for each time period 
-# function append_all_totals(wd, carbon_tax::Bool)
-#     df = return_totals(wd, "10_days", carbon_tax) 
-#     df = append!(df, return_totals(wd, "4_weeks", carbon_tax))
-#     df = append!(df, return_totals(wd, "8_weeks", carbon_tax))
-#     df = append!(df, return_totals(wd, "16_weeks", carbon_tax))
-#     # Find percentage differences, relative to 16 week version 
-#     for var in ("total_cost",  "total_final_capacity", "total_generation")
-#         df[var * "_deviation"] = 0.0
-#         for i in 1:3
-#             df[var * "_deviation"][i] =  100 * 
-#                 (df[var][i] - df[var][4]) / df[var][4]
-#         end
-#     end
-#     return(df)
-# end
-
-# function load_cost_result(wd, time_subset, carbon_tax)
-#     outpath = wd * "/results/data/question_1/" * time_subset* "_Thomas_Bearpark/"
-    
-#     if carbon_tax
-#         outpath = outpath * "carbon_tax"
-#     else 
-#         outpath = outpath * "without_carbon_tax"
-#     end
-#     df = CSV.read(joinpath(outpath, "cost_results.csv")) 
-#     df.time_subset = time_subset
-#     return df
-# end
-
-# function load_generator_result(wd, time_subset, carbon_tax)
-#     outpath = wd * "/results/data/question_1/" * time_subset* "_Thomas_Bearpark/"
-    
-#     if carbon_tax
-#         outpath = outpath * "carbon_tax"
-#     else 
-#         outpath = outpath * "without_carbon_tax"
-#     end
-#     df = CSV.read(joinpath(outpath, "generator_results.csv")) 
-#     df.time_subset = time_subset
-#     return df
-# end

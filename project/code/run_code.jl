@@ -2,7 +2,7 @@
 # To run this interactively in this code, set runBash = false, and then
 # change the dir string to the location of the project on your machine 
 
-runBash = true
+runBash = false
 
 if runBash
     # Parse command line arguments 
@@ -24,13 +24,13 @@ input_path = dir * "/input_data/ercot_brownfield_expansion/"
 wd = dir
 
 # Global variables - holding constant for all runs 
-time_subset = "52_weeks"
+time_subset = "10_days"
 stor_capex = 0.6
 
 println("This Model run is characterised by...")
 println("Electrolyser capex cost of: " * string(electro_capex))
 println("H2 efficiency of: " * string(H2_eff))
-println("Carbon Tax: $" * string(carbon_tax))
+println("Carbon Tax: " * string(carbon_tax))
 println("Number of weeks included: " * time_subset)
 
 # Set up environment - make sure you have these packages installed
@@ -42,9 +42,8 @@ include("functions/H2_functions.jl")
 include("functions/functions.jl")
 
 # Run the model, for a given set of parameters 
-run_model(input_path, wd, time_subset = time_subset, carbon_tax = carbon_tax, 
+sol = run_model(input_path, wd, time_subset = time_subset, carbon_tax = carbon_tax, 
             electro_capex = electro_capex, stor_capex = stor_capex, 
-            H2_eff = H2_eff)
+            H2_eff = H2_eff, write_full_model = false)
 
 println("Model run complete")
-
