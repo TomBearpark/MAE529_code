@@ -12,13 +12,15 @@ function prepare_inputs(input_path::String, time_subset::String;
             H2_STOR_Inv_cost_MWhyr, 
             H2_STOR_OM_cost_MWhyr, 
             H2_eff_charge::Float64, 
-            H2_eff_discharge::Float64)
+            H2_eff_discharge::Float64, 
+            collapse::Bool)
 
     # Input data path, based on time subset
     inputs_path = input_path  * time_subset * "/"
 
     # Generators (and storage) data:
     generators = DataFrame(CSV.File(joinpath(inputs_path, "Generators_data.csv")))
+
     # Many of the columns in the input data will be unused 
     # Select the ones we want for this model
     generators = select(generators, :R_ID, :Resource, :zone, :THERM, :DISP, 
@@ -200,6 +202,45 @@ function prepare_inputs(input_path::String, time_subset::String;
     OLD = intersect(generators.R_ID[.!(generators.New_Build.==1)], G)
     # Subset of all RPS qualifying resources
     RPS = intersect(generators.R_ID[generators.RPS.==1], G);
+
+    # Implement ability to run in 2 hour chunks instead of 1 hour, for compute
+    # time reduction 
+    if collapse
+        println("collapsing")
+        T = T[1:Integer(length(T)./2)]
+
+        # VOLL cost is per hour - and therefore not affected
+        # VOLL = VOLL. Instead, I double the NSE_cost, reflecting the additional
+        # cost for being out for a whole period
+        nse.NSE_Cost = nse.NSE_Cost .* 2
+
+        # Each hour is now worth two hours. Halve this value to make consistent
+        hours_per_period = 0.5 * hours_per_period
+
+        # Collapse demand to every 2 hours - take the mean
+        demand.id = 0:(nrow(demand) -1)
+        demand.gr = floor.(demand.id ./ 2)
+        gdf = groupby(demand, :gr)
+        demand = combine(gdf, :Load_MW_z1 => mean, 
+                    :Load_MW_z2 => mean, :Load_MW_z3 => mean)
+        select!(demand, Not(:gr))
+
+        # Collapse variability information - take mean
+        variability.id = 0:(nrow(variability) -1)
+        variability.gr = floor.(variability.id ./ 2)
+        gdf = groupby(variability, :gr)
+        variability = combine(gdf, valuecols(gdf) .=> mean)
+        select!(variability, Not(:gr))
+
+        # Sample weights - just summing. 
+        df = DataFrame(sample_weight = sample_weight)
+        df.id = 0:(nrow(df) -1)
+        df.gr = floor.(df.id ./ 2)
+        gdf = groupby(df, :gr)
+        sample_weight = combine(gdf, :sample_weight => sum)
+        sample_weight = sample_weight.sample_weight_sum
+
+    end
 
     # Return everying needed for the optimization, in a big list  
     return(
@@ -471,13 +512,13 @@ function solve_model(input)
         value.(vCHARGE).data
     )
     rename!(charge_results, [Symbol("C$i") for i in STOR])
-    charge_results.hour = 1:length(charge_results[1])
+    charge_results.hour = 1:nrow(charge_results)
 
     SOC_results = DataFrame(
         value.(vSOC).data
     )
     rename!(SOC_results, [Symbol("SOC$i") for i in STOR])
-    SOC_results.hour = 1:length(SOC_results[1])
+    SOC_results.hour = 1:nrow(SOC_results)
     charge_results = innerjoin(charge_results, SOC_results, on = :hour)
 
     # Record transmission capacity results
@@ -541,13 +582,17 @@ end
 function write_results(wd::String, solutions; time_subset::String, 
         carbon_tax::Number, 
         electro_capex::Number, stor_capex::Number, efficiency::Number, 
-        write_full_model = false)
+        write_full_model = false, collapse)
 
         outpath = wd * "/results/" * time_subset* "/"  * 
                     "c_tax_"* string(carbon_tax) *"/" * 
                     "EleCpx_" * string(electro_capex) * 
                     "_StorCpx_" * string(stor_capex) * 
                     "_Eff_" * string(Int(round(100*efficiency)))
+
+    if collapse
+        outpath = outpath * "_2hr"
+    end
 
     if !(isdir(outpath))
         mkpath(outpath)
