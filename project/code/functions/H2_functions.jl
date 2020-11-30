@@ -42,14 +42,14 @@ function add_H2_rows_to_gen_df(generators;
     # Parameters of interest to vary
     
     # Electrolyser costs
-    genH2.Inv_cost_per_MWyr = round(H2_Fixed_Inv_cost_MWyr)
-    genH2.Fixed_OM_cost_per_MWyr = round(H2_Fixed_OM_cost_MWyr)
+    genH2.Inv_cost_per_MWyr .= round(H2_Fixed_Inv_cost_MWyr)
+    genH2.Fixed_OM_cost_per_MWyr .= round(H2_Fixed_OM_cost_MWyr)
 
-    genH2.Var_OM_cost_per_MWh = round(H2_Var_OM_cost_per_MWh)
+    genH2.Var_OM_cost_per_MWh .= round(H2_Var_OM_cost_per_MWh)
 
     # Storage fixed costs
-    genH2.Inv_cost_per_MWhyr = round(H2_STOR_Inv_cost_MWhyr)
-    genH2.Fixed_OM_cost_per_MWhyr = round(H2_STOR_OM_cost_MWhyr)
+    genH2.Inv_cost_per_MWhyr .= round(H2_STOR_Inv_cost_MWhyr)
+    genH2.Fixed_OM_cost_per_MWhyr .= round(H2_STOR_OM_cost_MWhyr)
     
     # Storage efficiency
     genH2.Eff_up .= H2_eff_charge
@@ -61,9 +61,9 @@ end
 
 # Add variability information for consistency with other inputs
 function add_H2_to_variability(variability)
-    variability.Hydrogen_56 = 1
-    variability.Hydrogen_57 = 1
-    variability.Hydrogen_58 = 1
+    variability.Hydrogen_56 = ones(nrow(variability))
+    variability.Hydrogen_57 = ones(nrow(variability))
+    variability.Hydrogen_58 = ones(nrow(variability))
     return(variability)
 end
 
@@ -75,7 +75,7 @@ end
 function run_model(input_path, wd;time_subset, 
     carbon_tax, electro_capex, stor_capex, 
     H2_eff, 
-    write_full_model = false)
+    write_full_model = false, collapse = false)
 
     # Calculate reasonable parameter inputs for test run... 
     # * 1. H2_Fixed_Inv_cost_MWyr
@@ -115,15 +115,18 @@ function run_model(input_path, wd;time_subset,
                             H2_STOR_Inv_cost_MWhyr = H2_STOR_Inv_cost_MWhyr, 
                             H2_STOR_OM_cost_MWhyr = H2_STOR_OM_cost_MWhyr, 
                             H2_eff_charge = H2_eff_charge, 
-                            H2_eff_discharge = H2_eff_discharge)
+                            H2_eff_discharge = H2_eff_discharge, 
+                            collapse = collapse)
 
     solutions = solve_model(input)   
     write_results(wd, solutions, 
-                    time_subset, 
+                    time_subset = time_subset, 
                     carbon_tax = carbon_tax, 
                     electro_capex = electro_capex, 
                     stor_capex = stor_capex, efficiency = H2_eff, 
-                    write_full_model = write_full_model)
+                    write_full_model = write_full_model, 
+                    collapse = collapse)
+
     return(solutions)
 end 
 

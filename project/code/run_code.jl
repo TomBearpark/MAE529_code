@@ -24,7 +24,7 @@ input_path = dir * "/input_data/ercot_brownfield_expansion/"
 wd = dir
 
 # Global variables - holding constant for all runs 
-time_subset = "10_days"
+time_subset = "52_weeks"
 stor_capex = 0.6
 
 println("This Model run is characterised by...")
@@ -34,7 +34,7 @@ println("Carbon Tax: " * string(carbon_tax))
 println("Number of weeks included: " * time_subset)
 
 # Set up environment - make sure you have these packages installed
-using JuMP, Clp, DataFrames, CSV     
+using JuMP, Clp, DataFrames, CSV, Statistics
 
 # Load functions - loads a function for cleaning the data and sets, and
 # a wrapper for the JUMP model. 
@@ -44,6 +44,6 @@ include("functions/functions.jl")
 # Run the model, for a given set of parameters 
 sol = run_model(input_path, wd, time_subset = time_subset, carbon_tax = carbon_tax, 
             electro_capex = electro_capex, stor_capex = stor_capex, 
-            H2_eff = H2_eff, write_full_model = false)
+            H2_eff = H2_eff, write_full_model = false, collapse = false)
 
 println("Model run complete")

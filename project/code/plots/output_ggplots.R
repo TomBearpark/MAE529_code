@@ -14,21 +14,7 @@ data = paste0(dir, "results/")
 output = paste0(dir, "outputs/figs/")
 
 # helper function - loading data, given the parameter values of interest 
-load_data = function(file, time = "52_weeks", stor_cap = 0.6, data,
-                     CT, elec_cap, h2_eff)
-{
-  # Get string of path from intputs 
-  path = paste0(data, time, "/c_tax_", CT, "/EleCpx_", elec_cap, ".0_StorCpx_", 
-               stor_cap, "_Eff_", h2_eff, "/")
-  
-  # Load and format data
-  df = read_csv(paste0(path, file, "_results.csv")) %>% 
-    mutate(CT_string = paste0("Carbon Tax: $", CT) , CT = CT,  
-           elec_cpx = elec_cap, stor_cap = stor_cap, 
-           h2_eff_string = paste0("H2 Efficiency: ", h2_eff, "%"), h2_eff = h2_eff) %>% 
-    mutate(CT_string = factor(CT_string, levels=c("Carbon Tax: $0", "Carbon Tax: $50","Carbon Tax: $100")))
-  return(df)
-}
+source(paste0(dir, "code/plots/utils.R"))
 
 # Appends all scenarios together for a given input file, and allocates string ID
 get_dfr_results = function(file, data){
@@ -53,7 +39,8 @@ lm(data =df, time~CT + h2_eff + elec_cpx)
 # Charge
 df = get_dfr_results("charge", data)
 df %>%
-  pivot_longer(cols = c(SOC56, SOC57, SOC58), values_to = "SOC", names_to = "Zone") %>% 
+  pivot_longer(cols = c(SOC56, SOC57, SOC58), 
+               values_to = "SOC", names_to = "Zone") %>% 
   ggplot() +
   geom_line(aes(x = hour, y  = SOC, color = Zone)) + 
   facet_wrap(vars(CT_string, h2_eff_string, elec_cpx), ncol = 3) 
