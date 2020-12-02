@@ -40,6 +40,10 @@ sol2 = run_model(input_path, wd, time_subset = time_subset, carbon_tax = carbon_
             electro_capex = electro_capex, stor_capex = stor_capex, 
             H2_eff = H2_eff, write_full_model = true, collapse = true)
 
+# Percentage deviation of total costs... 
+100 * (sol1.cost_results[1,1] - sol2.cost_results[1,1]) / sol1.cost_results[1,1]
+
+# Check out the cost results... 
 sol1.cost_results
 sol2.cost_results
 

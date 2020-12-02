@@ -50,5 +50,3 @@ sol = run_model(input_path, wd, time_subset = time_subset, carbon_tax = carbon_t
             H2_eff = H2_eff, write_full_model = false, collapse = false)
 
 println("Model run complete")
-
-
