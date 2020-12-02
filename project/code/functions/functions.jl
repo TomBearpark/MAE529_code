@@ -585,7 +585,7 @@ function write_results(wd::String, solutions; time_subset::String,
         write_full_model = false, collapse)
 
         outpath = wd * "/results/" * time_subset* "/"  * 
-                    "c_tax_"* string(carbon_tax) *"/" * 
+                    "c_tax_"* string(Int(carbon_tax)) *"/" * 
                     "EleCpx_" * string(electro_capex) * 
                     "_StorCpx_" * string(stor_capex) * 
                     "_Eff_" * string(Int(round(100*efficiency)))

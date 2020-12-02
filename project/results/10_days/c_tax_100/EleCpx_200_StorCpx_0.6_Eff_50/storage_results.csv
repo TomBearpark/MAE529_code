@@ -1,0 +1,7 @@
+ID,Zone,Resource,Total_Storage_MWh,Start_Storage_MWh,Change_in_Storage_MWh
+27,1,battery,0.0,0.0,0.0
+40,2,battery,0.0,0.0,0.0
+54,3,battery,0.0,0.0,0.0
+56,1,Hydrogen,19691.658845631406,0.0,19691.658845631406
+57,2,Hydrogen,164661.9876749706,0.0,164661.9876749706
+58,3,Hydrogen,8795.556880534195,0.0,8795.556880534195

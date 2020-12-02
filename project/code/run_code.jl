@@ -2,7 +2,7 @@
 # To run this interactively in this code, set runBash = false, and then
 # change the dir string to the location of the project on your machine 
 
-runBash = false
+runBash = true
 
 if runBash
     # Parse command line arguments 
@@ -15,7 +15,7 @@ else
     H2_eff = 0.85
     # Note - edit the following string to run on your machine
     dir = "/Users/tombearpark/Documents/princeton/1st_year/MAE529/MAE529_code/project/"
-    carbon_tax = 50
+    carbon_tax = 25
 end 
 
 # Data input path
@@ -33,7 +33,10 @@ println("H2 efficiency of: " * string(H2_eff))
 println("Carbon Tax: " * string(carbon_tax))
 println("Number of weeks included: " * time_subset)
 
-# Set up environment - make sure you have these packages installed
+# Set up environment - automatically should get the correct package versions
+using Pkg
+Pkg.activate(dir * "code/.")
+Pkg.instantiate()
 using JuMP, Clp, DataFrames, CSV, Statistics
 
 # Load functions - loads a function for cleaning the data and sets, and
@@ -47,3 +50,5 @@ sol = run_model(input_path, wd, time_subset = time_subset, carbon_tax = carbon_t
             H2_eff = H2_eff, write_full_model = false, collapse = false)
 
 println("Model run complete")
+
+
